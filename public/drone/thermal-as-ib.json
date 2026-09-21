@@ -1,0 +1,11 @@
+{
+  "source": "DJI Terra 2D thermal orthomosaic, AS & IB blocks, April 2022",
+  "radiometric": false,
+  "bounds": {
+    "west": 77.275449739,
+    "south": 11.4936077374,
+    "east": 77.2784354694,
+    "north": 11.4975595934
+  },
+  "gsdMetres": 0.0812
+}

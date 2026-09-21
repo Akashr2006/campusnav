@@ -1,0 +1,599 @@
+{
+ "items": [
+  {
+   "i": 0,
+   "id": "panorama_8E82C5D7_844F_2782_41C2_171F3FDCFB74",
+   "label": "BIT Main Gate"
+  },
+  {
+   "i": 1,
+   "id": "panorama_A2CC0F05_B3E7_BDF5_41E1_F0ADC0503039",
+   "label": "Training Academy"
+  },
+  {
+   "i": 2,
+   "id": "panorama_BD195F46_B3E7_9C77_41E2_49AC0A90681E",
+   "label": "Vehicle Parking"
+  },
+  {
+   "i": 3,
+   "id": "panorama_BD1B1F39_B3E7_FC1D_41DA_B34B9D11E10A",
+   "label": "Parking Entry"
+  },
+  {
+   "i": 4,
+   "id": "panorama_BD1B6FA2_B3E7_9C2E_41D0_EC2E3B09388C",
+   "label": "Parking"
+  },
+  {
+   "i": 5,
+   "id": "panorama_BD1B1F40_B3E7_BC6B_41D1_A551B12578EE",
+   "label": "Parking Exit"
+  },
+  {
+   "i": 6,
+   "id": "panorama_BD1B7F02_B3E7_9DEF_41A8_B3425EA3E517",
+   "label": "ATM Centres"
+  },
+  {
+   "i": 7,
+   "id": "panorama_B7A7EB50_84C7_6C9E_41BE_14616EA3421E",
+   "label": "Road Junction"
+  },
+  {
+   "i": 8,
+   "id": "panorama_C3475E3C_85C1_2486_41CD_939EE0A932F0",
+   "label": "Aero Block"
+  },
+  {
+   "i": 9,
+   "id": "panorama_C8F15A57_85CF_6C82_41D5_02C8BBEE020E",
+   "label": "Road Junction 2"
+  },
+  {
+   "i": 10,
+   "id": "panorama_CAF9857B_85FF_2482_41BA_D33F83B592EF",
+   "label": "Spl Lab Block"
+  },
+  {
+   "i": 11,
+   "id": "panorama_DCA38E63_85C7_2482_41E0_0CAD313FB7D2",
+   "label": "BT Block"
+  },
+  {
+   "i": 12,
+   "id": "panorama_D89C7882_85C3_2D82_41DB_D9A123943758",
+   "label": "Athletic Track"
+  },
+  {
+   "i": 13,
+   "id": "panorama_E61EC8BC_8442_ED86_4171_071623E6801E",
+   "label": "Way to Mech"
+  },
+  {
+   "i": 14,
+   "id": "panorama_E9247D77_844F_2482_41CC_A49D98715490",
+   "label": "Mech Block"
+  },
+  {
+   "i": 15,
+   "id": "panorama_E8644CD1_84CE_E59E_41A5_2B9550A4FB67",
+   "label": "Road Junction 3"
+  },
+  {
+   "i": 16,
+   "id": "panorama_F6139F20_84C6_E4BE_41D5_535C751A0E38",
+   "label": "Boys Mess"
+  },
+  {
+   "i": 17,
+   "id": "panorama_83C839FD_8E74_5E2A_41C9_FCE51529FF64",
+   "label": "Cafeteria"
+  },
+  {
+   "i": 18,
+   "id": "panorama_81942362_8EAC_525F_41D2_BD1254838325",
+   "label": "Learning Centre"
+  },
+  {
+   "i": 19,
+   "id": "panorama_9C091FEF_8EB5_F225_41D5_21FFBBF4D5BE",
+   "label": "First Coridoor"
+  },
+  {
+   "i": 20,
+   "id": "panorama_B2888C9B_B902_8CF6_41E0_A54C88021ECE",
+   "label": "Community Radio"
+  },
+  {
+   "i": 21,
+   "id": "panorama_B3DC5D3D_B902_8C2D_41E4_A8703E896621",
+   "label": "Reception"
+  },
+  {
+   "i": 22,
+   "id": "panorama_B3DE0CCD_B901_8C52_41D7_09291DD2B24F",
+   "label": "Studio Path Way"
+  },
+  {
+   "i": 23,
+   "id": "panorama_B3DEEC8D_B901_8CD2_41BE_A5041832874B",
+   "label": "On Air Studio"
+  },
+  {
+   "i": 24,
+   "id": "panorama_B3DECD6A_B901_8C56_41E5_3BF219B85C2F",
+   "label": "Recording Studio"
+  },
+  {
+   "i": 25,
+   "id": "panorama_9628B7DB_8E94_326D_41CF_A996557C4C8D",
+   "label": "Girls Hostel"
+  },
+  {
+   "i": 26,
+   "id": "panorama_B3DE0D7E_B901_8C2E_41DE_218E6502136C",
+   "label": "Parking Shed"
+  },
+  {
+   "i": 27,
+   "id": "panorama_B3DEBCDC_B901_8C72_41BB_C95FA21166D6",
+   "label": "South Gate"
+  },
+  {
+   "i": 28,
+   "id": "panorama_97AAD051_8EF3_CE7A_41CF_A6F2CEB0B57C",
+   "label": "Shed Entry"
+  },
+  {
+   "i": 29,
+   "id": "panorama_931F1CA8_8E7C_562B_41E0_7B6FCBC3F9E3",
+   "label": "Hut"
+  },
+  {
+   "i": 30,
+   "id": "panorama_90DC7B9C_8E94_D2EB_41DB_5DDBCDAAB1FF",
+   "label": "Shed Exit"
+  },
+  {
+   "i": 31,
+   "id": "panorama_AC058272_8EB4_323E_41CC_174BBEA2B2C0",
+   "label": "Basketball Court"
+  },
+  {
+   "i": 32,
+   "id": "panorama_A8D8A8BC_8E9C_DE2A_41CD_A998B121A383",
+   "label": "Girls Mess"
+  },
+  {
+   "i": 33,
+   "id": "panorama_B606FFF7_BDB3_C16A_41E3_64D96FF10CD0",
+   "label": "Medical Centre"
+  },
+  {
+   "i": 34,
+   "id": "panorama_B690DF1C_BDB3_C2DE_41D5_912A5A9C5806",
+   "label": "Medical Centre Inside"
+  },
+  {
+   "i": 35,
+   "id": "panorama_B691EF63_BDB3_C16A_41D4_650B05B184D5",
+   "label": "Medical Reception"
+  },
+  {
+   "i": 36,
+   "id": "panorama_B691BED2_BDB3_C3A5_41D1_771F9B7D72F8",
+   "label": "Doctor Consultation"
+  },
+  {
+   "i": 37,
+   "id": "panorama_B6920DDC_BDB0_415E_41DB_C5FDFE84B9AB",
+   "label": "Doctor Consultation 2"
+  },
+  {
+   "i": 38,
+   "id": "panorama_B6924D5C_BDB0_415E_41E1_84CB732B3447",
+   "label": "Injection and Dressing"
+  },
+  {
+   "i": 39,
+   "id": "panorama_B6920C21_BDB0_46E6_41E2_A347D8A4DDA9",
+   "label": "Pharmacy"
+  },
+  {
+   "i": 40,
+   "id": "panorama_B6926B0B_BDB0_42BA_41E1_8EA536A22D63",
+   "label": "Ward-Male"
+  },
+  {
+   "i": 41,
+   "id": "panorama_B6922AED_BDB0_C37E_41E2_74BD43263CF6",
+   "label": "Ward-Female"
+  },
+  {
+   "i": 42,
+   "id": "panorama_B692FAAE_BDB0_C3FA_41C7_FEC5E186978A",
+   "label": "Emergency"
+  },
+  {
+   "i": 43,
+   "id": "panorama_A5906A2F_8EAC_D226_41D8_C199D7C71925",
+   "label": "ME Block Entry"
+  },
+  {
+   "i": 44,
+   "id": "panorama_98C0ABDB_93BE_356F_41DC_D7F0A842CF70",
+   "label": "Dept. of Auto"
+  },
+  {
+   "i": 45,
+   "id": "panorama_9D34376B_93A1_DD2F_41DA_7C95F0FEF39A",
+   "label": "Auto-Library"
+  },
+  {
+   "i": 46,
+   "id": "panorama_9C76E75F_93A6_3D67_41D6_7EEE2FE32906",
+   "label": "Dept. of Mech"
+  },
+  {
+   "i": 47,
+   "id": "panorama_9C1D21F6_93A2_7539_41CF_63E99F394880",
+   "label": "Dept. Office"
+  },
+  {
+   "i": 48,
+   "id": "panorama_9DB6F695_93E6_DFFA_41C2_1635E54066F7",
+   "label": "Conference Hall"
+  },
+  {
+   "i": 49,
+   "id": "panorama_87B01CD3_93E1_D37E_418D_7AE3317E262E",
+   "label": "Mech-Library"
+  },
+  {
+   "i": 50,
+   "id": "panorama_9CB4F099_93AE_D3EA_41D1_6577C8879C52",
+   "label": "Smart Class"
+  },
+  {
+   "i": 51,
+   "id": "panorama_9CEAC8F4_93A6_333A_41DF_BC31A0FC914E",
+   "label": "Seminar Hall"
+  },
+  {
+   "i": 52,
+   "id": "panorama_9C8B1266_93A2_3726_41E1_A74F4F7A1515",
+   "label": "Lab Path Way"
+  },
+  {
+   "i": 53,
+   "id": "panorama_83786C99_93A6_53EB_41CF_63989B5F3789",
+   "label": "Open Area"
+  },
+  {
+   "i": 54,
+   "id": "panorama_83F9C9D3_93AE_D57F_41DE_B8309AEB22F8",
+   "label": "Lab Path Way 2"
+  },
+  {
+   "i": 55,
+   "id": "panorama_831B38E4_93A6_535A_4157_54581A4538CC",
+   "label": "Thermal Engg Lab"
+  },
+  {
+   "i": 56,
+   "id": "panorama_83B8B8B0_939E_5339_41DE_62007942271A",
+   "label": "FM Lab"
+  },
+  {
+   "i": 57,
+   "id": "panorama_84B2315A_9466_D56E_41D0_436A6916B402",
+   "label": "Lab Path Way 3"
+  },
+  {
+   "i": 58,
+   "id": "panorama_8453F843_946E_335E_41BE_5EB2203CE13C",
+   "label": "SM Lab"
+  },
+  {
+   "i": 59,
+   "id": "panorama_84DB298F_9466_55E7_41C6_E6ADDED9A17C",
+   "label": "ND Testing Lab"
+  },
+  {
+   "i": 60,
+   "id": "panorama_8416CD90_947E_2DFA_41DE_82574505F47A",
+   "label": "Lab Path Way 4"
+  },
+  {
+   "i": 61,
+   "id": "panorama_8594A003_9466_D2DF_41E0_832C49D65511",
+   "label": "Spl Machine Lab"
+  },
+  {
+   "i": 62,
+   "id": "panorama_8610D1E3_946E_755E_41E0_C85B5C36B0F8",
+   "label": "Spl Machine Lab 2"
+  },
+  {
+   "i": 63,
+   "id": "panorama_849103C5_9467_D55A_41D8_6C171A27E1C6",
+   "label": "Lathe Shop"
+  },
+  {
+   "i": 64,
+   "id": "panorama_846B34B9_94A6_332A_41BC_F6FC6DA57743",
+   "label": "Lab Path Way 5"
+  },
+  {
+   "i": 65,
+   "id": "panorama_86BD07B1_9462_3D3B_41C3_822BC2C0BC7B",
+   "label": "Basic Workshop"
+  },
+  {
+   "i": 66,
+   "id": "panorama_86F03990_946E_55F9_4189_BC741A5FEE27",
+   "label": "Basic Workshop 2"
+  },
+  {
+   "i": 67,
+   "id": "panorama_8263C2FA_9461_D729_41B0_4963910D55F0",
+   "label": "Basic Workshop 3"
+  },
+  {
+   "i": 68,
+   "id": "panorama_867AFB5B_9462_356E_41D9_21026DD44875",
+   "label": "Lab Path Way 6"
+  },
+  {
+   "i": 69,
+   "id": "panorama_851901B6_947E_5539_41DC_5DE209687F00",
+   "label": "3D Printing Lab"
+  },
+  {
+   "i": 70,
+   "id": "panorama_852EDE80_9462_6FD9_41D3_CF8884707438",
+   "label": "Lab Path Way 7"
+  },
+  {
+   "i": 71,
+   "id": "panorama_86F0B732_95BE_FD39_41DB_E6B2D6675275",
+   "label": "CAM Lab"
+  },
+  {
+   "i": 72,
+   "id": "panorama_86FFEF48_95A6_6D6A_41BD_28BEB408B7F5",
+   "label": "CAM CC"
+  },
+  {
+   "i": 73,
+   "id": "panorama_86149E3E_95AE_2F26_41D9_9A2CAE3A1D4C",
+   "label": "CAD Lab"
+  },
+  {
+   "i": 74,
+   "id": "panorama_877D4D65_95A2_2D5A_41DB_91D9EAB88E8F",
+   "label": "Lab Path Way 8"
+  },
+  {
+   "i": 75,
+   "id": "panorama_872BCD59_9462_2D6B_41E2_3FCD87DEACB5",
+   "label": "Dynamics Lab"
+  },
+  {
+   "i": 76,
+   "id": "panorama_84012511_9466_52FA_41D1_7EEA66D2622C",
+   "label": "HARITA Lab"
+  },
+  {
+   "i": 77,
+   "id": "panorama_84EF2BA2_9462_35D9_41C2_F278AF0647AF",
+   "label": "Metallurgy Lab"
+  },
+  {
+   "i": 78,
+   "id": "panorama_83FCF771_9462_3D3B_41D0_CA3A0504E915",
+   "label": "Metrology Lab"
+  },
+  {
+   "i": 79,
+   "id": "panorama_93EA411F_98C6_CBDF_41AD_B6E8C2A2F42F",
+   "label": "Lab Path Way 9"
+  },
+  {
+   "i": 80,
+   "id": "panorama_88D6D873_98DD_BA67_41B3_13C0154D20CF",
+   "label": "Automotive EE Lab"
+  },
+  {
+   "i": 81,
+   "id": "panorama_97EBF27B_98CD_4E67_41D9_DCC151C23FEC",
+   "label": "Lab Path Way 10"
+  },
+  {
+   "i": 82,
+   "id": "panorama_8C28903D_98FD_49E3_4190_1E0C9BAFF85B",
+   "label": "Ind Safety Lab"
+  },
+  {
+   "i": 83,
+   "id": "panorama_8867B891_98C7_DAA3_418A_1984D10C4600",
+   "label": "Heat Transfer Lab"
+  },
+  {
+   "i": 84,
+   "id": "panorama_88AB0711_98C5_D7A3_41DA_9FE2062F8D60",
+   "label": "Auto-Comp Lab"
+  },
+  {
+   "i": 85,
+   "id": "panorama_DBBF8F18_D7DC_E940_41C9_9D64DB825DE2",
+   "label": "Power House"
+  },
+  {
+   "i": 86,
+   "id": "panorama_DBD46ED5_D7DC_E8C0_41E3_005A61A8858A",
+   "label": "Power Generators"
+  },
+  {
+   "i": 87,
+   "id": "panorama_DBD5FEC8_D7DC_A8C0_41D0_40FBBCC0885D",
+   "label": "Sports Complex"
+  },
+  {
+   "i": 88,
+   "id": "panorama_DBD5AD6F_D7DC_A9C0_416D_39F600652FE7",
+   "label": "Tennis Court I"
+  },
+  {
+   "i": 89,
+   "id": "panorama_DBEA4E08_D7E3_6B41_41A8_DA751218F80C",
+   "label": "Tennis Court II"
+  },
+  {
+   "i": 90,
+   "id": "panorama_DBEA4D34_D7E3_6940_41E9_E51AB33E9BEC",
+   "label": "Basket Ball Court"
+  },
+  {
+   "i": 91,
+   "id": "panorama_DBEA5D8B_D7E3_A940_41E0_1DCDF69B2C91",
+   "label": "Volleyball Court"
+  },
+  {
+   "i": 92,
+   "id": "panorama_DBEAAE56_D7E3_ABC0_41DE_A15C80426392",
+   "label": "Agri Field"
+  },
+  {
+   "i": 93,
+   "id": "panorama_EBCA0367_E73B_FCAF_41DB_D697EE952770",
+   "label": "Second Corridor"
+  },
+  {
+   "i": 94,
+   "id": "panorama_EB2066B8_E738_05A2_41DE_45A2D3EF16D6",
+   "label": "Fashion Tech"
+  },
+  {
+   "i": 95,
+   "id": "panorama_EB22E689_E738_0462_41B0_D7ED8AD0FE9E",
+   "label": "FRC Gallery"
+  },
+  {
+   "i": 96,
+   "id": "panorama_EB2326AE_E738_05BE_41DE_BFD5819D1F64",
+   "label": "FRC Display"
+  },
+  {
+   "i": 97,
+   "id": "panorama_EB22A6C5_E738_05E2_41E3_80BB808A29B5",
+   "label": "FRC Lab Path Way"
+  },
+  {
+   "i": 98,
+   "id": "panorama_EB23374C_E738_04E2_41CF_D368BEEE5FDE",
+   "label": "Pattern Making Lab"
+  },
+  {
+   "i": 99,
+   "id": "panorama_EB235783_E738_0466_41C9_F721867B4E69",
+   "label": "Green Room for Male"
+  },
+  {
+   "i": 100,
+   "id": "panorama_EB2317C9_E738_03E2_41E1_79E039A39D08",
+   "label": "Green Room for Female"
+  },
+  {
+   "i": 101,
+   "id": "panorama_EB23D79C_E738_0461_41DB_89CBF43E5D22",
+   "label": "Photoshoot Room"
+  },
+  {
+   "i": 102,
+   "id": "panorama_EB23F74E_E738_04FE_41DF_E97BA067FF7C",
+   "label": "FRC First Floor"
+  },
+  {
+   "i": 103,
+   "id": "panorama_EB23E70E_E738_0461_41C1_87DE031E0773",
+   "label": "Garment Construction Lab II"
+  },
+  {
+   "i": 104,
+   "id": "panorama_EB23C6AE_E738_05A1_41E6_5C8CE90B3974",
+   "label": "Garment Construction Lab I"
+  },
+  {
+   "i": 105,
+   "id": "panorama_EB23462E_E738_04BE_41E0_D6F530A1F21D",
+   "label": "FRC Conference Hall"
+  },
+  {
+   "i": 106,
+   "id": "panorama_4E9CC218_43B3_BC02_41C2_337AFC7E3AEC",
+   "label": "First Corridor Entry"
+  },
+  {
+   "i": 107,
+   "id": "panorama_48CD22BF_43B3_9C7F_41C7_230C83F1B887",
+   "label": "Netcafe Corridor"
+  },
+  {
+   "i": 108,
+   "id": "panorama_48CBB316_43B3_FC0E_41C6_2438C235971C",
+   "label": "Netcafe"
+  },
+  {
+   "i": 109,
+   "id": "panorama_48CB72A6_43B3_9C01_41C8_02E1602B1AF8",
+   "label": "Netcafe Inside"
+  },
+  {
+   "i": 110,
+   "id": "panorama_48CB9203_43B3_BC07_41B6_2E5A1940E2C7",
+   "label": "T and P"
+  },
+  {
+   "i": 111,
+   "id": "panorama_48CB5228_43B3_9C02_41C8_FCB446DBFA38",
+   "label": "T and P Reception"
+  },
+  {
+   "i": 112,
+   "id": "panorama_48CA723E_43B2_7C01_417D_720B5ACAE236",
+   "label": "T and P Path Way I"
+  },
+  {
+   "i": 113,
+   "id": "panorama_48CAB21F_43B2_9C3E_4192_CA522AF8FE7F",
+   "label": "T and P Conference Hall"
+  },
+  {
+   "i": 114,
+   "id": "panorama_48CA8255_43B2_BC03_4188_764C7E44B185",
+   "label": "T and P Path Way II"
+  },
+  {
+   "i": 115,
+   "id": "panorama_48CAE1B3_43B2_9C06_41B8_60EE82D4278E",
+   "label": "T and P U Table Conference Hall"
+  },
+  {
+   "i": 116,
+   "id": "panorama_48CAE174_43B2_FC02_419B_7C0CDB5E0D15",
+   "label": "T and P Library"
+  },
+  {
+   "i": 117,
+   "id": "panorama_48CAB0D0_43B2_9C01_41CC_E9C79D47505F",
+   "label": "T and P Faculty Hall"
+  },
+  {
+   "i": 118,
+   "id": "panorama_48CAD082_43B2_BC01_4157_1BDC4107EB8A",
+   "label": "T and P VIP Launch"
+  }
+ ]
+}

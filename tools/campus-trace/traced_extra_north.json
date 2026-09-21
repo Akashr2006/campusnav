@@ -1,0 +1,10 @@
+[
+ {"id":"s-track","name":"Athletic Track","code":"AT","floors":1,"kind":"sport","px":[145,195,332,505]},
+ {"id":"s-courts-1","name":"Sports Ground North","code":"SG1","floors":1,"kind":"sport","px":[35,520,332,688]},
+ {"id":"s-courts-2","name":"Sports Ground South","code":"SG2","floors":1,"kind":"sport","px":[35,692,332,800]},
+ {"id":"n-shed-nw","name":"North West Shed","code":"NW","floors":1,"kind":"utility","px":[265,155,350,210]},
+ {"id":"n-poly-ne","name":"Poly House North","code":"PH1","floors":1,"kind":"agri","px":[840,5,1010,95]},
+ {"id":"n-blk-ne5","name":"North East Complex","code":"E5","floors":2,"px":[855,265,1005,325]},
+ {"id":"n-shed-s","name":"South Shed","code":"SS","floors":1,"kind":"utility","px":[265,815,335,855]},
+ {"id":"n-blk-s2","name":"South Campus Block","code":"S5","floors":2,"px":[552,930,700,1020]}
+]

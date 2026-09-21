@@ -1,0 +1,17 @@
+[
+ {"id":"b-acad-w","name":"Academic Block W","code":"AW","floors":4,"px":[383,288,500,378]},
+ {"id":"b-acad-c","name":"Academic Block C","code":"AC","floors":4,"px":[498,262,592,358]},
+ {"id":"b-acad-e","name":"Academic Block E","code":"AE","floors":4,"px":[712,262,802,352]},
+ {"id":"b-blk-sw","name":"Block SW","code":"SW","floors":3,"px":[424,398,560,482]},
+ {"id":"b-hall","name":"Central Hall","code":"CH","floors":2,"px":[600,412,706,492]},
+ {"id":"b-blk-s1","name":"Block S1","code":"S1","floors":3,"px":[722,398,802,468]},
+ {"id":"b-blk-s2","name":"Block S2","code":"S2","floors":3,"px":[600,492,712,545]},
+ {"id":"b-blk-s3","name":"Block S3","code":"S3","floors":3,"px":[716,488,802,545]},
+ {"id":"b-hostel-a","name":"Hostel Block A","code":"HA","floors":4,"px":[1196,252,1302,348]},
+ {"id":"b-hostel-b","name":"Hostel Block B","code":"HB","floors":4,"px":[1306,256,1424,352]},
+ {"id":"b-hostel-c","name":"Hostel Block C","code":"HC","floors":4,"px":[1428,262,1520,352]},
+ {"id":"b-east","name":"East Block","code":"EB","floors":3,"px":[1496,382,1652,478]},
+ {"id":"b-sw-solar","name":"South West Block","code":"SB","floors":2,"px":[240,512,392,582]},
+ {"id":"b-sw-2","name":"South West Annexe","code":"SA","floors":2,"px":[184,598,322,668]},
+ {"id":"b-south","name":"South Block","code":"SO","floors":3,"px":[448,628,620,706]}
+]

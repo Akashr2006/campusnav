@@ -1,0 +1,12 @@
+{
+  "originX": -620.0,
+  "originZ": -1215.0,
+  "cell": 5.0,
+  "cols": 321,
+  "rows": 339,
+  "units": "decimetres relative to groundHeight in mesh-alignment.json, Int16 LE, row-major by z",
+  "anchor": 265.4,
+  "min": -63.042314254753364,
+  "max": 28.17798417657616,
+  "measuredFraction": 0.7075143127578823
+}

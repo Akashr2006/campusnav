@@ -1,0 +1,1971 @@
+{
+  "version": 1,
+  "snapshot": {
+    "doors": [],
+    "edges": [
+      {
+        "id": "e-rm69",
+        "to": "n-q38f",
+        "from": "n-5tlm",
+        "type": "WALK",
+        "distance": 47,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-rxvk",
+        "to": "n-5tlm",
+        "from": "n-q38f",
+        "type": "WALK",
+        "distance": 47,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-a9el",
+        "to": "n-gtef",
+        "from": "n-q38f",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-pydz",
+        "to": "n-q38f",
+        "from": "n-gtef",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-oh8q",
+        "to": "n-zhzm",
+        "from": "n-k5dx",
+        "type": "WALK",
+        "distance": 26,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-wd6w",
+        "to": "n-k5dx",
+        "from": "n-zhzm",
+        "type": "WALK",
+        "distance": 26,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-t4li",
+        "to": "n-hcti",
+        "from": "n-zhzm",
+        "type": "WALK",
+        "distance": 51,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-vznu",
+        "to": "n-zhzm",
+        "from": "n-hcti",
+        "type": "WALK",
+        "distance": 51,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ukou",
+        "to": "n-grq6",
+        "from": "n-5tlm",
+        "type": "WALK",
+        "distance": 9,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-vtkj",
+        "to": "n-5tlm",
+        "from": "n-grq6",
+        "type": "WALK",
+        "distance": 9,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ztn0",
+        "to": "n-hcti",
+        "from": "n-grq6",
+        "type": "WALK",
+        "distance": 8,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-y8yo",
+        "to": "n-grq6",
+        "from": "n-hcti",
+        "type": "WALK",
+        "distance": 8,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n3v2",
+        "to": "n-grq6",
+        "from": "n-2ryw",
+        "type": "WALK",
+        "distance": 35,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-jidv",
+        "to": "n-2ryw",
+        "from": "n-grq6",
+        "type": "WALK",
+        "distance": 35,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-dqv0",
+        "to": "n-f6gh",
+        "from": "n-2ryw",
+        "type": "WALK",
+        "distance": 398,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-r7wz",
+        "to": "n-2ryw",
+        "from": "n-f6gh",
+        "type": "WALK",
+        "distance": 398,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-diuw",
+        "to": "n-yioj",
+        "from": "n-f6gh",
+        "type": "WALK",
+        "distance": 331,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-2iss",
+        "to": "n-f6gh",
+        "from": "n-yioj",
+        "type": "WALK",
+        "distance": 331,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-uj4z",
+        "to": "n-jp26",
+        "from": "n-yioj",
+        "type": "WALK",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-nlu9",
+        "to": "n-yioj",
+        "from": "n-jp26",
+        "type": "WALK",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-pz17",
+        "to": "stair-node-stairgroup-mt0ynwb1-f-bld-mswsx27a-2",
+        "from": "stair-node-stairgroup-mt0yq0vs-f-bld-mswsx27a-1",
+        "type": "STAIRS",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-5q8q",
+        "to": "stair-node-stairgroup-mt0yq0vs-f-bld-mswsx27a-1",
+        "from": "stair-node-stairgroup-mt0ynwb1-f-bld-mswsx27a-2",
+        "type": "STAIRS",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-5bjk",
+        "to": "stair-node-stairgroup-mt0ynwb1-f-bld-mswsx27a-3",
+        "from": "stair-node-stairgroup-mt0yq0vs-f-bld-mswsx27a-2",
+        "type": "STAIRS",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-zddf",
+        "to": "stair-node-stairgroup-mt0yq0vs-f-bld-mswsx27a-2",
+        "from": "stair-node-stairgroup-mt0ynwb1-f-bld-mswsx27a-3",
+        "type": "STAIRS",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-1eu4",
+        "to": "n-954k",
+        "from": "n-qfgw",
+        "type": "WALK",
+        "distance": 7,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-1eu4_rev",
+        "to": "n-qfgw",
+        "from": "n-954k",
+        "type": "WALK",
+        "distance": 7,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-4g39",
+        "to": "n-k5dx",
+        "from": "n-qfgw",
+        "type": "WALK",
+        "distance": 28,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-4g39_rev",
+        "to": "n-qfgw",
+        "from": "n-k5dx",
+        "type": "WALK",
+        "distance": 28,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-6if2",
+        "to": "n-6m8h",
+        "from": "n-qfgw",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-6if2_rev",
+        "to": "n-qfgw",
+        "from": "n-6m8h",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ervt",
+        "to": "n-qfgw",
+        "from": "n-iueb",
+        "type": "WALK",
+        "distance": 101,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ervt_rev",
+        "to": "n-iueb",
+        "from": "n-qfgw",
+        "type": "WALK",
+        "distance": 101,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-rimz",
+        "to": "n-mrli",
+        "from": "n-53zx",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-rimz_rev",
+        "to": "n-53zx",
+        "from": "n-mrli",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-glx7",
+        "to": "n-53zx",
+        "from": "n-2qeh",
+        "type": "WALK",
+        "distance": 7,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-glx7_rev",
+        "to": "n-2qeh",
+        "from": "n-53zx",
+        "type": "WALK",
+        "distance": 7,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-hl86",
+        "to": "n-53zx",
+        "from": "n-zr6b",
+        "type": "WALK",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-hl86_rev",
+        "to": "n-zr6b",
+        "from": "n-53zx",
+        "type": "WALK",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ah0q",
+        "to": "n-mlua",
+        "from": "n-zr6b",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ah0q_rev",
+        "to": "n-zr6b",
+        "from": "n-mlua",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-4rvr",
+        "to": "n-20a7",
+        "from": "n-zr6b",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-4rvr_rev",
+        "to": "n-zr6b",
+        "from": "n-20a7",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-9ipq",
+        "to": "n-pz31",
+        "from": "n-oka5",
+        "type": "WALK",
+        "distance": 20,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-9ipq_rev",
+        "to": "n-oka5",
+        "from": "n-pz31",
+        "type": "WALK",
+        "distance": 20,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-v2gi",
+        "to": "n-6nca",
+        "from": "n-oka5",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-v2gi_rev",
+        "to": "n-oka5",
+        "from": "n-6nca",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-i7z9",
+        "to": "n-oka5",
+        "from": "n-1mx1",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-i7z9_rev",
+        "to": "n-1mx1",
+        "from": "n-oka5",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-vtgh",
+        "to": "n-pz31",
+        "from": "n-a2v4",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-vtgh_rev",
+        "to": "n-a2v4",
+        "from": "n-pz31",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-w6tn",
+        "to": "n-5m1x",
+        "from": "n-pz31",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-w6tn_rev",
+        "to": "n-pz31",
+        "from": "n-5m1x",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-k32e",
+        "to": "n-12fq",
+        "from": "n-x12y",
+        "type": "WALK",
+        "distance": 20,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-k32e_rev",
+        "to": "n-x12y",
+        "from": "n-12fq",
+        "type": "WALK",
+        "distance": 20,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ag4v",
+        "to": "n-smqe",
+        "from": "n-12fq",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-ag4v_rev",
+        "to": "n-12fq",
+        "from": "n-smqe",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-1lj6",
+        "to": "n-70rr",
+        "from": "n-x12y",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-1lj6_rev",
+        "to": "n-x12y",
+        "from": "n-70rr",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-z3fu",
+        "to": "n-x12y",
+        "from": "n-htmt",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-z3fu_rev",
+        "to": "n-htmt",
+        "from": "n-x12y",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-1uu4",
+        "to": "n-qfs5",
+        "from": "n-f6vu",
+        "type": "WALK",
+        "distance": 2,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-1uu4_rev",
+        "to": "n-f6vu",
+        "from": "n-qfs5",
+        "type": "WALK",
+        "distance": 2,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-sp2d",
+        "to": "n-nmoh",
+        "from": "n-5wx7",
+        "type": "WALK",
+        "distance": 9,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-sp2d_rev",
+        "to": "n-5wx7",
+        "from": "n-nmoh",
+        "type": "WALK",
+        "distance": 9,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-l2pv",
+        "to": "n-7r2a",
+        "from": "n-qfs5",
+        "type": "WALK",
+        "distance": 4,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-l2pv_rev",
+        "to": "n-qfs5",
+        "from": "n-7r2a",
+        "type": "WALK",
+        "distance": 4,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-wucl",
+        "to": "n-qfs5",
+        "from": "n-7kr1",
+        "type": "WALK",
+        "distance": 17,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-wucl_rev",
+        "to": "n-7kr1",
+        "from": "n-qfs5",
+        "type": "WALK",
+        "distance": 17,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-s2u0",
+        "to": "n-v7do",
+        "from": "n-qfs5",
+        "type": "WALK",
+        "distance": 9,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-s2u0_rev",
+        "to": "n-qfs5",
+        "from": "n-v7do",
+        "type": "WALK",
+        "distance": 9,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-nhx7",
+        "to": "n-zsn0",
+        "from": "n-kw5i",
+        "type": "WALK",
+        "distance": 47,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-nhx7_rev",
+        "to": "n-kw5i",
+        "from": "n-zsn0",
+        "type": "WALK",
+        "distance": 47,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-4iuh",
+        "to": "n-aeej",
+        "from": "n-jidc",
+        "type": "LIFT",
+        "distance": 10,
+        "pathType": "WALK",
+        "liftGroupId": "lift-u2u9",
+        "bidirectional": true
+      },
+      {
+        "id": "e-4iuh_rev",
+        "to": "n-jidc",
+        "from": "n-aeej",
+        "type": "LIFT",
+        "distance": 10,
+        "pathType": "WALK",
+        "liftGroupId": "lift-u2u9",
+        "bidirectional": true
+      },
+      {
+        "id": "e-boah",
+        "to": "n-7ijb",
+        "from": "n-aeej",
+        "type": "LIFT",
+        "distance": 10,
+        "pathType": "WALK",
+        "liftGroupId": "lift-u2u9",
+        "bidirectional": true
+      },
+      {
+        "id": "e-boah_rev",
+        "to": "n-aeej",
+        "from": "n-7ijb",
+        "type": "LIFT",
+        "distance": 10,
+        "pathType": "WALK",
+        "liftGroupId": "lift-u2u9",
+        "bidirectional": true
+      },
+      {
+        "id": "e-pl3u",
+        "to": "n-ofbi",
+        "from": "n-7ijb",
+        "type": "LIFT",
+        "distance": 10,
+        "pathType": "WALK",
+        "liftGroupId": "lift-u2u9",
+        "bidirectional": true
+      },
+      {
+        "id": "e-pl3u_rev",
+        "to": "n-7ijb",
+        "from": "n-ofbi",
+        "type": "LIFT",
+        "distance": 10,
+        "pathType": "WALK",
+        "liftGroupId": "lift-u2u9",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-f6vu-n-lqdq",
+        "to": "n-lqdq",
+        "from": "n-f6vu",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-lqdq-n-f6vu",
+        "to": "n-f6vu",
+        "from": "n-lqdq",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-lqdq-n-nmoh",
+        "to": "n-nmoh",
+        "from": "n-lqdq",
+        "type": "WALK",
+        "distance": 20,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-nmoh-n-lqdq",
+        "to": "n-lqdq",
+        "from": "n-nmoh",
+        "type": "WALK",
+        "distance": 20,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-eeui",
+        "to": "n-jidc",
+        "from": "n-lqdq",
+        "type": "WALK",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-eeui_rev",
+        "to": "n-lqdq",
+        "from": "n-jidc",
+        "type": "WALK",
+        "distance": 15,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-dsiy",
+        "to": "n-l07m",
+        "from": "n-kw5i",
+        "type": "WALK",
+        "distance": 21,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-dsiy_rev",
+        "to": "n-kw5i",
+        "from": "n-l07m",
+        "type": "WALK",
+        "distance": 21,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-w2ra",
+        "to": "n-aeej",
+        "from": "n-l07m",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-w2ra_rev",
+        "to": "n-l07m",
+        "from": "n-aeej",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-nmoh-n-8z01",
+        "to": "n-8z01",
+        "from": "n-nmoh",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-8z01-n-nmoh",
+        "to": "n-nmoh",
+        "from": "n-8z01",
+        "type": "WALK",
+        "distance": 10,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-8z01-n-gtef",
+        "to": "n-gtef",
+        "from": "n-8z01",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-gtef-n-8z01",
+        "to": "n-8z01",
+        "from": "n-gtef",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-8o3e",
+        "to": "n-8z01",
+        "from": "n-1nvp",
+        "type": "WALK",
+        "distance": 11,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-8o3e_rev",
+        "to": "n-1nvp",
+        "from": "n-8z01",
+        "type": "WALK",
+        "distance": 11,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-atle",
+        "to": "n-9zbi",
+        "from": "n-8z01",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-atle_rev",
+        "to": "n-8z01",
+        "from": "n-9zbi",
+        "type": "WALK",
+        "distance": 5,
+        "pathType": "WALK",
+        "bidirectional": true
+      },
+      {
+        "id": "e-i4if",
+        "to": "n-mrli",
+        "from": "n-954k",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-ty8l",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-i4if_rev",
+        "to": "n-954k",
+        "from": "n-mrli",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-ty8l",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-nhwa",
+        "to": "n-5m1x",
+        "from": "n-mrli",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-ty8l",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-nhwa_rev",
+        "to": "n-mrli",
+        "from": "n-5m1x",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-ty8l",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-dox6",
+        "to": "n-smqe",
+        "from": "n-5m1x",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-ty8l",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-dox6_rev",
+        "to": "n-5m1x",
+        "from": "n-smqe",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-ty8l",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-9qr9",
+        "to": "n-kw5i",
+        "from": "n-5wx7",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-gugf",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-9qr9_rev",
+        "to": "n-5wx7",
+        "from": "n-kw5i",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-gugf",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-92nm",
+        "to": "n-h7va",
+        "from": "n-kw5i",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-gugf",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-92nm_rev",
+        "to": "n-kw5i",
+        "from": "n-h7va",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-gugf",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-sxsv",
+        "to": "n-7zra",
+        "from": "n-h7va",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-gugf",
+        "bidirectional": true,
+        "pathType": "WALK"
+      },
+      {
+        "id": "e-sxsv_rev",
+        "to": "n-h7va",
+        "from": "n-7zra",
+        "type": "STAIRS",
+        "distance": 15,
+        "stairGroupId": "stair-gugf",
+        "bidirectional": true,
+        "pathType": "WALK"
+      }
+    ],
+    "nodes": [
+      {
+        "x": 957,
+        "y": -1572,
+        "id": "n-hcti",
+        "lat": 11.496871142,
+        "lng": 77.278146471,
+        "name": "RP 2",
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "photoUrl": "/uploads/reference-photos/nodes/node-1786946594793-rz4d/ref_1787160359240_wal4fes.jpeg",
+        "searchable": true,
+        "storagePath": "nodes/node-1786946594793-rz4d/ref_1787162613115_ydeyljl.jpeg",
+        "photoUploadedAt": "2026-08-19T18:03:33.115Z",
+        "physicalVerified": true
+      },
+      {
+        "x": 962,
+        "y": -1503,
+        "id": "n-5tlm",
+        "lat": 11.49671478579149,
+        "lng": 77.2781587650885,
+        "name": "RP 3",
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "photoUrl": "/uploads/reference-photos/nodes/node-1786946628133-z8xr/ref_1787160374212_fno5zwl.jpeg",
+        "searchable": true,
+        "storagePath": "nodes/node-1786946628133-z8xr/ref_1787162631982_bm31dfc.jpeg",
+        "photoUploadedAt": "2026-08-19T18:03:51.982Z",
+        "physicalVerified": false
+      },
+      {
+        "x": 1160,
+        "y": -1500,
+        "id": "n-q38f",
+        "lat": 11.49670800572404,
+        "lng": 77.2786124701691,
+        "name": "RP 4",
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "photoUrl": "/uploads/reference-photos/nodes/node-1786946655004-psxr/ref_1787160390824_d8vnfmj.jpeg",
+        "searchable": true,
+        "storagePath": "nodes/node-1786946655004-psxr/ref_1787162653688_0izyyg4.jpeg",
+        "photoUploadedAt": "2026-08-19T18:04:13.688Z",
+        "physicalVerified": true
+      },
+      {
+        "x": 1160,
+        "y": -1460,
+        "id": "n-gtef",
+        "lat": 11.49661760482473,
+        "lng": 77.2786124701691,
+        "name": "SF Entrance",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "photoUrl": "/uploads/reference-photos/nodes/node-1786946737472-gxwv/ref_1787160408357_jlzxx8k.jpeg",
+        "accessible": true,
+        "searchable": true,
+        "storagePath": "nodes/node-1786946737472-gxwv/ref_1787162682924_xlr9084.jpeg",
+        "visibleToUser": false,
+        "photoUploadedAt": "2026-08-19T18:04:42.924Z",
+        "physicalVerified": true
+      },
+      {
+        "x": 1161,
+        "y": -1574,
+        "id": "n-zhzm",
+        "lat": 11.496876147,
+        "lng": 77.278613977,
+        "name": "RP 1",
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "photoUrl": "/uploads/reference-photos/nodes/node-1786947092536-k4nd/ref_1787159580894_bhr5l34.png",
+        "searchable": true,
+        "storagePath": "nodes/node-1786947092536-k4nd/ref_1787159580894_bhr5l34.png",
+        "photoUploadedAt": "2026-08-19T17:13:01.032Z"
+      },
+      {
+        "x": 1160,
+        "y": -1709,
+        "id": "n-k5dx",
+        "lat": 11.49718035042292,
+        "lng": 77.2786124701691,
+        "name": "RP Entrance 1",
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "photoUrl": "/uploads/reference-photos/nodes/node-1786947132740-gcpy/ref_1787160432460_npl0elw.jpeg",
+        "searchable": true,
+        "storagePath": "nodes/node-1786947132740-gcpy/ref_1787160432460_npl0elw.jpeg",
+        "photoUploadedAt": "2026-08-19T17:27:12.461Z"
+      },
+      {
+        "x": 2140,
+        "y": 220,
+        "id": "n-jp26",
+        "lat": 11.49282076705381,
+        "lng": 77.28085808117402,
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "searchable": true
+      },
+      {
+        "x": 2140,
+        "y": 160,
+        "id": "n-yioj",
+        "lat": 11.49295636840277,
+        "lng": 77.28085808117402,
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "searchable": true
+      },
+      {
+        "x": 820,
+        "y": 60,
+        "id": "n-f6gh",
+        "lat": 11.49318237065104,
+        "lng": 77.27783338063678,
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "searchable": true
+      },
+      {
+        "x": 820,
+        "y": -1520,
+        "id": "n-2ryw",
+        "lat": 11.4967532061737,
+        "lng": 77.27783338063678,
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "searchable": true
+      },
+      {
+        "x": 960,
+        "y": -1540,
+        "id": "n-grq6",
+        "lat": 11.49679840662335,
+        "lng": 77.27815418220891,
+        "type": "CORRIDOR",
+        "floorId": "f-out",
+        "searchable": true
+      },
+      {
+        "x": 1165,
+        "y": -1273,
+        "id": "n-qfs5",
+        "lat": 11.49619498062047,
+        "lng": 77.2786239273681,
+        "name": "SF class room node",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true,
+        "visibleToUser": false
+      },
+      {
+        "x": 1165,
+        "y": -1280,
+        "id": "n-f6vu",
+        "lat": 11.49621080077785,
+        "lng": 77.2786239273681,
+        "name": "SF NODE",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "accessible": true,
+        "searchable": true,
+        "visibleToUser": false,
+        "physicalVerified": false
+      },
+      {
+        "x": 1180,
+        "y": -1840,
+        "id": "n-954k",
+        "lat": 11.49747641336816,
+        "lng": 77.27865829896511,
+        "name": "Main Staircase A (Ground Floor)",
+        "type": "STAIR",
+        "floorId": "f-kh2x",
+        "stairGroupId": "stair-ty8l"
+      },
+      {
+        "x": 1180,
+        "y": -1840,
+        "id": "n-mrli",
+        "lat": 11.49747641336816,
+        "lng": 77.27865829896511,
+        "name": "Main Staircase A (Floor 1)",
+        "type": "STAIR",
+        "floorId": "f-5uyz",
+        "stairGroupId": "stair-ty8l"
+      },
+      {
+        "x": 1180,
+        "y": -1840,
+        "id": "n-5m1x",
+        "lat": 11.49747641336816,
+        "lng": 77.27865829896511,
+        "name": "Main Staircase A (Floor 2)",
+        "type": "STAIR",
+        "floorId": "f-idu7",
+        "stairGroupId": "stair-ty8l"
+      },
+      {
+        "x": 1180,
+        "y": -1840,
+        "id": "n-smqe",
+        "lat": 11.49747641336816,
+        "lng": 77.27865829896511,
+        "name": "Main Staircase A (Floor 3)",
+        "type": "STAIR",
+        "floorId": "f-hqv1",
+        "stairGroupId": "stair-ty8l"
+      },
+      {
+        "x": 1160,
+        "y": -1820,
+        "id": "n-qfgw",
+        "lat": 11.4974312129185,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-kh2x",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1180,
+        "y": -1820,
+        "id": "n-6m8h",
+        "lat": 11.4974312129185,
+        "lng": 77.27865829896511,
+        "name": "Accounts",
+        "type": "CORRIDOR",
+        "floorId": "f-kh2x",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1140,
+        "y": -2220,
+        "id": "n-iueb",
+        "lat": 11.49833522191158,
+        "lng": 77.27856664137308,
+        "name": "RP ENTRANCE 2",
+        "type": "CORRIDOR",
+        "floorId": "f-kh2x",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1140,
+        "y": -1900,
+        "id": "n-20a7",
+        "lat": 11.49761201471712,
+        "lng": 77.27856664137308,
+        "name": "AE101",
+        "type": "CORRIDOR",
+        "floorId": "f-5uyz",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1180,
+        "y": -1900,
+        "id": "n-mlua",
+        "lat": 11.49761201471712,
+        "lng": 77.27865829896511,
+        "name": "AE102",
+        "type": "CORRIDOR",
+        "floorId": "f-5uyz",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1160,
+        "y": -1840,
+        "id": "n-53zx",
+        "lat": 11.49747641336816,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-5uyz",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1140,
+        "y": -1820,
+        "id": "n-2qeh",
+        "lat": 11.4974312129185,
+        "lng": 77.27856664137308,
+        "name": "Mentor office",
+        "type": "CORRIDOR",
+        "floorId": "f-5uyz",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1160,
+        "y": -1900,
+        "id": "n-zr6b",
+        "lat": 11.49761201471712,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-5uyz",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1160,
+        "y": -1840,
+        "id": "n-pz31",
+        "lat": 11.49747641336816,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-idu7",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1160,
+        "y": -1920,
+        "id": "n-oka5",
+        "lat": 11.49765721516677,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-idu7",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1180,
+        "y": -1920,
+        "id": "n-6nca",
+        "lat": 11.49765721516677,
+        "lng": 77.27865829896511,
+        "name": "AE202",
+        "type": "CORRIDOR",
+        "floorId": "f-idu7",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1140,
+        "y": -1920,
+        "id": "n-1mx1",
+        "lat": 11.49765721516677,
+        "lng": 77.27856664137308,
+        "name": "AE201",
+        "type": "CORRIDOR",
+        "floorId": "f-idu7",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1120,
+        "y": -1840,
+        "id": "n-a2v4",
+        "lat": 11.49747641336816,
+        "lng": 77.27852081257706,
+        "name": "STUDENT AFFAIRS ",
+        "type": "CORRIDOR",
+        "floorId": "f-idu7",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1160,
+        "y": -1840,
+        "id": "n-12fq",
+        "lat": 11.49747641336816,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-hqv1",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1160,
+        "y": -1920,
+        "id": "n-x12y",
+        "lat": 11.49765721516677,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-hqv1",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1180,
+        "y": -1920,
+        "id": "n-70rr",
+        "lat": 11.49765721516677,
+        "lng": 77.27865829896511,
+        "name": "AE302",
+        "type": "CORRIDOR",
+        "floorId": "f-hqv1",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1140,
+        "y": -1920,
+        "id": "n-htmt",
+        "lat": 11.49765721516677,
+        "lng": 77.27856664137308,
+        "name": "AE301",
+        "type": "CORRIDOR",
+        "floorId": "f-hqv1",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1200,
+        "y": -1400,
+        "id": "n-5wx7",
+        "lat": 11.49648200347577,
+        "lng": 77.27870412776113,
+        "name": "Main Staircase A (Level -1 Basement)",
+        "type": "STAIR",
+        "floorId": "f-bgm3",
+        "stairGroupId": "stair-gugf"
+      },
+      {
+        "x": 1200,
+        "y": -1400,
+        "id": "n-kw5i",
+        "lat": 11.49648200347577,
+        "lng": 77.27870412776113,
+        "name": "Main Staircase A (Ground Floor)",
+        "type": "STAIR",
+        "floorId": "f-0as8",
+        "stairGroupId": "stair-gugf"
+      },
+      {
+        "x": 1200,
+        "y": -1400,
+        "id": "n-h7va",
+        "lat": 11.49648200347577,
+        "lng": 77.27870412776113,
+        "name": "Main Staircase A (Floor 1)",
+        "type": "STAIR",
+        "floorId": "f-q9vc",
+        "stairGroupId": "stair-gugf"
+      },
+      {
+        "x": 1200,
+        "y": -1400,
+        "id": "n-7zra",
+        "lat": 11.49648200347577,
+        "lng": 77.27870412776113,
+        "name": "Main Staircase A (Floor 2)",
+        "type": "STAIR",
+        "floorId": "f-w67h",
+        "stairGroupId": "stair-gugf"
+      },
+      {
+        "x": 1162,
+        "y": -1400,
+        "id": "n-nmoh",
+        "lat": 11.49648200347577,
+        "lng": 77.27861705304869,
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true
+      },
+      {
+        "x": 1160,
+        "y": -1260,
+        "id": "n-7r2a",
+        "lat": 11.49616560032819,
+        "lng": 77.2786124701691,
+        "name": "B02",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1100,
+        "y": -1260,
+        "id": "n-7kr1",
+        "lat": 11.49616560032819,
+        "lng": 77.27847498378104,
+        "name": "B01",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1200,
+        "y": -1260,
+        "id": "n-v7do",
+        "lat": 11.49616560032819,
+        "lng": 77.27870412776113,
+        "name": "B03",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1020,
+        "y": -1340,
+        "id": "n-zsn0",
+        "lat": 11.49634640212681,
+        "lng": 77.27829166859696,
+        "type": "CORRIDOR",
+        "floorId": "f-0as8",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1220,
+        "y": -1320,
+        "id": "n-jidc",
+        "lat": 11.49630120167716,
+        "lng": 77.27874995655715,
+        "name": "Elevator 1 (Level -1 Basement)",
+        "type": "LIFT",
+        "floorId": "f-bgm3",
+        "liftGroupId": "lift-u2u9"
+      },
+      {
+        "x": 1220,
+        "y": -1320,
+        "id": "n-aeej",
+        "lat": 11.49630120167716,
+        "lng": 77.27874995655715,
+        "name": "Elevator 1 (Ground Floor)",
+        "type": "LIFT",
+        "floorId": "f-0as8",
+        "liftGroupId": "lift-u2u9"
+      },
+      {
+        "x": 1220,
+        "y": -1320,
+        "id": "n-7ijb",
+        "lat": 11.49630120167716,
+        "lng": 77.27874995655715,
+        "name": "Elevator 1 (Floor 1)",
+        "type": "LIFT",
+        "floorId": "f-q9vc",
+        "liftGroupId": "lift-u2u9"
+      },
+      {
+        "x": 1220,
+        "y": -1320,
+        "id": "n-ofbi",
+        "lat": 11.49630120167716,
+        "lng": 77.27874995655715,
+        "name": "Elevator 1 (Floor 2)",
+        "type": "LIFT",
+        "floorId": "f-w67h",
+        "liftGroupId": "lift-u2u9"
+      },
+      {
+        "x": 1160,
+        "y": -1320,
+        "id": "n-lqdq",
+        "lat": 11.49630120167716,
+        "lng": 77.2786124701691,
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true
+      },
+      {
+        "x": 1180,
+        "y": -1320,
+        "id": "n-l07m",
+        "lat": 11.49630120167716,
+        "lng": 77.27865829896511,
+        "type": "CORRIDOR",
+        "floorId": "f-0as8",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1180,
+        "y": -1440,
+        "id": "n-9zbi",
+        "lat": 11.49657240437508,
+        "lng": 77.27865829896511,
+        "name": "SF 2",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1120,
+        "y": -1420,
+        "id": "n-1nvp",
+        "lat": 11.49652720392542,
+        "lng": 77.27852081257706,
+        "name": "SF 1",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true,
+        "visibleToUser": true
+      },
+      {
+        "x": 1161,
+        "y": -1440,
+        "id": "n-8z01",
+        "lat": 11.49657240437508,
+        "lng": 77.27861476160889,
+        "name": "SF 2",
+        "type": "CORRIDOR",
+        "floorId": "f-bgm3",
+        "searchable": true
+      }
+    ],
+    "campus": {
+      "id": "c1",
+      "lat": 11.4965,
+      "lng": 77.2774,
+      "name": "Main Campus",
+      "slug": "main"
+    },
+    "events": [],
+    "floors": [
+      {
+        "id": "f-0as8",
+        "code": "G",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "buildingId": "b-so24"
+      },
+      {
+        "id": "f-q9vc",
+        "code": "1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "buildingId": "b-so24"
+      },
+      {
+        "id": "f-w67h",
+        "code": "2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "buildingId": "b-so24"
+      },
+      {
+        "id": "f-bgm3",
+        "code": "B1",
+        "name": "Level -1 Basement",
+        "ordinal": -1,
+        "buildingId": "b-so24"
+      },
+      {
+        "id": "f-952i",
+        "code": "G",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "buildingId": "b-933j"
+      },
+      {
+        "id": "f-d9ga",
+        "code": "1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "buildingId": "b-933j"
+      },
+      {
+        "id": "f-cqxa",
+        "code": "2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "buildingId": "b-933j"
+      },
+      {
+        "id": "f-w5a0",
+        "code": "3",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "buildingId": "b-933j"
+      },
+      {
+        "id": "f-kh2x",
+        "code": "G",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "buildingId": "b-w71l"
+      },
+      {
+        "id": "f-5uyz",
+        "code": "1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "buildingId": "b-w71l"
+      },
+      {
+        "id": "f-idu7",
+        "code": "2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "buildingId": "b-w71l"
+      },
+      {
+        "id": "f-hqv1",
+        "code": "3",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "buildingId": "b-w71l"
+      },
+      {
+        "id": "f-pzgt",
+        "code": "G",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "buildingId": "b-nkyp"
+      },
+      {
+        "id": "f-97lq",
+        "code": "1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "buildingId": "b-nkyp"
+      },
+      {
+        "id": "f-9f8t",
+        "code": "2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "buildingId": "b-nkyp"
+      },
+      {
+        "id": "f-158v",
+        "code": "3",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "buildingId": "b-nkyp"
+      }
+    ],
+    "buildings": [
+      {
+        "x": 1340,
+        "y": -1320,
+        "id": "b-so24",
+        "lat": 11.49630120167716,
+        "lng": 77.27902492933326,
+        "name": "SF",
+        "width": 659,
+        "height": 271,
+        "campusId": "c1",
+        "centerLat": 11.49630120167716,
+        "centerLng": 77.27902492933326,
+        "footprint": [
+          {
+            "lat": 11.496125053,
+            "lng": 77.278320352
+          },
+          {
+            "lat": 11.496139893,
+            "lng": 77.279006594
+          },
+          {
+            "lat": 11.496213692,
+            "lng": 77.279059384
+          },
+          {
+            "lat": 11.496240526,
+            "lng": 77.279725797
+          },
+          {
+            "lat": 11.49673639,
+            "lng": 77.279697752
+          },
+          {
+            "lat": 11.496709147,
+            "lng": 77.278216664
+          }
+        ],
+        "shortCode": "BLD",
+        "corner1Lat": 11.49606615933896,
+        "corner1Lng": 77.27834208027258,
+        "corner2Lat": 11.49608197949633,
+        "corner2Lng": 77.27902722077306,
+        "corner3Lat": 11.49615430021578,
+        "corner3Lng": 77.27907992388849,
+        "corner4Lat": 11.49618142048557,
+        "corner4Lng": 77.27974673287055,
+        "description": "",
+        "floorsCount": 3
+      },
+      {
+        "x": 1336,
+        "y": -1186,
+        "id": "b-933j",
+        "lat": 11.49599891,
+        "lng": 77.279016663625,
+        "name": "Mech",
+        "width": 551,
+        "height": 292,
+        "campusId": "c1",
+        "centerLat": 11.49599891,
+        "centerLng": 77.279016663625,
+        "footprint": [
+          {
+            "lat": 11.495582075,
+            "lng": 77.278485518
+          },
+          {
+            "lat": 11.495653215,
+            "lng": 77.279710492
+          },
+          {
+            "lat": 11.496241513,
+            "lng": 77.279727838
+          },
+          {
+            "lat": 11.496212961,
+            "lng": 77.279062058
+          },
+          {
+            "lat": 11.496139826,
+            "lng": 77.279011603
+          },
+          {
+            "lat": 11.496133604,
+            "lng": 77.278835863
+          },
+          {
+            "lat": 11.496016809,
+            "lng": 77.278834341
+          },
+          {
+            "lat": 11.496011277,
+            "lng": 77.278465596
+          }
+        ],
+        "shortCode": "BLD",
+        "corner1Lat": 11.495582075,
+        "corner1Lng": 77.278485518,
+        "corner2Lat": 11.495653215,
+        "corner2Lng": 77.279710492,
+        "corner3Lat": 11.496241513,
+        "corner3Lng": 77.279727838,
+        "corner4Lat": 11.496212961,
+        "corner4Lng": 77.279062058,
+        "description": "",
+        "floorsCount": 3
+      },
+      {
+        "x": 1200,
+        "y": -1960,
+        "id": "b-w71l",
+        "lat": 11.49774761606608,
+        "lng": 77.27870412776113,
+        "name": "RP",
+        "width": 298,
+        "height": 532,
+        "campusId": "c1",
+        "centerLat": 11.49774761606608,
+        "centerLng": 77.27870412776113,
+        "footprint": [
+          {
+            "lat": 11.497166134,
+            "lng": 77.278401999
+          },
+          {
+            "lat": 11.497191555,
+            "lng": 77.279027465
+          },
+          {
+            "lat": 11.498369317,
+            "lng": 77.278991503
+          },
+          {
+            "lat": 11.498343876,
+            "lng": 77.278344964
+          }
+        ],
+        "shortCode": "BLD",
+        "corner1Lat": 11.49712158983837,
+        "corner1Lng": 77.27835582891139,
+        "corner2Lat": 11.49714645008568,
+        "corner2Lng": 77.27898139197704,
+        "corner3Lat": 11.49832392179917,
+        "corner3Lng": 77.27894472894023,
+        "corner4Lat": 11.49829906155186,
+        "corner4Lng": 77.27829854291636,
+        "description": "",
+        "floorsCount": 3
+      },
+      {
+        "x": 2132,
+        "y": 317,
+        "id": "b-nkyp",
+        "lat": 11.49260155975,
+        "lng": 77.28083954499999,
+        "name": "Pearl",
+        "width": 374,
+        "height": 236,
+        "campusId": "c1",
+        "centerLat": 11.49260155975,
+        "centerLng": 77.28083954499999,
+        "footprint": [
+          {
+            "lat": 11.492327267,
+            "lng": 77.280439841
+          },
+          {
+            "lat": 11.492371717,
+            "lng": 77.281268622
+          },
+          {
+            "lat": 11.492862284,
+            "lng": 77.281237691
+          },
+          {
+            "lat": 11.492844971,
+            "lng": 77.280412026
+          }
+        ],
+        "shortCode": "BLD",
+        "corner1Lat": 11.492327267,
+        "corner1Lng": 77.280439841,
+        "corner2Lat": 11.492371717,
+        "corner2Lng": 77.281268622,
+        "corner3Lat": 11.492862284,
+        "corner3Lng": 77.281237691,
+        "corner4Lat": 11.492844971,
+        "corner4Lng": 77.280412026,
+        "description": "",
+        "floorsCount": 3
+      }
+    ],
+    "obstacles": [],
+    "liftGroups": [
+      {
+        "id": "lift-u2u9",
+        "name": "Elevator 1",
+        "buildingId": "b-so24",
+        "isAccessible": true,
+        "servedFloorIds": [
+          "f-0as8",
+          "f-q9vc",
+          "f-w67h",
+          "f-jh3w",
+          "f-bgm3"
+        ]
+      }
+    ],
+    "stairGroups": [
+      {
+        "id": "stair-ty8l",
+        "name": "Main Staircase A",
+        "buildingId": "b-w71l",
+        "connectedFloorIds": [
+          "f-kh2x",
+          "f-5uyz",
+          "f-idu7",
+          "f-hqv1"
+        ]
+      },
+      {
+        "id": "stair-gugf",
+        "name": "Main Staircase A",
+        "buildingId": "b-so24",
+        "connectedFloorIds": [
+          "f-0as8",
+          "f-q9vc",
+          "f-w67h",
+          "f-jh3w",
+          "f-bgm3"
+        ]
+      }
+    ],
+    "destinations": [],
+    "suggestedEdges": [],
+    "suggestedNodes": []
+  },
+  "publishedAt": "2026-08-31T10:19:02.642Z",
+  "publishedBy": "imported-from-vercel",
+  "notes": "Imported from https://campusnav-eight.vercel.app on 2026-09-05"
+}

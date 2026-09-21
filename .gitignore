@@ -1,0 +1,20 @@
+node_modules
+.next
+out
+build
+dist
+.env
+.env.local
+.DS_Store
+*.log
+.turbo
+coverage
+skills
+
+.claude/
+*.tsbuildinfo
+.data/
+
+# Drone survey mesh: large, regenerate with tools/drone/build-web-mesh.py
+public/drone/mesh/
+public/drone/mesh-full/

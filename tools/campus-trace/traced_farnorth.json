@@ -1,0 +1,10 @@
+[
+ {"id":"f-apart-1","name":"Staff Apartments","code":"SA1","floors":3,"px":[120,205,290,300]},
+ {"id":"f-newblk","name":"New Block (under construction)","code":"NB","floors":3,"px":[300,140,455,225]},
+ {"id":"f-quarters","name":"Staff Quarters","code":"SQ","floors":2,"kind":"residential","px":[105,300,460,625]},
+ {"id":"f-pond-1","name":"North Pond","code":"P1","floors":1,"kind":"water","px":[490,190,690,290]},
+ {"id":"f-complex-ne","name":"North East Facility","code":"NF","floors":2,"px":[880,295,1005,365]},
+ {"id":"f-poly","name":"Poly Houses","code":"PH2","floors":1,"kind":"agri","px":[830,450,1005,585]},
+ {"id":"f-pond-2","name":"East Pond","code":"P2","floors":1,"kind":"water","px":[1000,400,1105,520]},
+ {"id":"f-blk-s","name":"North Boundary Block","code":"NBB","floors":2,"px":[860,620,1005,700]}
+]

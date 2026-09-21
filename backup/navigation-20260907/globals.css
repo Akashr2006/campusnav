@@ -1,0 +1,311 @@
+@import "tailwindcss";
+
+/* The theme is toggled by a `dark` class on <html>, not by the OS setting,
+   so the `dark:` variant has to be redefined to match it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Light theme */
+  --bg: 249 250 253;
+  --bg-elev: 255 255 255;
+  --fg: 16 20 34;
+  --fg-soft: 40 44 62;
+  --muted: 240 243 249;
+  --muted-2: 232 236 245;
+  --muted-fg: 96 104 122;
+  --border: 224 229 240;
+  --border-strong: 205 212 227;
+  --card: 255 255 255;
+  --primary: 79 70 229;
+  --primary-2: 124 58 237;
+  --primary-fg: 255 255 255;
+  --accent: 236 72 153;
+  --success: 22 163 74;
+  --warning: 234 179 8;
+  --danger: 220 38 38;
+  --ring: 99 102 241;
+
+  /* Campus map surface — the SVG map reads these so it follows the theme */
+  --map-bg: #f8fafc;
+  --map-grid: #e2e8f0;
+  --map-roof-hi: #ffffff;
+  --map-roof-mid: #f8fafc;
+  --map-roof-lo: #e2e8f0;
+  --map-surface: #ffffff;
+  --map-halo: #ffffff;
+  --map-ink: #1e293b;
+  --map-ink-soft: #64748b;
+  --map-ink-faint: #94a3b8;
+  --map-line: #475569;
+  --map-line-soft: #cbd5e1;
+  --map-road: #d8dee9;
+  --map-road-edge: #b3bccd;
+  --map-road-mark: #ffffff;
+  --map-path: #e6e2d8;
+  --map-path-edge: #cbc5b6;
+
+  --shadow-sm: 0 1px 2px rgba(16, 20, 34, 0.04), 0 1px 3px rgba(16, 20, 34, 0.06);
+  --shadow-md: 0 2px 6px rgba(16, 20, 34, 0.05), 0 8px 24px -8px rgba(16, 20, 34, 0.10);
+  --shadow-lg: 0 8px 24px -6px rgba(16, 20, 34, 0.10), 0 24px 48px -12px rgba(16, 20, 34, 0.18);
+  --shadow-glow: 0 0 0 1px rgb(var(--primary) / 0.15), 0 8px 32px -8px rgb(var(--primary) / 0.35);
+}
+
+.dark {
+  /* Dark theme */
+  --bg: 9 11 20;
+  --bg-elev: 15 18 30;
+  --fg: 240 242 250;
+  --fg-soft: 210 214 228;
+  --muted: 22 26 40;
+  --muted-2: 32 36 52;
+  --muted-fg: 156 162 180;
+  --border: 40 45 62;
+  --border-strong: 60 66 88;
+  --card: 19 22 36;
+  --primary: 129 140 248;
+  --primary-2: 167 139 250;
+  --primary-fg: 15 17 25;
+  --accent: 244 114 182;
+  --success: 74 222 128;
+  --warning: 250 204 21;
+  --danger: 248 113 113;
+  --ring: 129 140 248;
+
+  --map-bg: #0c0f1a;
+  --map-grid: #232838;
+  --map-roof-hi: #2a3046;
+  --map-roof-mid: #212639;
+  --map-roof-lo: #181c2c;
+  --map-surface: #1a1e2e;
+  --map-halo: #0f121e;
+  --map-ink: #e2e8f0;
+  --map-ink-soft: #94a3b8;
+  --map-ink-faint: #6e788c;
+  --map-line: #94a3b8;
+  --map-line-soft: #3c4258;
+  --map-road: #39404f;
+  --map-road-edge: #4b5468;
+  --map-road-mark: #8b95a8;
+  --map-path: #2f3545;
+  --map-path-edge: #414a5c;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.5), 0 24px 60px -12px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 0 1px rgb(var(--primary) / 0.25), 0 8px 40px -8px rgb(var(--primary) / 0.5);
+}
+
+@theme inline {
+  --color-background: rgb(var(--bg));
+  --color-foreground: rgb(var(--fg));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-fg));
+  --color-border: rgb(var(--border));
+  --color-card: rgb(var(--card));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-fg));
+  --color-success: rgb(var(--success));
+  --color-warning: rgb(var(--warning));
+  --color-danger: rgb(var(--danger));
+  --radius: 0.875rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1.25rem;
+}
+
+* {
+  border-color: rgb(var(--border));
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+html {
+  scrollbar-gutter: stable;
+}
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
+  font-family: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection { background: rgb(var(--primary) / 0.25); color: rgb(var(--fg)); }
+
+@layer components {
+  /* Scrollbar */
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: rgb(var(--border-strong)) transparent; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgb(var(--border-strong));
+    border-radius: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgb(var(--muted-fg) / 0.5); }
+
+  /* Used by the filter rows and floating toolbars, which scroll horizontally by drag */
+  .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+  .scrollbar-none::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+  /* Glass surfaces */
+  .glass {
+    background: rgb(var(--card) / 0.72);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-color: rgb(var(--border) / 0.7);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .glass-strong {
+    background: rgb(var(--card) / 0.85);
+    backdrop-filter: saturate(200%) blur(24px);
+    -webkit-backdrop-filter: saturate(200%) blur(24px);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Card primitives */
+  .card {
+    background: rgb(var(--card));
+    border: 1px solid rgb(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    contain: paint layout;
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgb(var(--border-strong));
+  }
+
+  /* Gradient utilities */
+  .gradient-primary {
+    background-image: linear-gradient(135deg, rgb(var(--primary)) 0%, rgb(var(--primary-2)) 100%);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, rgb(var(--primary)) 0%, rgb(var(--primary-2)) 60%, rgb(var(--accent)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-font-smoothing: antialiased;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+  .gradient-border {
+    position: relative;
+    background: rgb(var(--card));
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgb(var(--primary) / 0.5), rgb(var(--accent) / 0.35), transparent 60%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Mesh background */
+  .mesh-bg {
+    background-color: rgb(var(--bg));
+    background-image:
+      radial-gradient(1100px 550px at 50% -10%, rgb(var(--primary) / 0.22), transparent 60%),
+      radial-gradient(600px 500px at 12% 20%, rgb(var(--accent) / 0.15), transparent 60%),
+      radial-gradient(700px 500px at 90% 80%, rgb(var(--primary-2) / 0.20), transparent 60%);
+  }
+
+  /* Subtle grid pattern overlay */
+  .grid-pattern {
+    background-image:
+      linear-gradient(rgb(var(--border) / 0.6) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--border) / 0.6) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 75%);
+  }
+
+  /* Animations */
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
+  .pulse-dot { animation: pulseDot 1.6s ease-in-out infinite; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, rgb(var(--muted)) 0%, rgb(var(--border)) 50%, rgb(var(--muted)) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 0.9; }
+  }
+  .animate-glow { animation: glow 4s ease-in-out infinite; }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee { animation: marquee 30s linear infinite; }
+
+  /* Typography helpers */
+  .h-display {
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+}
+
+/* Font smoothing */
+h1, h2, h3, h4, h5, h6, p, span, a, button, label, input, td, th {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Fullscreen backdrop follows the active theme */
+:fullscreen,
+::backdrop {
+  background-color: rgb(var(--bg)) !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Scroll lock while a modal is open */
+body.modal-open,
+html.modal-open {
+  overflow: hidden !important;
+  padding-right: 0px !important;
+  margin-right: 0px !important;
+  scrollbar-gutter: auto !important;
+}
+
+body.modal-open::-webkit-scrollbar,
+html.modal-open::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+}
+
+

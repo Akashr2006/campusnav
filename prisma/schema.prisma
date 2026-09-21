@@ -1,0 +1,432 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  name          String?
+  passwordHash  String?
+  role          RoleName   @default(ADMIN)
+  image         String?
+  emailVerified Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  auditLogs     AuditLog[]
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Campus {
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  description  String?
+  latitude     Float
+  longitude    Float
+  boundary     Json?
+  status       MapStatus     @default(DRAFT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  buildings    Building[]
+  destinations Destination[]
+  doors        Door[]
+  events       Event[]
+  liftGroups   LiftGroup[]
+  mapVersions  MapVersion[]
+  nodes        Node[]
+  obstacles    Obstacle[]
+  stairGroups  StairGroup[]
+}
+
+model Building {
+  id             String         @id @default(uuid())
+  campusId       String
+  name           String
+  shortCode      String
+  description    String?
+  color          String?
+  icon           String?
+  photoUrl       String?
+  x              Float?
+  y              Float?
+  width          Float?
+  height         Float?
+  rotation       Float?         @default(0)
+  status         MapStatus      @default(DRAFT)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  basementsCount Int?           @default(0)
+  floorsCount    Int?           @default(0)
+  // Structural twin (Phase 0). Mirrors shared/data/campus.ts; the graph JSON
+  // snapshot remains the source of truth at runtime.
+  lod            BuildingLod?   @default(MASSING)
+  heightMetres   Float?
+  roofType       RoofType?
+  structureType  StructureType?
+  gridSpacingX   Float?
+  gridSpacingZ   Float?
+  columnSize     Float?
+  slabThickness  Float?
+  beamDepth      Float?
+  shellMeshUrl   String?
+  cores          Json?
+  isSiteFeature  Boolean?       @default(false)
+  campus         Campus         @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  floors         Floor[]
+
+  @@unique([campusId, shortCode])
+  @@index([campusId])
+}
+
+model Floor {
+  id            String    @id @default(uuid())
+  buildingId    String
+  name          String
+  ordinal       Int
+  type          FloorType @default(GROUND)
+  svgUrl        String?
+  isVisible     Boolean   @default(true)
+  // Per-storey geometry (Phase 0).
+  slabOutline   Json?
+  elevation     Float?
+  heightMetres  Float?
+  columns       Json?
+  walls         Json?
+  planImageUrl  String?
+  planTransform Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  doors         Door[]
+  building      Building  @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  nodes         Node[]
+
+  @@unique([buildingId, ordinal])
+  @@index([buildingId])
+}
+
+model Door {
+  id              String   @id @default(uuid())
+  floorId         String
+  campusId        String?
+  type            DoorType @default(ROOM_DOOR)
+  name            String?
+  x               Float
+  y               Float
+  connectedNodeId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  campus          Campus?  @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  floor           Floor    @relation(fields: [floorId], references: [id], onDelete: Cascade)
+
+  @@index([floorId])
+}
+
+model StairGroup {
+  id              String   @id @default(uuid())
+  buildingId      String
+  campusId        String?
+  name            String
+  connectedFloors String[]
+  width           Float?   @default(1.2)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  campus          Campus?  @relation(fields: [campusId], references: [id], onDelete: Cascade)
+
+  @@index([buildingId])
+}
+
+model LiftGroup {
+  id              String   @id @default(uuid())
+  buildingId      String
+  campusId        String?
+  name            String
+  connectedFloors String[]
+  capacity        Int?     @default(10)
+  accessible      Boolean  @default(true)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  campus          Campus?  @relation(fields: [campusId], references: [id], onDelete: Cascade)
+
+  @@index([buildingId])
+}
+
+model Node {
+  id           String        @id @default(uuid())
+  campusId     String
+  floorId      String?
+  type         NodeType
+  name         String?
+  description  String?
+  latitude     Float?
+  longitude    Float?
+  x            Float?
+  y            Float?
+  accessible   Boolean       @default(true)
+  searchable   Boolean       @default(false)
+  navigable    Boolean       @default(true)
+  tags         String[]      @default([])
+  metadata     Json?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  destinations Destination[]
+  edgesOut     Edge[]        @relation("EdgeFrom")
+  edgesIn      Edge[]        @relation("EdgeTo")
+  campus       Campus        @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  floor        Floor?        @relation(fields: [floorId], references: [id])
+
+  @@index([campusId])
+  @@index([floorId])
+  @@index([type])
+}
+
+model Edge {
+  id              String    @id @default(uuid())
+  fromNodeId      String
+  toNodeId        String
+  type            EdgeType  @default(WALK)
+  pathType        PathType? @default(WALK)
+  distance        Float
+  displayDistance Float?
+  bidirectional   Boolean   @default(true)
+  accessible      Boolean   @default(true)
+  speedModifier   Float     @default(1.0)
+  closed          Boolean   @default(false)
+  closedReason    String?
+  closedUntil     DateTime?
+  status          MapStatus @default(DRAFT)
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  from            Node      @relation("EdgeFrom", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  to              Node      @relation("EdgeTo", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  @@unique([fromNodeId, toNodeId, type])
+  @@index([fromNodeId])
+  @@index([toNodeId])
+}
+
+model Obstacle {
+  id        String    @id @default(uuid())
+  campusId  String
+  floorId   String?
+  x         Float
+  y         Float
+  radius    Float     @default(15.0)
+  edgeIds   String[]  @default([])
+  reason    String?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  campus    Campus    @relation(fields: [campusId], references: [id], onDelete: Cascade)
+
+  @@index([campusId])
+  @@index([floorId])
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  campusId    String
+  title       String
+  nodeId      String?
+  buildingId  String?
+  x           Float?
+  y           Float?
+  color       String?
+  startsAt    DateTime
+  endsAt      DateTime
+  description String?
+  createdAt   DateTime @default(now())
+  campus      Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
+
+  @@index([campusId])
+}
+
+model Destination {
+  id          String   @id @default(uuid())
+  campusId    String
+  nodeId      String
+  name        String
+  category    String?
+  roomNumber  String?
+  floorId     String?
+  x           Float?
+  y           Float?
+  width       Float?
+  height      Float?
+  doorId      String?
+  description String?
+  popularity  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  campus      Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  node        Node     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@index([campusId])
+  @@index([nodeId])
+}
+
+model DraftGraph {
+  id        String   @id @default("active-draft")
+  snapshot  Json
+  updatedAt DateTime @updatedAt
+}
+
+model PublishedGraph {
+  id          String   @id @default("active-published")
+  version     Int      @default(1)
+  snapshot    Json
+  publishedAt DateTime @default(now())
+  publishedBy String?
+}
+
+model MapVersion {
+  id          String    @id @default(uuid())
+  campusId    String?
+  version     Int
+  status      MapStatus @default(PUBLISHED)
+  snapshot    Json
+  notes       String?
+  publishedAt DateTime? @default(now())
+  publishedBy String?
+  createdAt   DateTime  @default(now())
+  campus      Campus?   @relation(fields: [campusId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  resource   String
+  resourceId String?
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([resource, resourceId])
+  @@index([userId])
+}
+
+model NodePhoto {
+  id        String   @id @default(uuid())
+  nodeId    String   @unique
+  mimeType  String   @default("image/jpeg")
+  data      Bytes
+  size      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([nodeId])
+}
+
+enum BuildingLod {
+  MASSING
+  GENERIC
+  SPECIFIC
+  INTERFACES
+}
+
+enum RoofType {
+  FLAT
+  PITCHED
+  SAWTOOTH
+  VAULT
+}
+
+enum StructureType {
+  RC_FRAME
+  STEEL_FRAME
+  LOAD_BEARING
+  LONG_SPAN
+}
+
+enum RoleName {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum MapStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum FloorType {
+  BASEMENT
+  GROUND
+  FIRST
+  SECOND
+  THIRD
+  ROOF
+  CUSTOM
+}
+
+enum DoorType {
+  ROOM_DOOR
+  BUILDING_ENTRANCE
+  EMERGENCY_DOOR
+}
+
+enum NodeType {
+  ENTRANCE
+  EXIT
+  RECEPTION
+  CORRIDOR
+  JUNCTION
+  ROOM
+  LABORATORY
+  OFFICE
+  LIFT
+  STAIR
+  RAMP
+  WASHROOM
+  PARKING
+  EMERGENCY_EXIT
+  WATER_POINT
+  BUS_STOP
+  OUTDOOR
+  CUSTOM
+  BUILDING_ENTRANCE
+}
+
+enum EdgeType {
+  WALK
+  ROAD
+  RAMP
+  STAIRS
+  LIFT
+  BRIDGE
+  SERVICE
+  RESTRICTED
+  EMERGENCY
+}
+
+enum PathType {
+  EV
+  WALK
+}
