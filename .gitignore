@@ -18,3 +18,7 @@ skills
 # Drone survey mesh: large, regenerate with tools/drone/build-web-mesh.py
 public/drone/mesh/
 public/drone/mesh-full/
+
+.vercel
+.env*
+.vercel-*

@@ -26,6 +26,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(__dirname),
+  // Without a database the published campus is read from `.data/` at runtime;
+  // nothing imports it, so the tracer must be told to ship it with the routes.
+  outputFileTracingIncludes: {
+    "/api/**": ["./.data/**"],
+  },
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,

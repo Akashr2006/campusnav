@@ -31,7 +31,26 @@ export type DroneAlignment = {
   rotationDeg: number;
 };
 
-const TILESET_URL = process.env.NEXT_PUBLIC_DRONE_TILESET_URL ?? "/drone/mesh/tileset.json";
+export const TILESET_URL = process.env.NEXT_PUBLIC_DRONE_TILESET_URL ?? "/drone/mesh/tileset.json";
+
+/**
+ * Whether the drone mesh can be reached. It is hosted outside the app (see
+ * public/drone/README.md), so a deployment can lack it; the toggle is disabled
+ * rather than switching on an empty scene.
+ */
+export function useDroneMeshAvailable(): boolean {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    let live = true;
+    fetch(TILESET_URL, { method: "HEAD" })
+      .then((r) => live && setOk(r.ok))
+      .catch(() => live && setOk(false));
+    return () => {
+      live = false;
+    };
+  }, []);
+  return ok;
+}
 
 function useDroneJson<T>(url: string): T | null {
   const [data, setData] = useState<T | null>(null);

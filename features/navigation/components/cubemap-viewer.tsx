@@ -3,6 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
+ * Where the tour panoramas are served from. Local dev uses public/tour; the
+ * deployment points at Supabase Storage, since 120 MB of panoramas is over
+ * Vercel's upload limit.
+ */
+const TOUR_BASE_URL = process.env.NEXT_PUBLIC_TOUR_BASE_URL ?? "/tour";
+
+/**
  * 360 viewer for a locally mirrored equirectangular panorama.
  *
  * Panning is a background offset rather than a CSS 3D scene: an equirect image
@@ -92,7 +99,7 @@ export function CubemapViewer({
         [0, 1].map((copy) => (
           <img
             key={copy}
-            src={`/tour/${sceneIndex}/pano.jpg`}
+            src={`${TOUR_BASE_URL}/${sceneIndex}/pano.jpg`}
             alt=""
             draggable={false}
             onLoad={() => setReady(true)}

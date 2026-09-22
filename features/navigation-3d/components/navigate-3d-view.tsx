@@ -22,6 +22,7 @@ import {
 import { shortestPath } from "@/features/navigation/services/graph";
 import { applyPilotStructure, PILOT_BUILDING_IDS } from "@/shared/data/pilot-structure";
 import { buildCampus3D, type Campus3D, type Vec2 } from "../lib/campus-3d";
+import { useDroneMeshAvailable } from "./drone-layers";
 import { frameFor, isolateStorey } from "../lib/building-structure";
 import { fitOutCeiling, furnishRoom } from "../lib/floor-interior";
 import { buildTimeline, cueStarts, stateAt, totalDuration } from "../lib/presentation";
@@ -71,6 +72,7 @@ export function Navigate3DView() {
   // Drone survey layers (public/drone). Off by default: the mesh streams hundreds of MB.
   const [droneMesh, setDroneMesh] = useState(false);
   const [thermal, setThermal] = useState(false);
+  const droneAvailable = useDroneMeshAvailable();
   // `undefined` = let the scene pick; `null` = show the whole stack.
   const [isolated, setIsolated] = useState<number | null | undefined>(undefined);
   const [storeys, setStoreys] = useState<{ ordinals: number[]; suggested: number | null }>({
@@ -621,7 +623,12 @@ export function Navigate3DView() {
               accent="nav"
               active={droneMesh}
               onClick={() => setDroneMesh((d) => !d)}
-              title="Drone survey: the photogrammetry mesh of the campus (April 2022)"
+              disabled={!droneAvailable}
+              title={
+                droneAvailable
+                  ? "Drone survey: the photogrammetry mesh of the campus (April 2022)"
+                  : "Drone survey mesh is not available on this deployment"
+              }
             >
               <Plane className="h-3.5 w-3.5" />
               Drone

@@ -1,0 +1,9 @@
+# Drone survey mesh: 3.4 GB junction to E:, far past Vercel's limits.
+# Host it elsewhere and set NEXT_PUBLIC_DRONE_TILESET_URL; see public/drone/README.md.
+public/drone/mesh
+node_modules
+.next
+backup
+tools
+*.log
+public/tour
