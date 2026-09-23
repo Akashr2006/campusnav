@@ -227,8 +227,11 @@ export function DroneMesh({
     // before its finer children load. At 12 the viewer settled on level ~17
     // tiles even up close, which is what made roofs and trees look melted.
     t.errorTarget = 4;
-    t.lruCache.maxSize = 3000;
-    t.lruCache.maxBytesSize = 1.2e9;
+    // Phones get sharper tiles below (real pixels, not CSS pixels) but have far
+    // less memory than a laptop; mobile Safari kills a tab well under 1 GB.
+    const mobile = window.matchMedia("(pointer: coarse)").matches;
+    t.lruCache.maxSize = mobile ? 1200 : 3000;
+    t.lruCache.maxBytesSize = mobile ? 4e8 : 1.2e9;
     // Load only the tiles on screen, nearest the camera first. The default also
     // fetches every sibling and ancestor of each visible tile, which on a slow
     // connection spends minutes on detail nobody is looking at before the view
@@ -283,9 +286,13 @@ export function DroneMesh({
   }, [tiles, camera]);
 
   const lastReport = useRef({ at: 0, pending: -1 });
+  const drawingBuffer = useMemo(() => new THREE.Vector2(), []);
   useFrame(() => {
     if (!tiles || !visible) return;
-    tiles.setResolutionFromRenderer(camera, gl);
+    // Detail is chosen for the drawing buffer, not the CSS size: on a phone at
+    // 2-3x pixel density the CSS size asks for half the detail the screen shows.
+    gl.getDrawingBufferSize(drawingBuffer);
+    tiles.setResolution(camera, drawingBuffer.x, drawingBuffer.y);
     camera.updateMatrixWorld();
     tiles.update();
     // Twice a second is plenty for a counter, and keeps React out of the frame loop.
