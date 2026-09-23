@@ -9,7 +9,7 @@ import { Trees, makeFacadeTexture, makeGrassTexture, makeRoofTexture } from "./s
 import type { Building3D, Campus3D, Vec2 } from "../lib/campus-3d";
 import { defaultIsolatedStorey, frameFor, isolateStorey } from "../lib/building-structure";
 import { BuildingFrameView, EXPLODE_GAP, type ViewMode } from "./building-frame";
-import { DroneMesh, ThermalOverlay, useTerrain } from "./drone-layers";
+import { DroneMesh, ThermalOverlay, useTerrain, type DroneLoadProgress } from "./drone-layers";
 import { baseHeight, type Terrain } from "../lib/terrain";
 
 /** Shape lives in the XY plane; extrusion runs along +Z and is stood up by a
@@ -535,6 +535,7 @@ export function CampusScene({
   mode = "DIAGRAM",
   droneMesh = false,
   thermal = false,
+  onDroneProgress,
 }: {
   campus: Campus3D;
   routePath: Vec2[];
@@ -569,6 +570,8 @@ export function CampusScene({
   droneMesh?: boolean;
   /** Drape the AS & IB thermal orthomosaic over the ground. */
   thermal?: boolean;
+  /** Tiles still streaming in, for the "loading sharp detail" indicator. */
+  onDroneProgress?: (p: DroneLoadProgress) => void;
 }) {
   const r = campus.radius;
   const c = campus.centre;
@@ -713,7 +716,7 @@ export function CampusScene({
 
       {!droneMesh && <Ground campus={campus} realistic={realistic} grass={textures.grass} terrain={terrain} />}
       {realistic && !droneMesh && <Trees campus={campus} terrain={terrain} />}
-      <DroneMesh visible={droneMesh} thermal={thermal} />
+      <DroneMesh visible={droneMesh} thermal={thermal} onProgress={onDroneProgress} />
       <ThermalOverlay visible={thermal && !droneMesh} terrain={terrain} />
       <Paths campus={campus} terrain={terrain} />
       {campus.buildings.filter((b) => !droneMesh || (Boolean(frame) && b.id === selectedId)).map((b) => (

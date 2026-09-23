@@ -22,7 +22,7 @@ import {
 import { shortestPath } from "@/features/navigation/services/graph";
 import { applyPilotStructure, PILOT_BUILDING_IDS } from "@/shared/data/pilot-structure";
 import { buildCampus3D, type Campus3D, type Vec2 } from "../lib/campus-3d";
-import { useDroneMeshAvailable } from "./drone-layers";
+import { useDroneMeshAvailable, type DroneLoadProgress } from "./drone-layers";
 import { frameFor, isolateStorey } from "../lib/building-structure";
 import { fitOutCeiling, furnishRoom } from "../lib/floor-interior";
 import { buildTimeline, cueStarts, stateAt, totalDuration } from "../lib/presentation";
@@ -73,6 +73,7 @@ export function Navigate3DView() {
   const [droneMesh, setDroneMesh] = useState(false);
   const [thermal, setThermal] = useState(false);
   const droneAvailable = useDroneMeshAvailable();
+  const [droneProgress, setDroneProgress] = useState<DroneLoadProgress>({ pending: 0, loaded: 0 });
   // `undefined` = let the scene pick; `null` = show the whole stack.
   const [isolated, setIsolated] = useState<number | null | undefined>(undefined);
   const [storeys, setStoreys] = useState<{ ordinals: number[]; suggested: number | null }>({
@@ -422,6 +423,7 @@ export function Navigate3DView() {
         onSelectRoom={setSelectedRoomId}
         mode={mode}
         droneMesh={droneMesh}
+        onDroneProgress={setDroneProgress}
         thermal={thermal}
       />
 
@@ -553,6 +555,17 @@ export function Navigate3DView() {
             </div>
           )}
         </HudPanel>
+      )}
+
+      {/* Drone detail streams in over the network; say so, or a half-loaded view
+          reads as a blurry model rather than one that is still arriving. */}
+      {droneMesh && droneProgress.pending > 0 && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
+          <HudPanel accent="nav" corners={false} className="flex items-center gap-2 px-3 py-2 text-xs text-slate-100">
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-cyan-300 border-t-transparent" />
+            Loading sharp detail… {droneProgress.pending} tile{droneProgress.pending === 1 ? "" : "s"} to go
+          </HudPanel>
+        </div>
       )}
 
       {/* Command bar. */}
