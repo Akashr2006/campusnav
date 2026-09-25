@@ -36,7 +36,13 @@ import { isPointInsideBuilding } from "@/lib/geo/building-geometry";
 import { detectBuildingAtGps } from "@/lib/geo/containment";
 import { gpsToCanvas } from "@/lib/geo/projection";
 import { useNavigationStore } from "@/features/navigation/navigation-store";
-import { CampusMap } from "./campus-map";
+import dynamic from "next/dynamic";
+
+// Leaflet touches `window` on import, so the map only loads in the browser.
+const GoogleCampusMap = dynamic(() => import("./google-campus-map").then((m) => m.GoogleCampusMap), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse bg-[#f1f3f4]" />,
+});
 import { LiveRoutePanel } from "./live-route-panel";
 import { TurnByTurnBar } from "./turn-by-turn-bar";
 import type { TravelMode } from "@/lib/routing/edge-accessibility";
@@ -1151,7 +1157,7 @@ export function NavigateShell() {
 
       {/* Map view area */}
       <div className="relative flex-1 bg-[rgb(var(--card))]/30">
-        <CampusMap
+        <GoogleCampusMap
           route={route}
           alternativeRoute={alternativeRoute}
           onSelectAlternativeRoute={() => {
