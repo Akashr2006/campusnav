@@ -1,11 +1,12 @@
 "use client";
 
 /**
- * The 2D campus map on /navigate, drawn on a real web map (Leaflet) in the
- * style of Google Maps: street or satellite base, the campus buildings at
- * their surveyed GPS footprints (the same 48 the 3D view extrudes), the path
- * network, a blue route line, a red destination pin and a walking-person
- * start marker that walks the route.
+ * The 2D campus map on /navigate: the 3D view's campus drawn flat, in the
+ * style of Google Maps. No outside map tiles: just the campus ground, the
+ * buildings at their surveyed GPS footprints (the same 48 the 3D view
+ * extrudes), the path network, a blue route line, a red destination pin and
+ * a walking-person start marker that walks the route. Leaflet provides the
+ * pan, pinch and zoom.
  *
  * Takes the same props as the older SVG `CampusMap`, so `NavigateShell` can
  * swap between them without any change to routing or search.
@@ -14,8 +15,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Polygon, Polyline, Marker, Circle, Tooltip, useMap, useMapEvents } from "react-leaflet";
-import { Layers, LocateFixed, Minus, Plus, Maximize } from "lucide-react";
+import { MapContainer, Polygon, Polyline, Marker, Circle, Tooltip, useMap, useMapEvents } from "react-leaflet";
+import { LocateFixed, Minus, Plus, Maximize } from "lucide-react";
 import { campusStore } from "@/shared/lib/campus-store";
 import type { Building, Destination, Node } from "@/shared/data/campus";
 import type { Route } from "@/features/navigation/services/graph";
@@ -35,25 +36,6 @@ type Props = {
   toSelected?: Destination | null;
 };
 
-/* ------------------------------------------------------------ base maps */
-
-const BASE_LAYERS = {
-  map: {
-    // OpenStreetMap standard tiles: no key needed. (CARTO's Voyager style now
-    // watermarks every tile with "API KEY REQUIRED".)
-    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxNativeZoom: 19,
-    subdomains: "abc",
-  },
-  satellite: {
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics",
-    maxNativeZoom: 19,
-    subdomains: "abc",
-  },
-} as const;
-type BaseLayer = keyof typeof BASE_LAYERS;
 
 /** Labels only appear once blocks are big enough on screen to hold them. */
 const LABEL_MIN_ZOOM = 16;
@@ -229,7 +211,6 @@ export function GoogleCampusMap({
   toSelected,
 }: Props) {
   const [data, setData] = useState(() => campusStore.getPublishedData());
-  const [base, setBase] = useState<BaseLayer>("map");
   const [zoom, setZoom] = useState(17);
   const [map, setMap] = useState<L.Map | null>(null);
   const [locating, setLocating] = useState(false);
@@ -335,35 +316,26 @@ export function GoogleCampusMap({
         minZoom={15}
         maxZoom={21}
         zoomControl={false}
-        attributionControl
+        attributionControl={false}
         className="h-full w-full"
         ref={setMap}
         preferCanvas={false}
       >
-        <TileLayer
-          key={base}
-          url={BASE_LAYERS[base].url}
-          attribution={BASE_LAYERS[base].attribution}
-          maxNativeZoom={BASE_LAYERS[base].maxNativeZoom}
-          maxZoom={21}
-          subdomains={BASE_LAYERS[base].subdomains}
-          detectRetina
-        />
         <ZoomWatcher onZoom={setZoom} />
         <FitView bounds={viewBounds} routeKey={routeKey} />
 
-        {/* Campus boundary: a soft tint, as Google marks a campus. */}
+        {/* Campus ground: the boundary filled, as Google marks a campus. */}
         {boundary.length >= 3 && (
           <Polygon
             positions={boundary}
             interactive={false}
             pathOptions={{
-              color: base === "map" ? "#b6c9b0" : "#ffffff",
+              color: "#b9cdb2",
               weight: 1.5,
-              opacity: 0.9,
-              fillColor: "#e6f0e3",
-              fillOpacity: base === "map" ? 0.45 : 0.05,
-              dashArray: base === "map" ? undefined : "6 6",
+              opacity: 1,
+              // The 3D view's ground, flattened: a Google-style campus green.
+              fillColor: "#e4efdd",
+              fillOpacity: 1,
             }}
           />
         )}
@@ -398,10 +370,10 @@ export function GoogleCampusMap({
               positions={ring}
               eventHandlers={{ click: () => directionsTo(b) }}
               pathOptions={{
-                color: isDest ? "#d93025" : site ? "#a8c69f" : base === "map" ? "#d1d4d9" : "#ffffff",
+                color: isDest ? "#d93025" : site ? "#a8c69f" : "#cfd3d8",
                 weight: isDest ? 2.5 : 1.2,
-                fillColor: isDest ? "#fde2df" : site ? "#cfe6c8" : base === "map" ? "#ebecef" : "#ffffff",
-                fillOpacity: base === "map" ? 1 : isDest ? 0.35 : 0.12,
+                fillColor: isDest ? "#fde2df" : site ? "#c8e3bf" : "#eceef1",
+                fillOpacity: 1,
               }}
             >
               {label ? (
@@ -464,19 +436,8 @@ export function GoogleCampusMap({
         )}
       </MapContainer>
 
-      {/* Google-style controls: layers top-right, zoom/locate bottom-right. */}
-      <div className="pointer-events-none absolute right-3 top-3 z-[1000] flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={() => setBase((b) => (b === "map" ? "satellite" : "map"))}
-          className="gm-ctrl pointer-events-auto flex items-center gap-1.5 px-3 text-xs font-medium"
-          title="Switch map and satellite"
-        >
-          <Layers className="h-4 w-4" />
-          {base === "map" ? "Satellite" : "Map"}
-        </button>
-      </div>
-      <div className="pointer-events-none absolute bottom-24 right-3 z-[1000] flex flex-col gap-2 md:bottom-8">
+      {/* Google-style controls, bottom-right. */}
+      <div className="pointer-events-none absolute bottom-[200px] right-3 z-[1000] flex flex-col gap-2 md:bottom-8">
         <button
           type="button"
           className="gm-ctrl pointer-events-auto"
