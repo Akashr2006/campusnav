@@ -17,7 +17,7 @@ TypeScript, Tailwind, three.js / react-three-fiber and 3d-tiles-renderer.
 
 | | |
 |---|---|
-| Repo | https://github.com/Akashr2006/campusnav (private, branch `main`) |
+| Repo | https://github.com/Akashr2006/campusnav (public since 2026-09-30, branch `main`) |
 | Live site | https://campusnav-rose.vercel.app (Vercel team `akashrad24-7335s-projects`, account akashr.ad24@bitsathy.ac.in) |
 | Drone mesh CDN | https://campusnav-drone.akashr-ad24.workers.dev (Cloudflare Worker static assets) |
 | Panoramas | Supabase Storage bucket `tour` (project ref `xnhsopueqgnvupiszwxr`) |
