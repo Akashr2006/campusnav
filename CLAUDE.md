@@ -166,13 +166,16 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 
 ## 8. Open items / next steps
 
-1. **Deploy the 2D photo tiles to the CDN**: from `<data>\_work\pages-deploy`, run `CI=true npx wrangler deploy`
-   (**never run wrangler inside this repo**, because it converts the app to OpenNext). Ask the owner first,
-   since it's outward-facing. Until then the live `/navigate` 2D map falls back to Plan style.
+1. ~~Deploy the 2D photo tiles to the CDN~~ **Done 2026-09-30** (766 files; worker version 9a409121). To redeploy after
+   rebuilding the tiles: from `<data>\_work\pages-deploy`, run `CI=true npx --prefix <repo> wrangler deploy`
+   (**never run wrangler inside this repo**, because it converts the app to OpenNext). `_headers` has three
+   non-overlapping rules: `*.b3dm`, `*.json` and `*.webp`.
 2. Name the placeholder and unnamed buildings (needs the owner or estate-office input).
 3. Connect the two disconnected parts of the walkway graph (admin editor).
-4. Commit and deploy `/navigate` to Vercel (`vercel --prod`; Hobby rejects uploads over ~100 MB, and
-   `.vercelignore` already excludes the mesh, tour and tools).
+4. ~~Deploy `/navigate` to Vercel~~ **Done 2026-09-30**: `campusnav-rose.vercel.app` serves it, with the photo 2D map
+   from the CDN. To redeploy, run `npx vercel --prod --yes` from the repo (Hobby rejects uploads over ~100 MB;
+   `.vercelignore` already excludes the mesh, tour and tools). The Vercel API is sometimes unreachable from
+   the owner's network; if you see "fetch failed", retry.
 5. Photogrammetry pilot on the **Aug 2022 RTK flight** (paused; downscaled to `pilot/images4k`). It covers only
    the NE corner (bus stop, East Pond, poly houses) with obliques. The new GPU makes this practical (see below).
 6. Admin login: `ADMIN_EMAIL` and `ADMIN_PASSWORD` are unset on Vercel.
@@ -197,4 +200,5 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 - 09-23: full L22 mesh on the Cloudflare Worker, and on-screen-only tile streaming.
 - 09-24 to 26: `/navigate` rebuilt several times. Final: its own header and sidebar, a 2D map built from the drone
   survey (photo plus detected blocks named from the 3D view), a 3D tab with the drone view and no explode.
-- 09-30: this file, and the campus data committed, for the move to the new laptop.
+- 09-30: this file, and the campus data committed, for the move to the new laptop. 2D photo tiles uploaded to the
+  CDN, and the site deployed to production and checked live (lint clean, typecheck clean, 416 tests pass).

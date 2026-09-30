@@ -10,7 +10,7 @@ metadata:
 
 /navigate (rebuilt 2026-09-26) has a 2D tab and a 3D tab. The 3D tab imports the /navigate-3d CampusScene unchanged, with the drone mesh on and building selection disabled, so buildings never explode. The 2D map (`features/navigation/components/campus-2d-map.tsx`) defaults to a drone orthophoto; a "Plan" style (Navigine-like) is in the layers menu.
 
-- Orthophoto tiles are at `D:\BIT 3D\_work\web-mesh\ortho` (served as /drone/mesh/ortho via the junction). They are NOT on the Cloudflare worker until someone runs `wrangler deploy`, and without them production falls back to Plan style.
+- Orthophoto tiles are at `D:\BIT 3D\_work\web-mesh\ortho` (served as /drone/mesh/ortho via the junction). They were deployed to the Cloudflare worker on 2026-09-30, and the site is live with them on Vercel.
 - `public/drone/footprints.json` holds 190 roofed blocks detected from mesh height above terrain. They are named by overlap with graph buildings (42 of 43 named buildings matched). Unclaimed roofs show as "Unnamed building": no data source has their names.
 - Rebuild steps are in `public/drone/README.md`: /dev-ortho capture page (dev only) then `tools/drone/build-ortho.py`. Use `--skip-tiles` when only names change.
 
