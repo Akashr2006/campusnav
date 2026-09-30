@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any -- this dev tool drives 3d-tiles-renderer internals (queue scheduling, stats) that its typings do not expose. */
 
 // Dev-only capture tool: renders the drone mesh straight down, window by
 // window, as colour + encoded height PNGs (posted to /api/dev-ortho), which
