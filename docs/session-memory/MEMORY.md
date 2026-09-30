@@ -1,0 +1,4 @@
+- [BIT drone dataset](bit3d-drone-dataset.md) — E:\BIT 3D contents, accuracy, 60 m slope, how it's wired into the 3D view.
+- [CampusNav LOD 350 roadmap](campusnav-lod350-roadmap.md) — phase plan, pilot buildings, and why thermal can't build geometry.
+- [CampusNav deployment](campusnav-deployment.md) — live URL, Vercel/Supabase accounts, 100 MB upload limit.
+- [/navigate 2D from drone](navigate-2d-from-drone.md) — ortho + footprints pipeline, where tiles live, never edit navigation-3d.

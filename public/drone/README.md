@@ -9,6 +9,24 @@ Source: DJI Terra output in `E:\BIT 3D` (see the survey reports there).
 | `terrain.json` / `terrain.bin` | Bare-earth ground, 5 m grid, heights relative to the anchor | `python tools/drone/build-terrain.py <terra_b3dms> public/drone` |
 | `thermal-as-ib.webp` / `.json` | Thermal orthomosaic, AS & IB blocks, with WGS84 bounds | downsampled from `BIT thermal/AS & IB Thermal/map/result.tif` |
 | `../draco/` | Draco decoder (tiles are Draco-compressed) | copied from `three/examples/jsm/libs/draco/gltf` |
+| `mesh/ortho/` | Orthophoto for the 2D map: the mesh rendered straight down, 256 px WebP tiles, levels 0-4 at 0.25-4 m/px, `meta.json` lists them (765 files, ~6 MB). Lives in the mesh folder so it is served, and deployed, with the mesh | `tools/drone/build-ortho.py` (below) |
+| `footprints.json` | Every roofed block on campus (190), outline in scene metres, height and storeys from the survey, named from the 3D view's buildings where they overlap (`buildingId`/`name`, `null` if no building claims it) | `tools/drone/build-ortho.py` (below) |
+
+### Rebuilding the 2D layers
+
+1. Capture (only when the mesh changes): with `pnpm dev` running, open
+   `/dev-ortho` (dev server only). It renders the mesh top-down in 128 m windows at
+   0.25 m/px, colour plus encoded height, into `D:\BIT 3D\_work\ortho\raw` (182
+   windows, ~30 min). `?start=N` resumes; `?only=i,j` redoes one window.
+2. Build: `python tools/drone/build-ortho.py "D:/BIT 3D/_work/ortho/raw" "D:/BIT 3D/_work/web-mesh/ortho" public/drone/footprints.json --graph .data/published_graph.json --terrain public/drone`.
+   Add `--skip-tiles` when only the names changed (e.g. buildings renamed or
+   re-traced in the admin editor): footprints are re-matched in seconds.
+
+Blocks are found where the surface stands more than 2.5 m above the terrain and
+is not green (trees); covered walkways are cut away, and each named building
+claims the roofs inside its traced outline (with 4 m tolerance), which also splits
+roofs that touch. Roofs no building claims show on the map as unnamed buildings:
+the data has no name for them (see HANDOFF.md, "building names").
 
 ## Accuracy
 

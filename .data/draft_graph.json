@@ -1,0 +1,4657 @@
+{
+  "snapshot": {
+    "campus": {
+      "id": "c1",
+      "name": "Bannari Amman Institute of Technology",
+      "slug": "main",
+      "lat": 11.493317972,
+      "lng": 77.2759544
+    },
+    "buildings": [
+      {
+        "id": "b-acad-w",
+        "campusId": "c1",
+        "name": "Academic Block W",
+        "shortCode": "AW",
+        "color": "#3aa9e0",
+        "x": -572,
+        "y": 106,
+        "width": 240,
+        "height": 228,
+        "lat": 11.4930784,
+        "lng": 77.2746437,
+        "centerLat": 11.4930784,
+        "centerLng": 77.2746437,
+        "floorsCount": 4,
+        "footprint": [
+          {
+            "lat": 11.4933361,
+            "lng": 77.2743687
+          },
+          {
+            "lat": 11.4933361,
+            "lng": 77.2749187
+          },
+          {
+            "lat": 11.4928208,
+            "lng": 77.2749187
+          },
+          {
+            "lat": 11.4928208,
+            "lng": 77.2743687
+          }
+        ],
+        "corner1Lat": 11.4933361,
+        "corner1Lng": 77.2743687,
+        "corner2Lat": 11.4933361,
+        "corner2Lng": 77.2749187,
+        "corner3Lat": 11.4928208,
+        "corner3Lng": 77.2749187,
+        "corner4Lat": 11.4928208,
+        "corner4Lng": 77.2743687
+      },
+      {
+        "id": "b-acad-c",
+        "campusId": "c1",
+        "name": "Academic Block C",
+        "shortCode": "AC",
+        "color": "#4db6ac",
+        "x": -302,
+        "y": 64,
+        "width": 236,
+        "height": 216,
+        "lat": 11.4931733,
+        "lng": 77.2752624,
+        "centerLat": 11.4931733,
+        "centerLng": 77.2752624,
+        "floorsCount": 4,
+        "footprint": [
+          {
+            "lat": 11.4934174,
+            "lng": 77.274992
+          },
+          {
+            "lat": 11.4934174,
+            "lng": 77.2755328
+          },
+          {
+            "lat": 11.4929292,
+            "lng": 77.2755328
+          },
+          {
+            "lat": 11.4929292,
+            "lng": 77.274992
+          }
+        ],
+        "corner1Lat": 11.4934174,
+        "corner1Lng": 77.274992,
+        "corner2Lat": 11.4934174,
+        "corner2Lng": 77.2755328,
+        "corner3Lat": 11.4929292,
+        "corner3Lng": 77.2755328,
+        "corner4Lat": 11.4929292,
+        "corner4Lng": 77.274992
+      },
+      {
+        "id": "b-acad-e",
+        "campusId": "c1",
+        "name": "Academic Block E",
+        "shortCode": "AE",
+        "color": "#7e8fd6",
+        "x": 194,
+        "y": 50,
+        "width": 228,
+        "height": 220,
+        "lat": 11.493205,
+        "lng": 77.2763989,
+        "centerLat": 11.493205,
+        "centerLng": 77.2763989,
+        "floorsCount": 4,
+        "footprint": [
+          {
+            "lat": 11.4934536,
+            "lng": 77.2761377
+          },
+          {
+            "lat": 11.4934536,
+            "lng": 77.2766602
+          },
+          {
+            "lat": 11.4929564,
+            "lng": 77.2766602
+          },
+          {
+            "lat": 11.4929564,
+            "lng": 77.2761377
+          }
+        ],
+        "corner1Lat": 11.4934536,
+        "corner1Lng": 77.2761377,
+        "corner2Lat": 11.4934536,
+        "corner2Lng": 77.2766602,
+        "corner3Lat": 11.4929564,
+        "corner3Lng": 77.2766602,
+        "corner4Lat": 11.4929564,
+        "corner4Lng": 77.2761377
+      },
+      {
+        "id": "b-blk-sw",
+        "campusId": "c1",
+        "name": "Women's Hostel",
+        "shortCode": "WH",
+        "color": "#5c9ce6",
+        "x": -356,
+        "y": 356,
+        "width": 200,
+        "height": 216,
+        "lat": 11.4925134,
+        "lng": 77.2751386,
+        "centerLat": 11.4925134,
+        "centerLng": 77.2751386,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4927575,
+            "lng": 77.2749095
+          },
+          {
+            "lat": 11.4927575,
+            "lng": 77.2753678
+          },
+          {
+            "lat": 11.4922693,
+            "lng": 77.2753678
+          },
+          {
+            "lat": 11.4922693,
+            "lng": 77.2749095
+          }
+        ],
+        "corner1Lat": 11.4927575,
+        "corner1Lng": 77.2749095,
+        "corner2Lat": 11.4927575,
+        "corner2Lng": 77.2753678,
+        "corner3Lat": 11.4922693,
+        "corner3Lng": 77.2753678,
+        "corner4Lat": 11.4922693,
+        "corner4Lng": 77.2749095
+      },
+      {
+        "id": "b-hall",
+        "campusId": "c1",
+        "name": "Central Hall",
+        "shortCode": "CH",
+        "color": "#61b0c9",
+        "x": -50,
+        "y": 382,
+        "width": 268,
+        "height": 204,
+        "lat": 11.4924546,
+        "lng": 77.2758398,
+        "centerLat": 11.4924546,
+        "centerLng": 77.2758398,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4926852,
+            "lng": 77.2755328
+          },
+          {
+            "lat": 11.4926852,
+            "lng": 77.2761469
+          },
+          {
+            "lat": 11.4922241,
+            "lng": 77.2761469
+          },
+          {
+            "lat": 11.4922241,
+            "lng": 77.2755328
+          }
+        ],
+        "corner1Lat": 11.4926852,
+        "corner1Lng": 77.2755328,
+        "corner2Lat": 11.4926852,
+        "corner2Lng": 77.2761469,
+        "corner3Lat": 11.4922241,
+        "corner3Lng": 77.2761469,
+        "corner4Lat": 11.4922241,
+        "corner4Lng": 77.2755328
+      },
+      {
+        "id": "b-blk-s1",
+        "campusId": "c1",
+        "name": "Block S1",
+        "shortCode": "S1",
+        "color": "#3aa9e0",
+        "x": 218,
+        "y": 292,
+        "width": 180,
+        "height": 88,
+        "lat": 11.492658,
+        "lng": 77.2764539,
+        "centerLat": 11.492658,
+        "centerLng": 77.2764539,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4927575,
+            "lng": 77.2762477
+          },
+          {
+            "lat": 11.4927575,
+            "lng": 77.2766602
+          },
+          {
+            "lat": 11.4925586,
+            "lng": 77.2766602
+          },
+          {
+            "lat": 11.4925586,
+            "lng": 77.2762477
+          }
+        ],
+        "corner1Lat": 11.4927575,
+        "corner1Lng": 77.2762477,
+        "corner2Lat": 11.4927575,
+        "corner2Lng": 77.2766602,
+        "corner3Lat": 11.4925586,
+        "corner3Lng": 77.2766602,
+        "corner4Lat": 11.4925586,
+        "corner4Lng": 77.2762477
+      },
+      {
+        "id": "b-blk-s2",
+        "campusId": "c1",
+        "name": "Block S2",
+        "shortCode": "S2",
+        "color": "#4db6ac",
+        "x": -42,
+        "y": 538,
+        "width": 284,
+        "height": 140,
+        "lat": 11.4921021,
+        "lng": 77.2758582,
+        "centerLat": 11.4921021,
+        "centerLng": 77.2758582,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4922603,
+            "lng": 77.2755328
+          },
+          {
+            "lat": 11.4922603,
+            "lng": 77.2761835
+          },
+          {
+            "lat": 11.4919439,
+            "lng": 77.2761835
+          },
+          {
+            "lat": 11.4919439,
+            "lng": 77.2755328
+          }
+        ],
+        "corner1Lat": 11.4922603,
+        "corner1Lng": 77.2755328,
+        "corner2Lat": 11.4922603,
+        "corner2Lng": 77.2761835,
+        "corner3Lat": 11.4919439,
+        "corner3Lng": 77.2761835,
+        "corner4Lat": 11.4919439,
+        "corner4Lng": 77.2755328
+      },
+      {
+        "id": "b-blk-s3",
+        "campusId": "c1",
+        "name": "Block S3",
+        "shortCode": "S3",
+        "color": "#7e8fd6",
+        "x": 198,
+        "y": 532,
+        "width": 220,
+        "height": 152,
+        "lat": 11.4921156,
+        "lng": 77.2764081,
+        "centerLat": 11.4921156,
+        "centerLng": 77.2764081,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4922874,
+            "lng": 77.276156
+          },
+          {
+            "lat": 11.4922874,
+            "lng": 77.2766602
+          },
+          {
+            "lat": 11.4919439,
+            "lng": 77.2766602
+          },
+          {
+            "lat": 11.4919439,
+            "lng": 77.276156
+          }
+        ],
+        "corner1Lat": 11.4922874,
+        "corner1Lng": 77.276156,
+        "corner2Lat": 11.4922874,
+        "corner2Lng": 77.2766602,
+        "corner3Lat": 11.4919439,
+        "corner3Lng": 77.2766602,
+        "corner4Lat": 11.4919439,
+        "corner4Lng": 77.276156
+      },
+      {
+        "id": "b-hostel-a",
+        "campusId": "c1",
+        "name": "Hostel Block A",
+        "shortCode": "HA",
+        "color": "#5c9ce6",
+        "x": 1346,
+        "y": 30,
+        "width": 268,
+        "height": 244,
+        "lat": 11.4932502,
+        "lng": 77.2790387,
+        "centerLat": 11.4932502,
+        "centerLng": 77.2790387,
+        "floorsCount": 4,
+        "footprint": [
+          {
+            "lat": 11.4935259,
+            "lng": 77.2787316
+          },
+          {
+            "lat": 11.4935259,
+            "lng": 77.2793457
+          },
+          {
+            "lat": 11.4929744,
+            "lng": 77.2793457
+          },
+          {
+            "lat": 11.4929744,
+            "lng": 77.2787316
+          }
+        ],
+        "corner1Lat": 11.4935259,
+        "corner1Lng": 77.2787316,
+        "corner2Lat": 11.4935259,
+        "corner2Lng": 77.2793457,
+        "corner3Lat": 11.4929744,
+        "corner3Lng": 77.2793457,
+        "corner4Lat": 11.4929744,
+        "corner4Lng": 77.2787316
+      },
+      {
+        "id": "b-hostel-b",
+        "campusId": "c1",
+        "name": "Hostel Block B",
+        "shortCode": "HB",
+        "color": "#61b0c9",
+        "x": 1618,
+        "y": 38,
+        "width": 292,
+        "height": 244,
+        "lat": 11.4932321,
+        "lng": 77.2796619,
+        "centerLat": 11.4932321,
+        "centerLng": 77.2796619,
+        "floorsCount": 4,
+        "footprint": [
+          {
+            "lat": 11.4935078,
+            "lng": 77.2793274
+          },
+          {
+            "lat": 11.4935078,
+            "lng": 77.2799965
+          },
+          {
+            "lat": 11.4929564,
+            "lng": 77.2799965
+          },
+          {
+            "lat": 11.4929564,
+            "lng": 77.2793274
+          }
+        ],
+        "corner1Lat": 11.4935078,
+        "corner1Lng": 77.2793274,
+        "corner2Lat": 11.4935078,
+        "corner2Lng": 77.2799965,
+        "corner3Lat": 11.4929564,
+        "corner3Lng": 77.2799965,
+        "corner4Lat": 11.4929564,
+        "corner4Lng": 77.2793274
+      },
+      {
+        "id": "b-hostel-c",
+        "campusId": "c1",
+        "name": "Hostel Block C",
+        "shortCode": "HC",
+        "color": "#3aa9e0",
+        "x": 1872,
+        "y": 46,
+        "width": 232,
+        "height": 228,
+        "lat": 11.493214,
+        "lng": 77.280244,
+        "centerLat": 11.493214,
+        "centerLng": 77.280244,
+        "floorsCount": 4,
+        "footprint": [
+          {
+            "lat": 11.4934717,
+            "lng": 77.2799782
+          },
+          {
+            "lat": 11.4934717,
+            "lng": 77.2805098
+          },
+          {
+            "lat": 11.4929564,
+            "lng": 77.2805098
+          },
+          {
+            "lat": 11.4929564,
+            "lng": 77.2799782
+          }
+        ],
+        "corner1Lat": 11.4934717,
+        "corner1Lng": 77.2799782,
+        "corner2Lat": 11.4934717,
+        "corner2Lng": 77.2805098,
+        "corner3Lat": 11.4929564,
+        "corner3Lng": 77.2805098,
+        "corner4Lat": 11.4929564,
+        "corner4Lng": 77.2799782
+      },
+      {
+        "id": "b-east",
+        "campusId": "c1",
+        "name": "East Block",
+        "shortCode": "EB",
+        "color": "#4db6ac",
+        "x": 2108,
+        "y": 332,
+        "width": 384,
+        "height": 240,
+        "lat": 11.4925676,
+        "lng": 77.2807848,
+        "centerLat": 11.4925676,
+        "centerLng": 77.2807848,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4928388,
+            "lng": 77.2803448
+          },
+          {
+            "lat": 11.4928388,
+            "lng": 77.2812247
+          },
+          {
+            "lat": 11.4922964,
+            "lng": 77.2812247
+          },
+          {
+            "lat": 11.4922964,
+            "lng": 77.2803448
+          }
+        ],
+        "corner1Lat": 11.4928388,
+        "corner1Lng": 77.2803448,
+        "corner2Lat": 11.4928388,
+        "corner2Lng": 77.2812247,
+        "corner3Lat": 11.4922964,
+        "corner3Lng": 77.2812247,
+        "corner4Lat": 11.4922964,
+        "corner4Lng": 77.2803448
+      },
+      {
+        "id": "b-sw-solar",
+        "campusId": "c1",
+        "name": "South West Block",
+        "shortCode": "SB",
+        "color": "#7e8fd6",
+        "x": -832,
+        "y": 618,
+        "width": 360,
+        "height": 156,
+        "lat": 11.4919213,
+        "lng": 77.2740479,
+        "centerLat": 11.4919213,
+        "centerLng": 77.2740479,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4920976,
+            "lng": 77.2736355
+          },
+          {
+            "lat": 11.4920976,
+            "lng": 77.2744604
+          },
+          {
+            "lat": 11.491745,
+            "lng": 77.2744604
+          },
+          {
+            "lat": 11.491745,
+            "lng": 77.2736355
+          }
+        ],
+        "corner1Lat": 11.4920976,
+        "corner1Lng": 77.2736355,
+        "corner2Lat": 11.4920976,
+        "corner2Lng": 77.2744604,
+        "corner3Lat": 11.491745,
+        "corner3Lng": 77.2744604,
+        "corner4Lat": 11.491745,
+        "corner4Lng": 77.2736355
+      },
+      {
+        "id": "b-sw-2",
+        "campusId": "c1",
+        "name": "South West Annexe",
+        "shortCode": "SA",
+        "color": "#5c9ce6",
+        "x": -976,
+        "y": 804,
+        "width": 320,
+        "height": 184,
+        "lat": 11.4915009,
+        "lng": 77.273718,
+        "centerLat": 11.4915009,
+        "centerLng": 77.273718,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4917088,
+            "lng": 77.2733513
+          },
+          {
+            "lat": 11.4917088,
+            "lng": 77.2740846
+          },
+          {
+            "lat": 11.491293,
+            "lng": 77.2740846
+          },
+          {
+            "lat": 11.491293,
+            "lng": 77.2733513
+          }
+        ],
+        "corner1Lat": 11.4917088,
+        "corner1Lng": 77.2733513,
+        "corner2Lat": 11.4917088,
+        "corner2Lng": 77.2740846,
+        "corner3Lat": 11.491293,
+        "corner3Lng": 77.2740846,
+        "corner4Lat": 11.491293,
+        "corner4Lng": 77.2733513
+      },
+      {
+        "id": "b-south",
+        "campusId": "c1",
+        "name": "South Block",
+        "shortCode": "SO",
+        "color": "#61b0c9",
+        "x": -328,
+        "y": 884,
+        "width": 424,
+        "height": 200,
+        "lat": 11.4913201,
+        "lng": 77.2752028,
+        "centerLat": 11.4913201,
+        "centerLng": 77.2752028,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4915461,
+            "lng": 77.274717
+          },
+          {
+            "lat": 11.4915461,
+            "lng": 77.2756886
+          },
+          {
+            "lat": 11.4910941,
+            "lng": 77.2756886
+          },
+          {
+            "lat": 11.4910941,
+            "lng": 77.274717
+          }
+        ],
+        "corner1Lat": 11.4915461,
+        "corner1Lng": 77.274717,
+        "corner2Lat": 11.4915461,
+        "corner2Lng": 77.2756886,
+        "corner3Lat": 11.4910941,
+        "corner3Lng": 77.2756886,
+        "corner4Lat": 11.4910941,
+        "corner4Lng": 77.274717
+      },
+      {
+        "id": "n-blk-a1",
+        "campusId": "c1",
+        "name": "Biotechnology Block",
+        "shortCode": "BB",
+        "color": "#3aa9e0",
+        "x": 150,
+        "y": -1472,
+        "width": 364,
+        "height": 200,
+        "lat": 11.4966447,
+        "lng": 77.2762981,
+        "centerLat": 11.4966447,
+        "centerLng": 77.2762981,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4968707,
+            "lng": 77.2758811
+          },
+          {
+            "lat": 11.4968707,
+            "lng": 77.2767152
+          },
+          {
+            "lat": 11.4964187,
+            "lng": 77.2767152
+          },
+          {
+            "lat": 11.4964187,
+            "lng": 77.2758811
+          }
+        ],
+        "corner1Lat": 11.4968707,
+        "corner1Lng": 77.2758811,
+        "corner2Lat": 11.4968707,
+        "corner2Lng": 77.2767152,
+        "corner3Lat": 11.4964187,
+        "corner3Lng": 77.2767152,
+        "corner4Lat": 11.4964187,
+        "corner4Lng": 77.2758811
+      },
+      {
+        "id": "n-blk-a2",
+        "campusId": "c1",
+        "name": "AS Block",
+        "shortCode": "AB",
+        "color": "#4db6ac",
+        "x": 684,
+        "y": -1478,
+        "width": 400,
+        "height": 212,
+        "lat": 11.4966583,
+        "lng": 77.2775217,
+        "centerLat": 11.4966583,
+        "centerLng": 77.2775217,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4968978,
+            "lng": 77.2770635
+          },
+          {
+            "lat": 11.4968978,
+            "lng": 77.27798
+          },
+          {
+            "lat": 11.4964187,
+            "lng": 77.27798
+          },
+          {
+            "lat": 11.4964187,
+            "lng": 77.2770635
+          }
+        ],
+        "corner1Lat": 11.4968978,
+        "corner1Lng": 77.2770635,
+        "corner2Lat": 11.4968978,
+        "corner2Lng": 77.27798,
+        "corner3Lat": 11.4964187,
+        "corner3Lng": 77.27798,
+        "corner4Lat": 11.4964187,
+        "corner4Lng": 77.2770635
+      },
+      {
+        "id": "n-blk-b1",
+        "campusId": "c1",
+        "name": "IT Lab",
+        "shortCode": "IL",
+        "color": "#7e8fd6",
+        "x": 88,
+        "y": -1184,
+        "width": 216,
+        "height": 216,
+        "lat": 11.4959938,
+        "lng": 77.276156,
+        "centerLat": 11.4959938,
+        "centerLng": 77.276156,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4962379,
+            "lng": 77.2759086
+          },
+          {
+            "lat": 11.4962379,
+            "lng": 77.2764035
+          },
+          {
+            "lat": 11.4957498,
+            "lng": 77.2764035
+          },
+          {
+            "lat": 11.4957498,
+            "lng": 77.2759086
+          }
+        ],
+        "corner1Lat": 11.4962379,
+        "corner1Lng": 77.2759086,
+        "corner2Lat": 11.4962379,
+        "corner2Lng": 77.2764035,
+        "corner3Lat": 11.4957498,
+        "corner3Lng": 77.2764035,
+        "corner4Lat": 11.4957498,
+        "corner4Lng": 77.2759086
+      },
+      {
+        "id": "n-blk-b2",
+        "campusId": "c1",
+        "name": "CS Block",
+        "shortCode": "CB",
+        "color": "#5c9ce6",
+        "x": 276,
+        "y": -1196,
+        "width": 176,
+        "height": 192,
+        "lat": 11.496021,
+        "lng": 77.2765868,
+        "centerLat": 11.496021,
+        "centerLng": 77.2765868,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4962379,
+            "lng": 77.2763852
+          },
+          {
+            "lat": 11.4962379,
+            "lng": 77.2767885
+          },
+          {
+            "lat": 11.495804,
+            "lng": 77.2767885
+          },
+          {
+            "lat": 11.495804,
+            "lng": 77.2763852
+          }
+        ],
+        "corner1Lat": 11.4962379,
+        "corner1Lng": 77.2763852,
+        "corner2Lat": 11.4962379,
+        "corner2Lng": 77.2767885,
+        "corner3Lat": 11.495804,
+        "corner3Lng": 77.2767885,
+        "corner4Lat": 11.495804,
+        "corner4Lng": 77.2763852
+      },
+      {
+        "id": "n-blk-b3",
+        "campusId": "c1",
+        "name": "North Block B3",
+        "shortCode": "B3",
+        "color": "#61b0c9",
+        "x": 580,
+        "y": -1192,
+        "width": 192,
+        "height": 200,
+        "lat": 11.4960119,
+        "lng": 77.2772834,
+        "centerLat": 11.4960119,
+        "centerLng": 77.2772834,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4962379,
+            "lng": 77.2770635
+          },
+          {
+            "lat": 11.4962379,
+            "lng": 77.2775034
+          },
+          {
+            "lat": 11.4957859,
+            "lng": 77.2775034
+          },
+          {
+            "lat": 11.4957859,
+            "lng": 77.2770635
+          }
+        ],
+        "corner1Lat": 11.4962379,
+        "corner1Lng": 77.2770635,
+        "corner2Lat": 11.4962379,
+        "corner2Lng": 77.2775034,
+        "corner3Lat": 11.4957859,
+        "corner3Lng": 77.2775034,
+        "corner4Lat": 11.4957859,
+        "corner4Lng": 77.2770635
+      },
+      {
+        "id": "n-blk-b4",
+        "campusId": "c1",
+        "name": "North Block B4",
+        "shortCode": "B4",
+        "color": "#3aa9e0",
+        "x": 764,
+        "y": -1192,
+        "width": 192,
+        "height": 200,
+        "lat": 11.4960119,
+        "lng": 77.2777051,
+        "centerLat": 11.4960119,
+        "centerLng": 77.2777051,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4962379,
+            "lng": 77.2774851
+          },
+          {
+            "lat": 11.4962379,
+            "lng": 77.277925
+          },
+          {
+            "lat": 11.4957859,
+            "lng": 77.277925
+          },
+          {
+            "lat": 11.4957859,
+            "lng": 77.2774851
+          }
+        ],
+        "corner1Lat": 11.4962379,
+        "corner1Lng": 77.2774851,
+        "corner2Lat": 11.4962379,
+        "corner2Lng": 77.277925,
+        "corner3Lat": 11.4957859,
+        "corner3Lng": 77.277925,
+        "corner4Lat": 11.4957859,
+        "corner4Lng": 77.2774851
+      },
+      {
+        "id": "n-blk-c1",
+        "campusId": "c1",
+        "name": "CSE Block",
+        "shortCode": "CB",
+        "color": "#4db6ac",
+        "x": 86,
+        "y": -966,
+        "width": 220,
+        "height": 212,
+        "lat": 11.4955012,
+        "lng": 77.2761515,
+        "centerLat": 11.4955012,
+        "centerLng": 77.2761515,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4957407,
+            "lng": 77.2758994
+          },
+          {
+            "lat": 11.4957407,
+            "lng": 77.2764035
+          },
+          {
+            "lat": 11.4952616,
+            "lng": 77.2764035
+          },
+          {
+            "lat": 11.4952616,
+            "lng": 77.2758994
+          }
+        ],
+        "corner1Lat": 11.4957407,
+        "corner1Lng": 77.2758994,
+        "corner2Lat": 11.4957407,
+        "corner2Lng": 77.2764035,
+        "corner3Lat": 11.4952616,
+        "corner3Lng": 77.2764035,
+        "corner4Lat": 11.4952616,
+        "corner4Lng": 77.2758994
+      },
+      {
+        "id": "n-blk-c2",
+        "campusId": "c1",
+        "name": "EEE Block",
+        "shortCode": "EB",
+        "color": "#7e8fd6",
+        "x": 288,
+        "y": -966,
+        "width": 200,
+        "height": 212,
+        "lat": 11.4955012,
+        "lng": 77.2766143,
+        "centerLat": 11.4955012,
+        "centerLng": 77.2766143,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4957407,
+            "lng": 77.2763852
+          },
+          {
+            "lat": 11.4957407,
+            "lng": 77.2768435
+          },
+          {
+            "lat": 11.4952616,
+            "lng": 77.2768435
+          },
+          {
+            "lat": 11.4952616,
+            "lng": 77.2763852
+          }
+        ],
+        "corner1Lat": 11.4957407,
+        "corner1Lng": 77.2763852,
+        "corner2Lat": 11.4957407,
+        "corner2Lng": 77.2768435,
+        "corner3Lat": 11.4952616,
+        "corner3Lng": 77.2768435,
+        "corner4Lat": 11.4952616,
+        "corner4Lng": 77.2763852
+      },
+      {
+        "id": "n-blk-c3",
+        "campusId": "c1",
+        "name": "North Block C3",
+        "shortCode": "C3",
+        "color": "#5c9ce6",
+        "x": 580,
+        "y": -966,
+        "width": 192,
+        "height": 212,
+        "lat": 11.4955012,
+        "lng": 77.2772834,
+        "centerLat": 11.4955012,
+        "centerLng": 77.2772834,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4957407,
+            "lng": 77.2770635
+          },
+          {
+            "lat": 11.4957407,
+            "lng": 77.2775034
+          },
+          {
+            "lat": 11.4952616,
+            "lng": 77.2775034
+          },
+          {
+            "lat": 11.4952616,
+            "lng": 77.2770635
+          }
+        ],
+        "corner1Lat": 11.4957407,
+        "corner1Lng": 77.2770635,
+        "corner2Lat": 11.4957407,
+        "corner2Lng": 77.2775034,
+        "corner3Lat": 11.4952616,
+        "corner3Lng": 77.2775034,
+        "corner4Lat": 11.4952616,
+        "corner4Lng": 77.2770635
+      },
+      {
+        "id": "n-blk-c4",
+        "campusId": "c1",
+        "name": "North Block C4",
+        "shortCode": "C4",
+        "color": "#61b0c9",
+        "x": 772,
+        "y": -970,
+        "width": 208,
+        "height": 204,
+        "lat": 11.4955102,
+        "lng": 77.2777234,
+        "centerLat": 11.4955102,
+        "centerLng": 77.2777234,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4957407,
+            "lng": 77.2774851
+          },
+          {
+            "lat": 11.4957407,
+            "lng": 77.2779617
+          },
+          {
+            "lat": 11.4952797,
+            "lng": 77.2779617
+          },
+          {
+            "lat": 11.4952797,
+            "lng": 77.2774851
+          }
+        ],
+        "corner1Lat": 11.4957407,
+        "corner1Lng": 77.2774851,
+        "corner2Lat": 11.4957407,
+        "corner2Lng": 77.2779617,
+        "corner3Lat": 11.4952797,
+        "corner3Lng": 77.2779617,
+        "corner4Lat": 11.4952797,
+        "corner4Lng": 77.2774851
+      },
+      {
+        "id": "n-blk-d1",
+        "campusId": "c1",
+        "name": "Mechanical Block",
+        "shortCode": "MB",
+        "color": "#3aa9e0",
+        "x": 96,
+        "y": -722,
+        "width": 200,
+        "height": 236,
+        "lat": 11.4949497,
+        "lng": 77.2761744,
+        "centerLat": 11.4949497,
+        "centerLng": 77.2761744,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4952164,
+            "lng": 77.2759452
+          },
+          {
+            "lat": 11.4952164,
+            "lng": 77.2764035
+          },
+          {
+            "lat": 11.494683,
+            "lng": 77.2764035
+          },
+          {
+            "lat": 11.494683,
+            "lng": 77.2759452
+          }
+        ],
+        "corner1Lat": 11.4952164,
+        "corner1Lng": 77.2759452,
+        "corner2Lat": 11.4952164,
+        "corner2Lng": 77.2764035,
+        "corner3Lat": 11.494683,
+        "corner3Lng": 77.2764035,
+        "corner4Lat": 11.494683,
+        "corner4Lng": 77.2759452
+      },
+      {
+        "id": "n-blk-d2",
+        "campusId": "c1",
+        "name": "ME Block",
+        "shortCode": "MB",
+        "color": "#4db6ac",
+        "x": 288,
+        "y": -734,
+        "width": 200,
+        "height": 212,
+        "lat": 11.4949768,
+        "lng": 77.2766143,
+        "centerLat": 11.4949768,
+        "centerLng": 77.2766143,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4952164,
+            "lng": 77.2763852
+          },
+          {
+            "lat": 11.4952164,
+            "lng": 77.2768435
+          },
+          {
+            "lat": 11.4947373,
+            "lng": 77.2768435
+          },
+          {
+            "lat": 11.4947373,
+            "lng": 77.2763852
+          }
+        ],
+        "corner1Lat": 11.4952164,
+        "corner1Lng": 77.2763852,
+        "corner2Lat": 11.4952164,
+        "corner2Lng": 77.2768435,
+        "corner3Lat": 11.4947373,
+        "corner3Lng": 77.2768435,
+        "corner4Lat": 11.4947373,
+        "corner4Lng": 77.2763852
+      },
+      {
+        "id": "n-blk-d3",
+        "campusId": "c1",
+        "name": "Bannari Amman Auditorium",
+        "shortCode": "BAA",
+        "color": "#7e8fd6",
+        "x": 580,
+        "y": -734,
+        "width": 192,
+        "height": 212,
+        "lat": 11.4949768,
+        "lng": 77.2772834,
+        "centerLat": 11.4949768,
+        "centerLng": 77.2772834,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4952164,
+            "lng": 77.2770635
+          },
+          {
+            "lat": 11.4952164,
+            "lng": 77.2775034
+          },
+          {
+            "lat": 11.4947373,
+            "lng": 77.2775034
+          },
+          {
+            "lat": 11.4947373,
+            "lng": 77.2770635
+          }
+        ],
+        "corner1Lat": 11.4952164,
+        "corner1Lng": 77.2770635,
+        "corner2Lat": 11.4952164,
+        "corner2Lng": 77.2775034,
+        "corner3Lat": 11.4947373,
+        "corner3Lng": 77.2775034,
+        "corner4Lat": 11.4947373,
+        "corner4Lng": 77.2770635
+      },
+      {
+        "id": "n-blk-d4",
+        "campusId": "c1",
+        "name": "North Block D4",
+        "shortCode": "D4",
+        "color": "#5c9ce6",
+        "x": 774,
+        "y": -734,
+        "width": 212,
+        "height": 212,
+        "lat": 11.4949768,
+        "lng": 77.277728,
+        "centerLat": 11.4949768,
+        "centerLng": 77.277728,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4952164,
+            "lng": 77.2774851
+          },
+          {
+            "lat": 11.4952164,
+            "lng": 77.2779709
+          },
+          {
+            "lat": 11.4947373,
+            "lng": 77.2779709
+          },
+          {
+            "lat": 11.4947373,
+            "lng": 77.2774851
+          }
+        ],
+        "corner1Lat": 11.4952164,
+        "corner1Lng": 77.2774851,
+        "corner2Lat": 11.4952164,
+        "corner2Lng": 77.2779709,
+        "corner3Lat": 11.4947373,
+        "corner3Lng": 77.2779709,
+        "corner4Lat": 11.4947373,
+        "corner4Lng": 77.2774851
+      },
+      {
+        "id": "n-blk-e1",
+        "campusId": "c1",
+        "name": "BIT Learning Centre",
+        "shortCode": "BLC",
+        "color": "#61b0c9",
+        "x": 466,
+        "y": -416,
+        "width": 324,
+        "height": 136,
+        "lat": 11.4942581,
+        "lng": 77.2770222,
+        "centerLat": 11.4942581,
+        "centerLng": 77.2770222,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4944118,
+            "lng": 77.276651
+          },
+          {
+            "lat": 11.4944118,
+            "lng": 77.2773934
+          },
+          {
+            "lat": 11.4941045,
+            "lng": 77.2773934
+          },
+          {
+            "lat": 11.4941045,
+            "lng": 77.276651
+          }
+        ],
+        "corner1Lat": 11.4944118,
+        "corner1Lng": 77.276651,
+        "corner2Lat": 11.4944118,
+        "corner2Lng": 77.2773934,
+        "corner3Lat": 11.4941045,
+        "corner3Lng": 77.2773934,
+        "corner4Lat": 11.4941045,
+        "corner4Lng": 77.276651
+      },
+      {
+        "id": "n-blk-ne1",
+        "campusId": "c1",
+        "name": "North East Block 1",
+        "shortCode": "E1",
+        "color": "#3aa9e0",
+        "x": 1152,
+        "y": -2150,
+        "width": 264,
+        "height": 180,
+        "lat": 11.498177,
+        "lng": 77.2785941,
+        "centerLat": 11.498177,
+        "centerLng": 77.2785941,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4983804,
+            "lng": 77.2782917
+          },
+          {
+            "lat": 11.4983804,
+            "lng": 77.2788966
+          },
+          {
+            "lat": 11.4979736,
+            "lng": 77.2788966
+          },
+          {
+            "lat": 11.4979736,
+            "lng": 77.2782917
+          }
+        ],
+        "corner1Lat": 11.4983804,
+        "corner1Lng": 77.2782917,
+        "corner2Lat": 11.4983804,
+        "corner2Lng": 77.2788966,
+        "corner3Lat": 11.4979736,
+        "corner3Lng": 77.2788966,
+        "corner4Lat": 11.4979736,
+        "corner4Lng": 77.2782917
+      },
+      {
+        "id": "n-blk-ne2",
+        "campusId": "c1",
+        "name": "Aeronautical Block",
+        "shortCode": "AB",
+        "color": "#4db6ac",
+        "x": 1194,
+        "y": -1912,
+        "width": 284,
+        "height": 152,
+        "lat": 11.4976391,
+        "lng": 77.2786904,
+        "centerLat": 11.4976391,
+        "centerLng": 77.2786904,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4978109,
+            "lng": 77.278365
+          },
+          {
+            "lat": 11.4978109,
+            "lng": 77.2790158
+          },
+          {
+            "lat": 11.4974674,
+            "lng": 77.2790158
+          },
+          {
+            "lat": 11.4974674,
+            "lng": 77.278365
+          }
+        ],
+        "corner1Lat": 11.4978109,
+        "corner1Lng": 77.278365,
+        "corner2Lat": 11.4978109,
+        "corner2Lng": 77.2790158,
+        "corner3Lat": 11.4974674,
+        "corner3Lng": 77.2790158,
+        "corner4Lat": 11.4974674,
+        "corner4Lng": 77.278365
+      },
+      {
+        "id": "n-blk-ne3",
+        "campusId": "c1",
+        "name": "Sun Flower Block",
+        "shortCode": "SFB",
+        "color": "#7e8fd6",
+        "x": 1246,
+        "y": -1388,
+        "width": 260,
+        "height": 208,
+        "lat": 11.4964549,
+        "lng": 77.2788095,
+        "centerLat": 11.4964549,
+        "centerLng": 77.2788095,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.4966899,
+            "lng": 77.2785116
+          },
+          {
+            "lat": 11.4966899,
+            "lng": 77.2791074
+          },
+          {
+            "lat": 11.4962198,
+            "lng": 77.2791074
+          },
+          {
+            "lat": 11.4962198,
+            "lng": 77.2785116
+          }
+        ],
+        "corner1Lat": 11.4966899,
+        "corner1Lng": 77.2785116,
+        "corner2Lat": 11.4966899,
+        "corner2Lng": 77.2791074,
+        "corner3Lat": 11.4962198,
+        "corner3Lng": 77.2791074,
+        "corner4Lat": 11.4962198,
+        "corner4Lng": 77.2785116
+      },
+      {
+        "id": "n-blk-ne4",
+        "campusId": "c1",
+        "name": "East Block 4",
+        "shortCode": "E4",
+        "color": "#5c9ce6",
+        "x": 1460,
+        "y": -1248,
+        "width": 280,
+        "height": 208,
+        "lat": 11.4961385,
+        "lng": 77.2792999,
+        "centerLat": 11.4961385,
+        "centerLng": 77.2792999,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4963735,
+            "lng": 77.2789791
+          },
+          {
+            "lat": 11.4963735,
+            "lng": 77.2796207
+          },
+          {
+            "lat": 11.4959034,
+            "lng": 77.2796207
+          },
+          {
+            "lat": 11.4959034,
+            "lng": 77.2789791
+          }
+        ],
+        "corner1Lat": 11.4963735,
+        "corner1Lng": 77.2789791,
+        "corner2Lat": 11.4963735,
+        "corner2Lng": 77.2796207,
+        "corner3Lat": 11.4959034,
+        "corner3Lng": 77.2796207,
+        "corner4Lat": 11.4959034,
+        "corner4Lng": 77.2789791
+      },
+      {
+        "id": "s-track",
+        "campusId": "c1",
+        "name": "BIT Ground",
+        "shortCode": "BG",
+        "color": "#7cb342",
+        "x": -420,
+        "y": -1640,
+        "width": 440,
+        "height": 720,
+        "lat": 11.4970244,
+        "lng": 77.274992,
+        "centerLat": 11.4970244,
+        "centerLng": 77.274992,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.497838,
+            "lng": 77.2744879
+          },
+          {
+            "lat": 11.497838,
+            "lng": 77.2754961
+          },
+          {
+            "lat": 11.4962108,
+            "lng": 77.2754961
+          },
+          {
+            "lat": 11.4962108,
+            "lng": 77.2744879
+          }
+        ],
+        "corner1Lat": 11.497838,
+        "corner1Lng": 77.2744879,
+        "corner2Lat": 11.497838,
+        "corner2Lng": 77.2754961,
+        "corner3Lat": 11.4962108,
+        "corner3Lng": 77.2754961,
+        "corner4Lat": 11.4962108,
+        "corner4Lng": 77.2744879
+      },
+      {
+        "id": "s-courts-1",
+        "campusId": "c1",
+        "name": "Sports Ground North",
+        "shortCode": "SG1",
+        "color": "#7cb342",
+        "x": -548,
+        "y": -1050,
+        "width": 696,
+        "height": 388,
+        "lat": 11.495691,
+        "lng": 77.2746987,
+        "centerLat": 11.495691,
+        "centerLng": 77.2746987,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.4961294,
+            "lng": 77.2739013
+          },
+          {
+            "lat": 11.4961294,
+            "lng": 77.2754961
+          },
+          {
+            "lat": 11.4952526,
+            "lng": 77.2754961
+          },
+          {
+            "lat": 11.4952526,
+            "lng": 77.2739013
+          }
+        ],
+        "corner1Lat": 11.4961294,
+        "corner1Lng": 77.2739013,
+        "corner2Lat": 11.4961294,
+        "corner2Lng": 77.2754961,
+        "corner3Lat": 11.4952526,
+        "corner3Lng": 77.2754961,
+        "corner4Lat": 11.4952526,
+        "corner4Lng": 77.2739013
+      },
+      {
+        "id": "s-courts-2",
+        "campusId": "c1",
+        "name": "Sports Ground South",
+        "shortCode": "SG2",
+        "color": "#7cb342",
+        "x": -548,
+        "y": -718,
+        "width": 696,
+        "height": 252,
+        "lat": 11.4949407,
+        "lng": 77.2746987,
+        "centerLat": 11.4949407,
+        "centerLng": 77.2746987,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.4952254,
+            "lng": 77.2739013
+          },
+          {
+            "lat": 11.4952254,
+            "lng": 77.2754961
+          },
+          {
+            "lat": 11.4946559,
+            "lng": 77.2754961
+          },
+          {
+            "lat": 11.4946559,
+            "lng": 77.2739013
+          }
+        ],
+        "corner1Lat": 11.4952254,
+        "corner1Lng": 77.2739013,
+        "corner2Lat": 11.4952254,
+        "corner2Lng": 77.2754961,
+        "corner3Lat": 11.4946559,
+        "corner3Lng": 77.2754961,
+        "corner4Lat": 11.4946559,
+        "corner4Lng": 77.2739013
+      },
+      {
+        "id": "n-shed-nw",
+        "campusId": "c1",
+        "name": "North West Shed",
+        "shortCode": "NW",
+        "color": "#b0bec5",
+        "x": -258,
+        "y": -2030,
+        "width": 220,
+        "height": 148,
+        "lat": 11.4979058,
+        "lng": 77.2753632,
+        "centerLat": 11.4979058,
+        "centerLng": 77.2753632,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.4980731,
+            "lng": 77.2751112
+          },
+          {
+            "lat": 11.4980731,
+            "lng": 77.2756153
+          },
+          {
+            "lat": 11.4977386,
+            "lng": 77.2756153
+          },
+          {
+            "lat": 11.4977386,
+            "lng": 77.2751112
+          }
+        ],
+        "corner1Lat": 11.4980731,
+        "corner1Lng": 77.2751112,
+        "corner2Lat": 11.4980731,
+        "corner2Lng": 77.2756153,
+        "corner3Lat": 11.4977386,
+        "corner3Lng": 77.2756153,
+        "corner4Lat": 11.4977386,
+        "corner4Lng": 77.2751112
+      },
+      {
+        "id": "n-blk-ne5",
+        "campusId": "c1",
+        "name": "North East Complex",
+        "shortCode": "E5",
+        "color": "#5c9ce6",
+        "x": 1208,
+        "y": -1768,
+        "width": 352,
+        "height": 160,
+        "lat": 11.4973137,
+        "lng": 77.2787225,
+        "centerLat": 11.4973137,
+        "centerLng": 77.2787225,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4974945,
+            "lng": 77.2783192
+          },
+          {
+            "lat": 11.4974945,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4971329,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4971329,
+            "lng": 77.2783192
+          }
+        ],
+        "corner1Lat": 11.4974945,
+        "corner1Lng": 77.2783192,
+        "corner2Lat": 11.4974945,
+        "corner2Lng": 77.2791258,
+        "corner3Lat": 11.4971329,
+        "corner3Lng": 77.2791258,
+        "corner4Lat": 11.4971329,
+        "corner4Lng": 77.2783192
+      },
+      {
+        "id": "n-shed-s",
+        "campusId": "c1",
+        "name": "South Shed",
+        "shortCode": "SS",
+        "color": "#b0bec5",
+        "x": -278,
+        "y": -512,
+        "width": 164,
+        "height": 96,
+        "lat": 11.4944751,
+        "lng": 77.2753174,
+        "centerLat": 11.4944751,
+        "centerLng": 77.2753174,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.4945836,
+            "lng": 77.2751295
+          },
+          {
+            "lat": 11.4945836,
+            "lng": 77.2755053
+          },
+          {
+            "lat": 11.4943666,
+            "lng": 77.2755053
+          },
+          {
+            "lat": 11.4943666,
+            "lng": 77.2751295
+          }
+        ],
+        "corner1Lat": 11.4945836,
+        "corner1Lng": 77.2751295,
+        "corner2Lat": 11.4945836,
+        "corner2Lng": 77.2755053,
+        "corner3Lat": 11.4943666,
+        "corner3Lng": 77.2755053,
+        "corner4Lat": 11.4943666,
+        "corner4Lng": 77.2751295
+      },
+      {
+        "id": "f-apart-1",
+        "campusId": "c1",
+        "name": "Staff Apartments",
+        "shortCode": "SA1",
+        "color": "#3aa9e0",
+        "x": -500,
+        "y": -3058,
+        "width": 416,
+        "height": 236,
+        "lat": 11.5002291,
+        "lng": 77.2748087,
+        "centerLat": 11.5002291,
+        "centerLng": 77.2748087,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.5004958,
+            "lng": 77.2743321
+          },
+          {
+            "lat": 11.5004958,
+            "lng": 77.2752853
+          },
+          {
+            "lat": 11.4999624,
+            "lng": 77.2752853
+          },
+          {
+            "lat": 11.4999624,
+            "lng": 77.2743321
+          }
+        ],
+        "corner1Lat": 11.5004958,
+        "corner1Lng": 77.2743321,
+        "corner2Lat": 11.5004958,
+        "corner2Lng": 77.2752853,
+        "corner3Lat": 11.4999624,
+        "corner3Lng": 77.2752853,
+        "corner4Lat": 11.4999624,
+        "corner4Lng": 77.2743321
+      },
+      {
+        "id": "f-newblk",
+        "campusId": "c1",
+        "name": "New Block (under construction)",
+        "shortCode": "NB",
+        "color": "#4db6ac",
+        "x": -108,
+        "y": -3220,
+        "width": 352,
+        "height": 216,
+        "lat": 11.5005952,
+        "lng": 77.2757069,
+        "centerLat": 11.5005952,
+        "centerLng": 77.2757069,
+        "floorsCount": 3,
+        "footprint": [
+          {
+            "lat": 11.5008393,
+            "lng": 77.2753036
+          },
+          {
+            "lat": 11.5008393,
+            "lng": 77.2761102
+          },
+          {
+            "lat": 11.5003512,
+            "lng": 77.2761102
+          },
+          {
+            "lat": 11.5003512,
+            "lng": 77.2753036
+          }
+        ],
+        "corner1Lat": 11.5008393,
+        "corner1Lng": 77.2753036,
+        "corner2Lat": 11.5008393,
+        "corner2Lng": 77.2761102,
+        "corner3Lat": 11.5003512,
+        "corner3Lng": 77.2761102,
+        "corner4Lat": 11.5003512,
+        "corner4Lng": 77.2753036
+      },
+      {
+        "id": "f-quarters",
+        "campusId": "c1",
+        "name": "Q Block Staff Quarters",
+        "shortCode": "QBS",
+        "color": "#90a4ae",
+        "x": -316,
+        "y": -2570,
+        "width": 832,
+        "height": 756,
+        "lat": 11.4991262,
+        "lng": 77.2752303,
+        "centerLat": 11.4991262,
+        "centerLng": 77.2752303,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4999805,
+            "lng": 77.2742771
+          },
+          {
+            "lat": 11.4999805,
+            "lng": 77.2761835
+          },
+          {
+            "lat": 11.4982719,
+            "lng": 77.2761835
+          },
+          {
+            "lat": 11.4982719,
+            "lng": 77.2742771
+          }
+        ],
+        "corner1Lat": 11.4999805,
+        "corner1Lng": 77.2742771,
+        "corner2Lat": 11.4999805,
+        "corner2Lng": 77.2761835,
+        "corner3Lat": 11.4982719,
+        "corner3Lng": 77.2761835,
+        "corner4Lat": 11.4982719,
+        "corner4Lng": 77.2742771
+      },
+      {
+        "id": "f-pond-1",
+        "campusId": "c1",
+        "name": "North Pond",
+        "shortCode": "P1",
+        "color": "#4fc3f7",
+        "x": 402,
+        "y": -3088,
+        "width": 468,
+        "height": 232,
+        "lat": 11.5002969,
+        "lng": 77.2768756,
+        "centerLat": 11.5002969,
+        "centerLng": 77.2768756,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.5005591,
+            "lng": 77.2763394
+          },
+          {
+            "lat": 11.5005591,
+            "lng": 77.2774118
+          },
+          {
+            "lat": 11.5000348,
+            "lng": 77.2774118
+          },
+          {
+            "lat": 11.5000348,
+            "lng": 77.2763394
+          }
+        ],
+        "corner1Lat": 11.5005591,
+        "corner1Lng": 77.2763394,
+        "corner2Lat": 11.5005591,
+        "corner2Lng": 77.2774118,
+        "corner3Lat": 11.5000348,
+        "corner3Lng": 77.2774118,
+        "corner4Lat": 11.5000348,
+        "corner4Lng": 77.2763394
+      },
+      {
+        "id": "f-complex-ne",
+        "campusId": "c1",
+        "name": "BIT Bus Stop",
+        "shortCode": "BBS",
+        "color": "#61b0c9",
+        "x": 1228,
+        "y": -2876,
+        "width": 312,
+        "height": 176,
+        "lat": 11.4998178,
+        "lng": 77.2787683,
+        "centerLat": 11.4998178,
+        "centerLng": 77.2787683,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.5000167,
+            "lng": 77.2784108
+          },
+          {
+            "lat": 11.5000167,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4996189,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4996189,
+            "lng": 77.2784108
+          }
+        ],
+        "corner1Lat": 11.5000167,
+        "corner1Lng": 77.2784108,
+        "corner2Lat": 11.5000167,
+        "corner2Lng": 77.2791258,
+        "corner3Lat": 11.4996189,
+        "corner3Lng": 77.2791258,
+        "corner4Lat": 11.4996189,
+        "corner4Lng": 77.2784108
+      },
+      {
+        "id": "f-poly",
+        "campusId": "c1",
+        "name": "Poly Houses",
+        "shortCode": "PH2",
+        "color": "#9ccc65",
+        "x": 1170,
+        "y": -2442,
+        "width": 428,
+        "height": 332,
+        "lat": 11.4988369,
+        "lng": 77.2786354,
+        "centerLat": 11.4988369,
+        "centerLng": 77.2786354,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.4992121,
+            "lng": 77.278145
+          },
+          {
+            "lat": 11.4992121,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4984618,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4984618,
+            "lng": 77.278145
+          }
+        ],
+        "corner1Lat": 11.4992121,
+        "corner1Lng": 77.278145,
+        "corner2Lat": 11.4992121,
+        "corner2Lng": 77.2791258,
+        "corner3Lat": 11.4984618,
+        "corner3Lng": 77.2791258,
+        "corner4Lat": 11.4984618,
+        "corner4Lng": 77.278145
+      },
+      {
+        "id": "f-pond-2",
+        "campusId": "c1",
+        "name": "East Pond",
+        "shortCode": "P2",
+        "color": "#4fc3f7",
+        "x": 1486,
+        "y": -2576,
+        "width": 244,
+        "height": 280,
+        "lat": 11.4991398,
+        "lng": 77.2793595,
+        "centerLat": 11.4991398,
+        "centerLng": 77.2793595,
+        "floorsCount": 1,
+        "footprint": [
+          {
+            "lat": 11.4994562,
+            "lng": 77.2790799
+          },
+          {
+            "lat": 11.4994562,
+            "lng": 77.279639
+          },
+          {
+            "lat": 11.4988234,
+            "lng": 77.279639
+          },
+          {
+            "lat": 11.4988234,
+            "lng": 77.2790799
+          }
+        ],
+        "corner1Lat": 11.4994562,
+        "corner1Lng": 77.2790799,
+        "corner2Lat": 11.4994562,
+        "corner2Lng": 77.279639,
+        "corner3Lat": 11.4988234,
+        "corner3Lng": 77.279639,
+        "corner4Lat": 11.4988234,
+        "corner4Lng": 77.2790799
+      },
+      {
+        "id": "f-blk-s",
+        "campusId": "c1",
+        "name": "North Boundary Block",
+        "shortCode": "NBB",
+        "color": "#7e8fd6",
+        "x": 1204,
+        "y": -2110,
+        "width": 360,
+        "height": 204,
+        "lat": 11.4980866,
+        "lng": 77.2787133,
+        "centerLat": 11.4980866,
+        "centerLng": 77.2787133,
+        "floorsCount": 2,
+        "footprint": [
+          {
+            "lat": 11.4983171,
+            "lng": 77.2783008
+          },
+          {
+            "lat": 11.4983171,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4978561,
+            "lng": 77.2791258
+          },
+          {
+            "lat": 11.4978561,
+            "lng": 77.2783008
+          }
+        ],
+        "corner1Lat": 11.4983171,
+        "corner1Lng": 77.2783008,
+        "corner2Lat": 11.4983171,
+        "corner2Lng": 77.2791258,
+        "corner3Lat": 11.4978561,
+        "corner3Lng": 77.2791258,
+        "corner4Lat": 11.4978561,
+        "corner4Lng": 77.2783008
+      }
+    ],
+    "floors": [
+      {
+        "id": "b-acad-w-f0",
+        "buildingId": "b-acad-w",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-acad-w-f1",
+        "buildingId": "b-acad-w",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-acad-w-f2",
+        "buildingId": "b-acad-w",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-acad-w-f3",
+        "buildingId": "b-acad-w",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "code": "3"
+      },
+      {
+        "id": "b-acad-c-f0",
+        "buildingId": "b-acad-c",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-acad-c-f1",
+        "buildingId": "b-acad-c",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-acad-c-f2",
+        "buildingId": "b-acad-c",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-acad-c-f3",
+        "buildingId": "b-acad-c",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "code": "3"
+      },
+      {
+        "id": "b-acad-e-f0",
+        "buildingId": "b-acad-e",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-acad-e-f1",
+        "buildingId": "b-acad-e",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-acad-e-f2",
+        "buildingId": "b-acad-e",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-acad-e-f3",
+        "buildingId": "b-acad-e",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "code": "3"
+      },
+      {
+        "id": "b-blk-sw-f0",
+        "buildingId": "b-blk-sw",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-blk-sw-f1",
+        "buildingId": "b-blk-sw",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-blk-sw-f2",
+        "buildingId": "b-blk-sw",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-hall-f0",
+        "buildingId": "b-hall",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-hall-f1",
+        "buildingId": "b-hall",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-blk-s1-f0",
+        "buildingId": "b-blk-s1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-blk-s1-f1",
+        "buildingId": "b-blk-s1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-blk-s1-f2",
+        "buildingId": "b-blk-s1",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-blk-s2-f0",
+        "buildingId": "b-blk-s2",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-blk-s2-f1",
+        "buildingId": "b-blk-s2",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-blk-s2-f2",
+        "buildingId": "b-blk-s2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-blk-s3-f0",
+        "buildingId": "b-blk-s3",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-blk-s3-f1",
+        "buildingId": "b-blk-s3",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-blk-s3-f2",
+        "buildingId": "b-blk-s3",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-hostel-a-f0",
+        "buildingId": "b-hostel-a",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-hostel-a-f1",
+        "buildingId": "b-hostel-a",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-hostel-a-f2",
+        "buildingId": "b-hostel-a",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-hostel-a-f3",
+        "buildingId": "b-hostel-a",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "code": "3"
+      },
+      {
+        "id": "b-hostel-b-f0",
+        "buildingId": "b-hostel-b",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-hostel-b-f1",
+        "buildingId": "b-hostel-b",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-hostel-b-f2",
+        "buildingId": "b-hostel-b",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-hostel-b-f3",
+        "buildingId": "b-hostel-b",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "code": "3"
+      },
+      {
+        "id": "b-hostel-c-f0",
+        "buildingId": "b-hostel-c",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-hostel-c-f1",
+        "buildingId": "b-hostel-c",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-hostel-c-f2",
+        "buildingId": "b-hostel-c",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-hostel-c-f3",
+        "buildingId": "b-hostel-c",
+        "name": "Floor 3",
+        "ordinal": 3,
+        "code": "3"
+      },
+      {
+        "id": "b-east-f0",
+        "buildingId": "b-east",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-east-f1",
+        "buildingId": "b-east",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-east-f2",
+        "buildingId": "b-east",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "b-sw-solar-f0",
+        "buildingId": "b-sw-solar",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-sw-solar-f1",
+        "buildingId": "b-sw-solar",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-sw-2-f0",
+        "buildingId": "b-sw-2",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-sw-2-f1",
+        "buildingId": "b-sw-2",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-south-f0",
+        "buildingId": "b-south",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "b-south-f1",
+        "buildingId": "b-south",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "b-south-f2",
+        "buildingId": "b-south",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-a1-f0",
+        "buildingId": "n-blk-a1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-a1-f1",
+        "buildingId": "n-blk-a1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-a1-f2",
+        "buildingId": "n-blk-a1",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-a2-f0",
+        "buildingId": "n-blk-a2",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-a2-f1",
+        "buildingId": "n-blk-a2",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-a2-f2",
+        "buildingId": "n-blk-a2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-b1-f0",
+        "buildingId": "n-blk-b1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-b1-f1",
+        "buildingId": "n-blk-b1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-b1-f2",
+        "buildingId": "n-blk-b1",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-b2-f0",
+        "buildingId": "n-blk-b2",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-b2-f1",
+        "buildingId": "n-blk-b2",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-b2-f2",
+        "buildingId": "n-blk-b2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-b3-f0",
+        "buildingId": "n-blk-b3",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-b3-f1",
+        "buildingId": "n-blk-b3",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-b3-f2",
+        "buildingId": "n-blk-b3",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-b4-f0",
+        "buildingId": "n-blk-b4",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-b4-f1",
+        "buildingId": "n-blk-b4",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-b4-f2",
+        "buildingId": "n-blk-b4",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-c1-f0",
+        "buildingId": "n-blk-c1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-c1-f1",
+        "buildingId": "n-blk-c1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-c1-f2",
+        "buildingId": "n-blk-c1",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-c2-f0",
+        "buildingId": "n-blk-c2",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-c2-f1",
+        "buildingId": "n-blk-c2",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-c2-f2",
+        "buildingId": "n-blk-c2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-c3-f0",
+        "buildingId": "n-blk-c3",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-c3-f1",
+        "buildingId": "n-blk-c3",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-c3-f2",
+        "buildingId": "n-blk-c3",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-c4-f0",
+        "buildingId": "n-blk-c4",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-c4-f1",
+        "buildingId": "n-blk-c4",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-c4-f2",
+        "buildingId": "n-blk-c4",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-d1-f0",
+        "buildingId": "n-blk-d1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-d1-f1",
+        "buildingId": "n-blk-d1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-d1-f2",
+        "buildingId": "n-blk-d1",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-d2-f0",
+        "buildingId": "n-blk-d2",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-d2-f1",
+        "buildingId": "n-blk-d2",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-d2-f2",
+        "buildingId": "n-blk-d2",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-d3-f0",
+        "buildingId": "n-blk-d3",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-d3-f1",
+        "buildingId": "n-blk-d3",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-d3-f2",
+        "buildingId": "n-blk-d3",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-d4-f0",
+        "buildingId": "n-blk-d4",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-d4-f1",
+        "buildingId": "n-blk-d4",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-d4-f2",
+        "buildingId": "n-blk-d4",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-e1-f0",
+        "buildingId": "n-blk-e1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-e1-f1",
+        "buildingId": "n-blk-e1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-ne1-f0",
+        "buildingId": "n-blk-ne1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-ne1-f1",
+        "buildingId": "n-blk-ne1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-ne2-f0",
+        "buildingId": "n-blk-ne2",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-ne2-f1",
+        "buildingId": "n-blk-ne2",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-ne3-f0",
+        "buildingId": "n-blk-ne3",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-ne3-f1",
+        "buildingId": "n-blk-ne3",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-ne3-f2",
+        "buildingId": "n-blk-ne3",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "n-blk-ne4-f0",
+        "buildingId": "n-blk-ne4",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-ne4-f1",
+        "buildingId": "n-blk-ne4",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "n-blk-ne5-f0",
+        "buildingId": "n-blk-ne5",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "n-blk-ne5-f1",
+        "buildingId": "n-blk-ne5",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "f-apart-1-f0",
+        "buildingId": "f-apart-1",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "f-apart-1-f1",
+        "buildingId": "f-apart-1",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "f-apart-1-f2",
+        "buildingId": "f-apart-1",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "f-newblk-f0",
+        "buildingId": "f-newblk",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "f-newblk-f1",
+        "buildingId": "f-newblk",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "f-newblk-f2",
+        "buildingId": "f-newblk",
+        "name": "Floor 2",
+        "ordinal": 2,
+        "code": "2"
+      },
+      {
+        "id": "f-quarters-f0",
+        "buildingId": "f-quarters",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "f-quarters-f1",
+        "buildingId": "f-quarters",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "f-complex-ne-f0",
+        "buildingId": "f-complex-ne",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "f-complex-ne-f1",
+        "buildingId": "f-complex-ne",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      },
+      {
+        "id": "f-blk-s-f0",
+        "buildingId": "f-blk-s",
+        "name": "Ground Floor",
+        "ordinal": 0,
+        "code": "G"
+      },
+      {
+        "id": "f-blk-s-f1",
+        "buildingId": "f-blk-s",
+        "name": "Floor 1",
+        "ordinal": 1,
+        "code": "1"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "n-road-1",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 966,
+        "y": -324,
+        "lat": 11.4940502,
+        "lng": 77.2781679,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-2",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 966,
+        "y": 524,
+        "lat": 11.4921337,
+        "lng": 77.2781679,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-3",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -74,
+        "y": -324,
+        "lat": 11.4940502,
+        "lng": 77.2757848,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-4",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 966,
+        "y": -1660,
+        "lat": 11.4970696,
+        "lng": 77.2781679,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-5",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 966,
+        "y": -2176,
+        "lat": 11.4982358,
+        "lng": 77.2781679,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-6",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -74,
+        "y": -1660,
+        "lat": 11.4970696,
+        "lng": 77.2757848,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-7",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2192,
+        "y": 474,
+        "lat": 11.4922467,
+        "lng": 77.2809772,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-8",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2192,
+        "y": 413,
+        "lat": 11.4923846,
+        "lng": 77.2809772,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-9",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2192,
+        "y": 303,
+        "lat": 11.4926332,
+        "lng": 77.2809772,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-10",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2192,
+        "y": 170,
+        "lat": 11.4929338,
+        "lng": 77.2809772,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-11",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2157,
+        "y": 170,
+        "lat": 11.4929338,
+        "lng": 77.280897,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-12",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2236,
+        "y": 170,
+        "lat": 11.4929338,
+        "lng": 77.2810781,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-13",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2236,
+        "y": 41,
+        "lat": 11.4932253,
+        "lng": 77.2810781,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-14",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 2236,
+        "y": -47,
+        "lat": 11.4934242,
+        "lng": 77.2810781,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-15",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -74,
+        "y": -140,
+        "lat": 11.4936344,
+        "lng": 77.2757848,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-16",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 356,
+        "y": -140,
+        "lat": 11.4936344,
+        "lng": 77.2767702,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-17",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 356,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.2767702,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-18",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": 99,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.2761813,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-19",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -276,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.275322,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-20",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -482,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.2748499,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-21",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -548,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.2746987,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-22",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -482,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.2748499,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-23",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -730,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.2742816,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "n-road-24",
+        "campusId": "c1",
+        "type": "ROAD_JUNCTION",
+        "floorId": "f-out",
+        "x": -849,
+        "y": 515,
+        "lat": 11.4921541,
+        "lng": 77.274009,
+        "visibleToUser": false,
+        "searchable": false
+      },
+      {
+        "id": "b-acad-w-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Academic Block W Entrance",
+        "floorId": "f-out",
+        "x": -475,
+        "y": 229,
+        "lat": 11.4927995,
+        "lng": 77.274867,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-acad-c-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Academic Block C Entrance",
+        "floorId": "f-out",
+        "x": -429,
+        "y": 180,
+        "lat": 11.4929109,
+        "lng": 77.2749717,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-acad-e-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Academic Block E Entrance",
+        "floorId": "f-out",
+        "x": 118,
+        "y": 170,
+        "lat": 11.4929335,
+        "lng": 77.2762238,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-blk-sw-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Women's Hostel Entrance",
+        "floorId": "f-out",
+        "x": -282,
+        "y": 474,
+        "lat": 11.4922464,
+        "lng": 77.2753091,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-hall-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Central Hall Entrance",
+        "floorId": "f-out",
+        "x": -193,
+        "y": 491,
+        "lat": 11.4922076,
+        "lng": 77.2755132,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-blk-s1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Block S1 Entrance",
+        "floorId": "f-out",
+        "x": 157,
+        "y": 344,
+        "lat": 11.4925411,
+        "lng": 77.2763138,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-blk-s2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Block S2 Entrance",
+        "floorId": "f-out",
+        "x": -194,
+        "y": 613,
+        "lat": 11.4919318,
+        "lng": 77.2755104,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-blk-s3-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Block S3 Entrance",
+        "floorId": "f-out",
+        "x": 159,
+        "y": 619,
+        "lat": 11.4919191,
+        "lng": 77.276319,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-hostel-a-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Hostel Block A Entrance",
+        "floorId": "f-out",
+        "x": 1263,
+        "y": 162,
+        "lat": 11.4929515,
+        "lng": 77.2788476,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-hostel-b-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Hostel Block B Entrance",
+        "floorId": "f-out",
+        "x": 1572,
+        "y": 171,
+        "lat": 11.4929307,
+        "lng": 77.2795568,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-hostel-c-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Hostel Block C Entrance",
+        "floorId": "f-out",
+        "x": 1777,
+        "y": 169,
+        "lat": 11.4929349,
+        "lng": 77.2800255,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-east-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "East Block Entrance",
+        "floorId": "f-out",
+        "x": 2198,
+        "y": 462,
+        "lat": 11.4922741,
+        "lng": 77.2809906,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-sw-solar-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "South West Block Entrance",
+        "floorId": "f-out",
+        "x": -992,
+        "y": 702,
+        "lat": 11.4917324,
+        "lng": 77.2736821,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-sw-2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "South West Annexe Entrance",
+        "floorId": "f-out",
+        "x": -1146,
+        "y": 901,
+        "lat": 11.4912818,
+        "lng": 77.2733274,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "b-south-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "South Block Entrance",
+        "floorId": "f-out",
+        "x": -549,
+        "y": 989,
+        "lat": 11.4910824,
+        "lng": 77.2746968,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-a1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Biotechnology Block Entrance",
+        "floorId": "f-out",
+        "x": 88,
+        "y": -1362,
+        "lat": 11.4963951,
+        "lng": 77.2761564,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-a2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "AS Block Entrance",
+        "floorId": "f-out",
+        "x": 562,
+        "y": -1364,
+        "lat": 11.4964002,
+        "lng": 77.2772428,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-b1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "IT Lab Entrance",
+        "floorId": "f-out",
+        "x": 148,
+        "y": -1065,
+        "lat": 11.4957256,
+        "lng": 77.2762946,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-b2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "CS Block Entrance",
+        "floorId": "f-out",
+        "x": 182,
+        "y": -1091,
+        "lat": 11.4957838,
+        "lng": 77.2763714,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-b3-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North Block B3 Entrance",
+        "floorId": "f-out",
+        "x": 476,
+        "y": -1083,
+        "lat": 11.4957664,
+        "lng": 77.2770444,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-b4-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North Block B4 Entrance",
+        "floorId": "f-out",
+        "x": 662,
+        "y": -1083,
+        "lat": 11.4957662,
+        "lng": 77.2774708,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-c1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "CSE Block Entrance",
+        "floorId": "f-out",
+        "x": -8,
+        "y": -851,
+        "lat": 11.4952405,
+        "lng": 77.2759371,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-c2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "EEE Block Entrance",
+        "floorId": "f-out",
+        "x": 182,
+        "y": -851,
+        "lat": 11.4952417,
+        "lng": 77.2763711,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-c3-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North Block C3 Entrance",
+        "floorId": "f-out",
+        "x": 511,
+        "y": -850,
+        "lat": 11.4952383,
+        "lng": 77.277125,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-c4-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North Block C4 Entrance",
+        "floorId": "f-out",
+        "x": 662,
+        "y": -860,
+        "lat": 11.4952605,
+        "lng": 77.2774702,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-d1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Mechanical Block Entrance",
+        "floorId": "f-out",
+        "x": 24,
+        "y": -594,
+        "lat": 11.4946594,
+        "lng": 77.2760097,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-d2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "ME Block Entrance",
+        "floorId": "f-out",
+        "x": 182,
+        "y": -619,
+        "lat": 11.4947174,
+        "lng": 77.2763711,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-d3-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Bannari Amman Auditorium Entrance",
+        "floorId": "f-out",
+        "x": 476,
+        "y": -619,
+        "lat": 11.4947172,
+        "lng": 77.277045,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-d4-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North Block D4 Entrance",
+        "floorId": "f-out",
+        "x": 662,
+        "y": -619,
+        "lat": 11.4947179,
+        "lng": 77.2774704,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-e1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "BIT Learning Centre Entrance",
+        "floorId": "f-out",
+        "x": 300,
+        "y": -343,
+        "lat": 11.4940936,
+        "lng": 77.2766419,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-ne1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North East Block 1 Entrance",
+        "floorId": "f-out",
+        "x": 1033,
+        "y": -2052,
+        "lat": 11.4979564,
+        "lng": 77.2783208,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-ne2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Aeronautical Block Entrance",
+        "floorId": "f-out",
+        "x": 1065,
+        "y": -1830,
+        "lat": 11.4974528,
+        "lng": 77.2783945,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-ne3-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Sun Flower Block Entrance",
+        "floorId": "f-out",
+        "x": 1107,
+        "y": -1277,
+        "lat": 11.4962029,
+        "lng": 77.2784902,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-ne4-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "East Block 4 Entrance",
+        "floorId": "f-out",
+        "x": 1310,
+        "y": -1137,
+        "lat": 11.4958873,
+        "lng": 77.278957,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "s-track-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "BIT Ground Entrance",
+        "floorId": "f-out",
+        "x": -195,
+        "y": -1270,
+        "lat": 11.4961876,
+        "lng": 77.2755081,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "s-courts-1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Sports Ground North Access",
+        "floorId": "f-out",
+        "x": -191,
+        "y": -850,
+        "lat": 11.4952393,
+        "lng": 77.2755178,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "s-courts-2-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Sports Ground South Access",
+        "floorId": "f-out",
+        "x": -189,
+        "y": -590,
+        "lat": 11.4946513,
+        "lng": 77.275522,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-shed-nw-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North West Shed Access",
+        "floorId": "f-out",
+        "x": -378,
+        "y": -1950,
+        "lat": 11.4977258,
+        "lng": 77.2750882,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-blk-ne5-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North East Complex Entrance",
+        "floorId": "f-out",
+        "x": 1021,
+        "y": -1684,
+        "lat": 11.497124,
+        "lng": 77.2782941,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "n-shed-s-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "South Shed Access",
+        "floorId": "f-out",
+        "x": -186,
+        "y": -460,
+        "lat": 11.4943579,
+        "lng": 77.2755293,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "f-apart-1-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Staff Apartments Entrance",
+        "floorId": "f-out",
+        "x": -710,
+        "y": -2934,
+        "lat": 11.4999487,
+        "lng": 77.2743267,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "f-newblk-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "New Block (under construction) Entrance",
+        "floorId": "f-out",
+        "x": -294,
+        "y": -3107,
+        "lat": 11.5003393,
+        "lng": 77.2752801,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "f-quarters-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Q Block Staff Quarters Entrance",
+        "floorId": "f-out",
+        "x": 107,
+        "y": -2184,
+        "lat": 11.4982537,
+        "lng": 77.2761993,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "f-complex-ne-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "BIT Bus Stop Entrance",
+        "floorId": "f-out",
+        "x": 1105,
+        "y": -2781,
+        "lat": 11.4996023,
+        "lng": 77.2784853,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "f-poly-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "Poly Houses Access",
+        "floorId": "f-out",
+        "x": 981,
+        "y": -2268,
+        "lat": 11.4984434,
+        "lng": 77.2782027,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      },
+      {
+        "id": "f-blk-s-ent",
+        "campusId": "c1",
+        "type": "BUILDING_ENTRANCE",
+        "name": "North Boundary Block Entrance",
+        "floorId": "f-out",
+        "x": 1022,
+        "y": -2002,
+        "lat": 11.4978423,
+        "lng": 77.2782955,
+        "isEntranceNode": true,
+        "visibleToUser": true,
+        "searchable": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-n-road-1-n-road-2",
+        "from": "n-road-1",
+        "to": "n-road-2",
+        "fromNodeId": "n-road-1",
+        "toNodeId": "n-road-2",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 212,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-3-n-road-1",
+        "from": "n-road-3",
+        "to": "n-road-1",
+        "fromNodeId": "n-road-3",
+        "toNodeId": "n-road-1",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 260,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-1-n-road-4",
+        "from": "n-road-1",
+        "to": "n-road-4",
+        "fromNodeId": "n-road-1",
+        "toNodeId": "n-road-4",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 334,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-4-n-road-5",
+        "from": "n-road-4",
+        "to": "n-road-5",
+        "fromNodeId": "n-road-4",
+        "toNodeId": "n-road-5",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 129,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-4-n-road-6",
+        "from": "n-road-4",
+        "to": "n-road-6",
+        "fromNodeId": "n-road-4",
+        "toNodeId": "n-road-6",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 260,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-6-n-road-3",
+        "from": "n-road-6",
+        "to": "n-road-3",
+        "fromNodeId": "n-road-6",
+        "toNodeId": "n-road-3",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 334,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-7-n-road-8",
+        "from": "n-road-7",
+        "to": "n-road-8",
+        "fromNodeId": "n-road-7",
+        "toNodeId": "n-road-8",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 15,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-8-n-road-9",
+        "from": "n-road-8",
+        "to": "n-road-9",
+        "fromNodeId": "n-road-8",
+        "toNodeId": "n-road-9",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 28,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-9-n-road-10",
+        "from": "n-road-9",
+        "to": "n-road-10",
+        "fromNodeId": "n-road-9",
+        "toNodeId": "n-road-10",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 33,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-10-n-road-11",
+        "from": "n-road-10",
+        "to": "n-road-11",
+        "fromNodeId": "n-road-10",
+        "toNodeId": "n-road-11",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 9,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-11-n-road-12",
+        "from": "n-road-11",
+        "to": "n-road-12",
+        "fromNodeId": "n-road-11",
+        "toNodeId": "n-road-12",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 20,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-12-n-road-13",
+        "from": "n-road-12",
+        "to": "n-road-13",
+        "fromNodeId": "n-road-12",
+        "toNodeId": "n-road-13",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 32,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-13-n-road-14",
+        "from": "n-road-13",
+        "to": "n-road-14",
+        "fromNodeId": "n-road-13",
+        "toNodeId": "n-road-14",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 22,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-3-n-road-15",
+        "from": "n-road-3",
+        "to": "n-road-15",
+        "fromNodeId": "n-road-3",
+        "toNodeId": "n-road-15",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 46,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-15-n-road-16",
+        "from": "n-road-15",
+        "to": "n-road-16",
+        "fromNodeId": "n-road-15",
+        "toNodeId": "n-road-16",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 108,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-16-n-road-17",
+        "from": "n-road-16",
+        "to": "n-road-17",
+        "fromNodeId": "n-road-16",
+        "toNodeId": "n-road-17",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 164,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-17-n-road-18",
+        "from": "n-road-17",
+        "to": "n-road-18",
+        "fromNodeId": "n-road-17",
+        "toNodeId": "n-road-18",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 64,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-18-n-road-19",
+        "from": "n-road-18",
+        "to": "n-road-19",
+        "fromNodeId": "n-road-18",
+        "toNodeId": "n-road-19",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 94,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-19-n-road-20",
+        "from": "n-road-19",
+        "to": "n-road-20",
+        "fromNodeId": "n-road-19",
+        "toNodeId": "n-road-20",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 52,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-20-n-road-21",
+        "from": "n-road-20",
+        "to": "n-road-21",
+        "fromNodeId": "n-road-20",
+        "toNodeId": "n-road-21",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 16,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-21-n-road-22",
+        "from": "n-road-21",
+        "to": "n-road-22",
+        "fromNodeId": "n-road-21",
+        "toNodeId": "n-road-22",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 16,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-22-n-road-23",
+        "from": "n-road-22",
+        "to": "n-road-23",
+        "fromNodeId": "n-road-22",
+        "toNodeId": "n-road-23",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 62,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-road-23-n-road-24",
+        "from": "n-road-23",
+        "to": "n-road-24",
+        "fromNodeId": "n-road-23",
+        "toNodeId": "n-road-24",
+        "type": "ROAD",
+        "pathType": "EV",
+        "distance": 30,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-acad-w-ent-n-road-20",
+        "from": "b-acad-w-ent",
+        "to": "n-road-20",
+        "fromNodeId": "b-acad-w-ent",
+        "toNodeId": "n-road-20",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 72,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-acad-c-ent-n-road-20",
+        "from": "b-acad-c-ent",
+        "to": "n-road-20",
+        "fromNodeId": "b-acad-c-ent",
+        "toNodeId": "n-road-20",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 85,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-acad-e-ent-n-road-15",
+        "from": "b-acad-e-ent",
+        "to": "n-road-15",
+        "fromNodeId": "b-acad-e-ent",
+        "toNodeId": "n-road-15",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 91,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-blk-sw-ent-n-road-19",
+        "from": "b-blk-sw-ent",
+        "to": "n-road-19",
+        "fromNodeId": "b-blk-sw-ent",
+        "toNodeId": "n-road-19",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 10,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-hall-ent-n-road-19",
+        "from": "b-hall-ent",
+        "to": "n-road-19",
+        "fromNodeId": "b-hall-ent",
+        "toNodeId": "n-road-19",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 22,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-blk-s1-ent-n-road-18",
+        "from": "b-blk-s1-ent",
+        "to": "n-road-18",
+        "fromNodeId": "b-blk-s1-ent",
+        "toNodeId": "n-road-18",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 45,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-blk-s2-ent-n-road-19",
+        "from": "b-blk-s2-ent",
+        "to": "n-road-19",
+        "fromNodeId": "b-blk-s2-ent",
+        "toNodeId": "n-road-19",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 32,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-blk-s3-ent-n-road-18",
+        "from": "b-blk-s3-ent",
+        "to": "n-road-18",
+        "fromNodeId": "b-blk-s3-ent",
+        "toNodeId": "n-road-18",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 30,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-hostel-a-ent-n-road-2",
+        "from": "b-hostel-a-ent",
+        "to": "n-road-2",
+        "fromNodeId": "b-hostel-a-ent",
+        "toNodeId": "n-road-2",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 117,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-hostel-b-ent-n-road-11",
+        "from": "b-hostel-b-ent",
+        "to": "n-road-11",
+        "fromNodeId": "b-hostel-b-ent",
+        "toNodeId": "n-road-11",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 146,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-hostel-c-ent-n-road-11",
+        "from": "b-hostel-c-ent",
+        "to": "n-road-11",
+        "fromNodeId": "b-hostel-c-ent",
+        "toNodeId": "n-road-11",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 95,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-east-ent-n-road-7",
+        "from": "b-east-ent",
+        "to": "n-road-7",
+        "fromNodeId": "b-east-ent",
+        "toNodeId": "n-road-7",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 3,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-sw-solar-ent-n-road-24",
+        "from": "b-sw-solar-ent",
+        "to": "n-road-24",
+        "fromNodeId": "b-sw-solar-ent",
+        "toNodeId": "n-road-24",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 59,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-sw-2-ent-n-road-24",
+        "from": "b-sw-2-ent",
+        "to": "n-road-24",
+        "fromNodeId": "b-sw-2-ent",
+        "toNodeId": "n-road-24",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 122,
+        "bidirectional": true
+      },
+      {
+        "id": "e-b-south-ent-n-road-22",
+        "from": "b-south-ent",
+        "to": "n-road-22",
+        "fromNodeId": "b-south-ent",
+        "toNodeId": "n-road-22",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 120,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-a1-ent-n-road-6",
+        "from": "n-blk-a1-ent",
+        "to": "n-road-6",
+        "fromNodeId": "n-blk-a1-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 85,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-a2-ent-n-road-4",
+        "from": "n-blk-a2-ent",
+        "to": "n-road-4",
+        "fromNodeId": "n-blk-a2-ent",
+        "toNodeId": "n-road-4",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 125,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-b1-ent-n-road-6",
+        "from": "n-blk-b1-ent",
+        "to": "n-road-6",
+        "fromNodeId": "n-blk-b1-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 159,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-b2-ent-n-road-6",
+        "from": "n-blk-b2-ent",
+        "to": "n-road-6",
+        "fromNodeId": "n-blk-b2-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 156,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-b3-ent-n-road-4",
+        "from": "n-blk-b3-ent",
+        "to": "n-road-4",
+        "fromNodeId": "n-blk-b3-ent",
+        "toNodeId": "n-road-4",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 189,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-b4-ent-n-road-4",
+        "from": "n-blk-b4-ent",
+        "to": "n-road-4",
+        "fromNodeId": "n-blk-b4-ent",
+        "toNodeId": "n-road-4",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 163,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-c1-ent-n-road-3",
+        "from": "n-blk-c1-ent",
+        "to": "n-road-3",
+        "fromNodeId": "n-blk-c1-ent",
+        "toNodeId": "n-road-3",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 133,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-c2-ent-n-road-3",
+        "from": "n-blk-c2-ent",
+        "to": "n-road-3",
+        "fromNodeId": "n-blk-c2-ent",
+        "toNodeId": "n-road-3",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 146,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-c3-ent-n-road-1",
+        "from": "n-blk-c3-ent",
+        "to": "n-road-1",
+        "fromNodeId": "n-blk-c3-ent",
+        "toNodeId": "n-road-1",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 174,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-c4-ent-n-road-1",
+        "from": "n-blk-c4-ent",
+        "to": "n-road-1",
+        "fromNodeId": "n-blk-c4-ent",
+        "toNodeId": "n-road-1",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 154,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-d1-ent-n-road-3",
+        "from": "n-blk-d1-ent",
+        "to": "n-road-3",
+        "fromNodeId": "n-blk-d1-ent",
+        "toNodeId": "n-road-3",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 72,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-d2-ent-n-road-3",
+        "from": "n-blk-d2-ent",
+        "to": "n-road-3",
+        "fromNodeId": "n-blk-d2-ent",
+        "toNodeId": "n-road-3",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 98,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-d3-ent-n-road-16",
+        "from": "n-blk-d3-ent",
+        "to": "n-road-16",
+        "fromNodeId": "n-blk-d3-ent",
+        "toNodeId": "n-road-16",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 123,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-d4-ent-n-road-1",
+        "from": "n-blk-d4-ent",
+        "to": "n-road-1",
+        "fromNodeId": "n-blk-d4-ent",
+        "toNodeId": "n-road-1",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 106,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-e1-ent-n-road-16",
+        "from": "n-blk-e1-ent",
+        "to": "n-road-16",
+        "fromNodeId": "n-blk-e1-ent",
+        "toNodeId": "n-road-16",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 53,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-ne1-ent-n-road-5",
+        "from": "n-blk-ne1-ent",
+        "to": "n-road-5",
+        "fromNodeId": "n-blk-ne1-ent",
+        "toNodeId": "n-road-5",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 35,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-ne2-ent-n-road-4",
+        "from": "n-blk-ne2-ent",
+        "to": "n-road-4",
+        "fromNodeId": "n-blk-ne2-ent",
+        "toNodeId": "n-road-4",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 49,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-ne3-ent-n-road-4",
+        "from": "n-blk-ne3-ent",
+        "to": "n-road-4",
+        "fromNodeId": "n-blk-ne3-ent",
+        "toNodeId": "n-road-4",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 102,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-ne4-ent-n-road-4",
+        "from": "n-blk-ne4-ent",
+        "to": "n-road-4",
+        "fromNodeId": "n-blk-ne4-ent",
+        "toNodeId": "n-road-4",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 156,
+        "bidirectional": true
+      },
+      {
+        "id": "e-s-track-ent-n-road-6",
+        "from": "s-track-ent",
+        "to": "n-road-6",
+        "fromNodeId": "s-track-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 102,
+        "bidirectional": true
+      },
+      {
+        "id": "e-s-courts-1-ent-n-road-3",
+        "from": "s-courts-1-ent",
+        "to": "n-road-3",
+        "fromNodeId": "s-courts-1-ent",
+        "toNodeId": "n-road-3",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 135,
+        "bidirectional": true
+      },
+      {
+        "id": "e-s-courts-2-ent-n-road-3",
+        "from": "s-courts-2-ent",
+        "to": "n-road-3",
+        "fromNodeId": "s-courts-2-ent",
+        "toNodeId": "n-road-3",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 72,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-shed-nw-ent-n-road-6",
+        "from": "n-shed-nw-ent",
+        "to": "n-road-6",
+        "fromNodeId": "n-shed-nw-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 105,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-blk-ne5-ent-n-road-4",
+        "from": "n-blk-ne5-ent",
+        "to": "n-road-4",
+        "fromNodeId": "n-blk-ne5-ent",
+        "toNodeId": "n-road-4",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 15,
+        "bidirectional": true
+      },
+      {
+        "id": "e-n-shed-s-ent-n-road-3",
+        "from": "n-shed-s-ent",
+        "to": "n-road-3",
+        "fromNodeId": "n-shed-s-ent",
+        "toNodeId": "n-road-3",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 44,
+        "bidirectional": true
+      },
+      {
+        "id": "e-f-apart-1-ent-n-road-6",
+        "from": "f-apart-1-ent",
+        "to": "n-road-6",
+        "fromNodeId": "f-apart-1-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 356,
+        "bidirectional": true
+      },
+      {
+        "id": "e-f-newblk-ent-n-road-6",
+        "from": "f-newblk-ent",
+        "to": "n-road-6",
+        "fromNodeId": "f-newblk-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 366,
+        "bidirectional": true
+      },
+      {
+        "id": "e-f-quarters-ent-n-road-6",
+        "from": "f-quarters-ent",
+        "to": "n-road-6",
+        "fromNodeId": "f-quarters-ent",
+        "toNodeId": "n-road-6",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 139,
+        "bidirectional": true
+      },
+      {
+        "id": "e-f-complex-ne-ent-n-road-5",
+        "from": "f-complex-ne-ent",
+        "to": "n-road-5",
+        "fromNodeId": "f-complex-ne-ent",
+        "toNodeId": "n-road-5",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 155,
+        "bidirectional": true
+      },
+      {
+        "id": "e-f-poly-ent-n-road-5",
+        "from": "f-poly-ent",
+        "to": "n-road-5",
+        "fromNodeId": "f-poly-ent",
+        "toNodeId": "n-road-5",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 23,
+        "bidirectional": true
+      },
+      {
+        "id": "e-f-blk-s-ent-n-road-5",
+        "from": "f-blk-s-ent",
+        "to": "n-road-5",
+        "fromNodeId": "f-blk-s-ent",
+        "toNodeId": "n-road-5",
+        "type": "WALK",
+        "pathType": "WALK",
+        "distance": 46,
+        "bidirectional": true
+      }
+    ],
+    "destinations": [],
+    "obstacles": [],
+    "stairGroups": [],
+    "liftGroups": [],
+    "doors": [],
+    "events": [],
+    "boundary": [
+      {
+        "lat": 11.492347,
+        "lng": 77.2734225
+      },
+      {
+        "lat": 11.4953539,
+        "lng": 77.2738945
+      },
+      {
+        "lat": 11.4978877,
+        "lng": 77.2741949
+      },
+      {
+        "lat": 11.4986552,
+        "lng": 77.2740662
+      },
+      {
+        "lat": 11.4993596,
+        "lng": 77.2741198
+      },
+      {
+        "lat": 11.5010733,
+        "lng": 77.2746348
+      },
+      {
+        "lat": 11.500474,
+        "lng": 77.2777569
+      },
+      {
+        "lat": 11.5000325,
+        "lng": 77.279849
+      },
+      {
+        "lat": 11.498713,
+        "lng": 77.2795862
+      },
+      {
+        "lat": 11.498734,
+        "lng": 77.2794199
+      },
+      {
+        "lat": 11.4981558,
+        "lng": 77.2792643
+      },
+      {
+        "lat": 11.4976722,
+        "lng": 77.2805572
+      },
+      {
+        "lat": 11.4961319,
+        "lng": 77.2804016
+      },
+      {
+        "lat": 11.495969,
+        "lng": 77.2809809
+      },
+      {
+        "lat": 11.4934667,
+        "lng": 77.2804981
+      },
+      {
+        "lat": 11.4934352,
+        "lng": 77.2816783
+      },
+      {
+        "lat": 11.4921157,
+        "lng": 77.2813725
+      },
+      {
+        "lat": 11.4921367,
+        "lng": 77.2808844
+      },
+      {
+        "lat": 11.4918581,
+        "lng": 77.2807503
+      },
+      {
+        "lat": 11.491937,
+        "lng": 77.2788674
+      },
+      {
+        "lat": 11.491774,
+        "lng": 77.2767645
+      },
+      {
+        "lat": 11.4905544,
+        "lng": 77.2765821
+      },
+      {
+        "lat": 11.4907489,
+        "lng": 77.2754502
+      },
+      {
+        "lat": 11.4895293,
+        "lng": 77.2751337
+      },
+      {
+        "lat": 11.4896134,
+        "lng": 77.2747904
+      },
+      {
+        "lat": 11.488357,
+        "lng": 77.2745007
+      },
+      {
+        "lat": 11.4891508,
+        "lng": 77.2728538
+      },
+      {
+        "lat": 11.4905597,
+        "lng": 77.2729611
+      },
+      {
+        "lat": 11.492347,
+        "lng": 77.2734225
+      }
+    ]
+  },
+  "revision": 1,
+  "updatedAt": "2026-09-07T00:00:00.000Z"
+}

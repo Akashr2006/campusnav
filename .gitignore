@@ -13,7 +13,10 @@ skills
 
 .claude/
 *.tsbuildinfo
-.data/
+# The local campus store: the two graph files ARE the campus, so they are tracked.
+.data/*
+!.data/published_graph.json
+!.data/draft_graph.json
 
 # Drone survey mesh: large, regenerate with tools/drone/build-web-mesh.py
 public/drone/mesh/
