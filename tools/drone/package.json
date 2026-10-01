@@ -1,0 +1,19 @@
+{
+  "name": "campusnav-drone-tools",
+  "private": true,
+  "description": "Node tooling for the drone mesh (web-mesh v2 build and load benchmark). Kept apart from the app's dependencies.",
+  "type": "module",
+  "scripts": {
+    "build-mesh": "node build-web-mesh-v2.mjs",
+    "bench": "node bench-mesh.mjs"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "^4.2.1",
+    "@gltf-transform/extensions": "^4.2.1",
+    "@gltf-transform/functions": "^4.2.1",
+    "draco3dgltf": "^1.5.7",
+    "puppeteer-core": "^24.10.0",
+    "selfsigned": "^2.4.1",
+    "sharp": "^0.34.5"
+  }
+}

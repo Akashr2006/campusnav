@@ -28,9 +28,11 @@ can see, not options. He calls the drone data his "gold mine".
 ## 2. Rules the owner has set (do not break these)
 
 1. **Never edit anything under `features/navigation-3d/**`** ("don't touch the 3D view"). New
-   work imports from it. The `/navigate` 3D tab imports `CampusScene` unchanged.
+   work imports from it. Since 2026-10-01 (the owner asked for sharper 3D and mouse navigation to every
+   building) the `/navigate` 3D tab uses its own drone viewer, `features/navigation/components/drone-view-3d.tsx`,
+   built beside the studio; `CampusScene` still shows there when no mesh is deployed, or with `&viewer=studio`.
 2. In the `/navigate` 3D tab, show the **drone view**, and **no building may open into the
-   exploded view** (pass `selectedId={null}` and a no-op `onSelect`).
+   exploded view**. Clicking or picking a building there selects it (outline and place card) and nothing more.
 3. The 2D map must be **derived from the 3D / drone view** and look **neat and clean**, in the
    style of the Navigine indoor-map reference (white sidebar, grey fields, purple markers,
    green dotted route, square controls at the top left, photo card with a full-width Route button).
@@ -74,6 +76,12 @@ pnpm dev -p 5000    # the app, at http://localhost:5000
 | `D:\BIT 3D\_work\photogrammetry` (COLMAP 4.2 CUDA, OpenMVS 2.4, `run_pilot.sh`, `shrink.py`) | | paused pilot, see section 8 |
 | `D:\BIT 3D\_work\pages-deploy` (`wrangler.jsonc` for the drone CDN) | small | needed to redeploy the CDN |
 
+On the second machine (2026-10-01) the project is at `D:\campusnav` and the survey on the USB drive **`E:\BIT 3D`**.
+`public\drone\mesh` is a junction to **`D:\BIT 3D\_work\web-mesh-v2`** (the fast-loading build, section 5, copied
+off E: and verified byte for byte), and `D:\BIT 3D\_work\pages-deploy` is the CDN deploy folder. `E:\BIT 3D\_work\web-mesh`
+is the v1 source v2 is built from. **Windows reports the E: volume as "Full Repair Needed"** (file system errors; a
+write failed mid-session): back up `E:\BIT 3D` before running a repair on it.
+
 Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
 `https://campusnav-drone.akashr-ad24.workers.dev/tileset.json` and the 3D drone view streams from the CDN.
 (The 2D photo map needs `ortho/` on that CDN too. It isn't uploaded yet; see section 8.)
@@ -96,15 +104,38 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   and the place card (name, kind, **drone-measured floors and height**, roof area, photo if a tour scene
   matches, Route and "Set as start point"). Deep links: `?from=&to=` (destination id, node id or name),
   `&view=3d`, `&style=plan`.
-- Routing uses `shortestPath(start, end, { graphData, travelMode })` from `features/navigation/services/graph.ts`.
-  A building isn't a graph node, so it routes to `<buildingId>-ent`, else to the nearest node. **The published
-  graph has two disconnected parts**, so some pairs have no path, and the UI says so honestly.
+- Routing (since 2026-10-01) follows **the roads and walkways detected in the drone survey**: `public/drone/paths.json`
+  (made by `tools/drone/build-paths.mjs`, see section 5) through `features/navigation/lib/path-network.ts`, which links
+  every place to the network at run time (up to 3 doors on its nearest paths, on different sides), runs Dijkstra
+  (EV mode drives the `road` edges, walks the rest), and writes turn-by-turn steps named after the building at each
+  turn ("Turn left at AS Block", "past X on your right", "Arrive at Y, on your left"). Academic blocks and labs
+  (`placeKind`) may be walked through door to door ("Go through ..."), hostels and halls never. Every building
+  reaches every other (`tests/path-network.test.ts`). Without `paths.json` it falls back to the old
+  `shortestPath(start, end, { graphData, travelMode })` over the published graph (24 road junctions in a coarse
+  grid, **two disconnected parts**).
 - `campus-2d-map.tsx`: SVG in scene metres (X east, Z south, the 3D frame), with its own pan, zoom and pinch camera.
   - **Drone style (default):** photo tiles `mesh/ortho/<level>/<c>_<r>.webp` (levels 0-4 = 0.25 to 4 m/px),
     the area outside the campus faded, and every block outlined.
   - **Plan style:** Navigine look with an even white inner band (the polygon clipped to itself).
     Buildings with a room survey (Aero Block) open into rooms and stairs when zoomed in.
   - Labels are placed greedily with collision avoidance, largest and selected first.
+  - The roads and walkways routing uses are drawn in plan style, and over the photo with the layers menu's
+    "Roads & walkways (mapped)" (off by default there). One SVG path per kind, not a line per segment.
+- `drone-view-3d.tsx` (2026-10-01), the 3D tab: the v2 drone mesh with 3d-tiles-renderer's `EnvironmentControls`
+  (drag moves the ground under the pointer, wheel zooms to the pointer, right-drag / two fingers turn a full 360 deg
+  around it and tilt from straight down to level with the ground (`minAltitude` 0, `maxAltitude` 100 deg: these are
+  angles from straight down, not from the horizon), double-click flies closer; camera kept 3 m off any surface).
+  A Move/Rotate toggle makes left-drag turn the view (it patches the controls' `pointerTracker.isRightClicked`);
+  arrow keys turn and tilt, +/- zoom. A views bar (bottom on desktop, top on phones) shows the selected building
+  (or the middle of the view) from the top, N/E/S/W, street level (the first of 16 directions with a clear line of
+  sight, by raycast) and turns a 360 deg circle round it; views swing round the building rather than fly through it.
+  Click a building for its outline and place card, a sidebar pick flies there framing it roof to ground, names
+  decluttered like the 2D map. The route is a screen-width line, drawn over everything. **Progressive sharpness:** loads at error target 4 (the old view's detail), then,
+  with nothing left to load, halves it down to one CSS pixel (1 on desktop, 2 on a 2x phone; Data Saver and
+  phones with 3 GB or less stay at 4). During a sustained drag it drops back to 4 and parses one tile at a time,
+  then re-sharpens about a second after it stops: measured on a 4x slowed CPU, a drag at full sharpness ran
+  ~20 fps, now ~45-60 like the old view, and overview buildings go from blurred blobs to distinct roofs.
+  Measured with `tools/drone/profile-3d-view.mjs` and `tools/drone/e2e-3d-view.mjs` (see public/drone/README.md).
 - `features/navigation/lib/place-kind.ts`: kind, icon and colour from the building name.
 - The old `navigate-shell.tsx` (with `campus-plan-map.tsx`, built by a parallel session on 26 Sep) is kept
   but **no longer mounted**.
@@ -119,6 +150,26 @@ against footprints the offset is effectively 0, so `mesh-alignment.json` has dx=
   KHR_materials_unlit, which crashes GLTFLoader.
 - `tools/drone/build-terrain.py`: `public/drone/terrain.*` (bare earth on a 5 m grid). Buildings sit at the lowest
   ground under their outline.
+- **Web mesh v2 (2026-10-01)**, `tools/drone/build-web-mesh-v2.mjs` (Node; `tools/drone` has its own package.json):
+  40% smaller (3.6 to 2.2 GB) with identical look: geometry re-encoded, DJI's no-mipmap texture samplers fixed,
+  the same JPEG bytes, and 657 nested tileset JSONs flattened to 1 root + 266 subtrees. With the `/navigate`
+  loading changes (`features/navigation/lib/drone-warmup.ts`: at most 6 tile downloads in flight, decoder and root
+  tileset prefetched on the 2D tab), a low-end phone at 12 Mbit/s sees the 3D tab's first picture at 1.6 s instead
+  of 8.7 s, and a building fully sharp at 4.2 s instead of 7.0 s. Measured with `/dev-mesh-bench` and
+  `tools/drone/bench-mesh.mjs`; the full table and commands are in `public/drone/README.md`.
+- The mesh's sharpness ceiling is the survey itself: up close the walls show brick texture but warped window
+  frames (a mostly top-down 2022 flight). Loading changes cannot add detail; reprocessing a better flight can.
+- **Roads and walkways (2026-10-01)**, `tools/drone/build-paths.mjs` to `public/drone/paths.json` (~80 KB, committed):
+  the 2D photo tiles read at 0.5 m/px; paved = neutral grey (asphalt, concrete, also in tree shade), pink pavers or
+  blue walkway roofs, never on a roof from footprints.json (long thin unnamed roofs are covered walkways and count as
+  paths); thinned to centre lines, traced to a graph, spurs pruned; dead ends carried on through tree canopy to the
+  network they were heading for (cost raster: paving < shade < canopy < soil, roofs impassable). About 11 km of road,
+  5.5 km of path, 5 km of gap links. **Hand corrections** in `tools/drone/paths-edits.json` (`add` polylines in scene
+  metres for ways the photo cannot show, `remove` polygons), each with a reason; 12 so far (the gate avenue, the
+  covered spines of the academic blocks, roads under canopy). Rerun after editing:
+  `node tools/drone/build-paths.mjs "<web-mesh>/ortho" public/drone/paths.json --debug <dir>` (writes
+  `paths-review.png`, the photo with the network drawn on it; `--probe x,z` traces a missing line through each step).
+  Then `pnpm test` (the network test checks every building pair: reachable, off roofs, at most 2.8x the straight line).
 - `features/navigation-3d/components/drone-layers.tsx`: loads the mesh (ECEF, then scene matrix), the thermal
   shader overlay and the terrain.
 - **2D layers (2026-09-26):** `/dev-ortho` renders the mesh straight down (orthographic, 182 windows of 128 m at
@@ -179,6 +230,9 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 5. Photogrammetry pilot on the **Aug 2022 RTK flight** (paused; downscaled to `pilot/images4k`). It covers only
    the NE corner (bus stop, East Pond, poly houses) with obliques. The new GPU makes this practical (see below).
 6. Admin login: `ADMIN_EMAIL` and `ADMIN_PASSWORD` are unset on Vercel.
+7. **Deploy web mesh v2 to the CDN** (built and verified 2026-10-01, not uploaded): `npx wrangler login`, then
+   `npx wrangler deploy` from `D:\BIT 3D\_work\pages-deploy`. It replaces v1 at the same URLs (no Vercel env change).
+   Then redeploy Vercel for the new 3D tab, the `/navigate` loading changes and the `/draco` cache header in `vercel.json`.
 
 ## 9. New laptop (RTX 3060 8 GB, 32 GB RAM): what it unlocks
 
@@ -200,5 +254,10 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 - 09-23: full L22 mesh on the Cloudflare Worker, and on-screen-only tile streaming.
 - 09-24 to 26: `/navigate` rebuilt several times. Final: its own header and sidebar, a 2D map built from the drone
   survey (photo plus detected blocks named from the 3D view), a 3D tab with the drone view and no explode.
+- 10-01: web mesh v2 and the `/navigate` 3D loading changes, with a load benchmark; then the new 3D tab viewer
+  (sharper, navigable everywhere); then 360 deg turning, top/side/street views and a 360 turn per building, and
+  routing over roads and walkways detected from the drone photo with landmark turn-by-turn directions
+  (`tools/drone/e2e-views-routes.mjs` checks both in Chrome). Nothing under `features/navigation-3d` was edited. Built on a second machine:
+  project at `D:\campusnav`, survey on the USB drive `E:`, v2 mesh copied to `D:\BIT 3D`.
 - 09-30: this file, and the campus data committed, for the move to the new laptop. 2D photo tiles uploaded to the
   CDN, and the site deployed to production and checked live (lint clean, typecheck clean, 416 tests pass).

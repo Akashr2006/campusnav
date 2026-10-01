@@ -1,0 +1,66 @@
+{
+  "note": "Hand corrections to tools/drone/build-paths.mjs, in scene metres (x east, z south). `add`: roads and walkways the orthophoto cannot show (under continuous tree canopy, or under a covered walkway roof), drawn from where they are visible on either side; w is the width in metres. `remove`: polygons where a detection is false (none so far). Checked against the photo on 2026-10-01.",
+  "add": [
+    {
+      "why": "Main gate to the central avenue, under the avenue's trees",
+      "w": 6,
+      "pts": [[215, -803], [225, -785], [229, -740], [230, -660], [230, -600], [231, -555]]
+    },
+    {
+      "why": "Central avenue through the wooded stretch south of the academic blocks",
+      "w": 6,
+      "pts": [[245, -110], [247, -60], [248, -20], [250, 20]]
+    },
+    {
+      "why": "Road along the front (north) of the academic blocks: the detected line was drawn into the porches of the Biotechnology and AS blocks and broke there",
+      "w": 6,
+      "pts": [[-31, -404], [30, -405], [70, -406], [130, -407], [170, -407], [232, -410]]
+    },
+    {
+      "why": "Road west of the academic blocks, under canopy between its visible ends",
+      "w": 5,
+      "pts": [[-31, -405], [-29, -350], [-28, -300], [-26, -220], [-24, -185]]
+    },
+    {
+      "why": "Road in from the west main road towards the academic blocks (its visible stretch)",
+      "w": 5,
+      "pts": [[-256, -76], [-230, -70], [-200, -67], [-150, -66], [-120, -66]]
+    },
+    {
+      "why": "Blue-roofed covered walkway from the road west of the academic blocks south to the Academic Block row",
+      "w": 4,
+      "pts": [[-26, -82], [-15, -72], [-12, -50], [-13, -25], [-13, -2], [-13, 4]]
+    },
+    {
+      "why": "Covered walkway, west spine of the academic blocks",
+      "w": 3,
+      "pts": [[48, -352], [49, -280], [51, -200], [53, -135], [54, -105]]
+    },
+    {
+      "why": "Paved walkway joining the two spines along the south end of the academic blocks",
+      "w": 3,
+      "pts": [[50, -117], [100, -117], [168, -117]]
+    },
+    {
+      "why": "Covered walkway, east spine of the academic blocks",
+      "w": 3,
+      "pts": [[162, -345], [163, -280], [164, -200], [166, -130]]
+    },
+    {
+      "why": "Road south of the academic blocks, from the west main road; trees cover its western half",
+      "w": 6,
+      "pts": [[-285, 122], [-245, 127], [-205, 132], [-160, 139], [-120, 145], [-70, 148], [-20, 150]]
+    },
+    {
+      "why": "Unpaved road east past the hostel blocks",
+      "w": 5,
+      "pts": [[435, -8], [500, -6], [580, -2], [640, 3], [700, 6]]
+    },
+    {
+      "why": "Unpaved road south of the tennis courts and the hostel blocks",
+      "w": 5,
+      "pts": [[105, 67], [200, 67], [300, 65], [370, 59], [430, 59], [480, 60], [560, 58]]
+    }
+  ],
+  "remove": []
+}

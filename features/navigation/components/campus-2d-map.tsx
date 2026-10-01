@@ -279,6 +279,8 @@ export function Campus2DMap({
   const [size, setSize] = useState({ w: 800, h: 600 });
   const [view, setView] = useState<View>({ cx: campus.centre.x, cz: campus.centre.z, s: 0.6 });
   const [layers, setLayers] = useState({ places: true, paths: true, outlines: true, rooms: true });
+  // On the photo the roads already show; the detected network is drawn over it on request.
+  const [photoPaths, setPhotoPaths] = useState(false);
   const [style, setStyle] = useState<MapStyle>("drone");
   const [layersOpen, setLayersOpen] = useState(false);
   const [walker, setWalker] = useState<Vec2 | null>(null);
@@ -600,8 +602,15 @@ export function Campus2DMap({
     return result;
   }, [features, view, size.w, size.h, selectedId, destinationKey, layers.places, showLabels]);
 
-  const roads = segments.filter((s) => s.kind === "ROAD");
-  const walks = segments.filter((s) => s.kind === "WALK");
+  // One SVG path per kind: the surveyed network is thousands of short segments.
+  const pathD = useMemo(() => {
+    const d = (kind: RoadSegment["kind"]) =>
+      segments
+        .filter((s) => s.kind === kind)
+        .map((s) => `M${s.from.x.toFixed(1)},${s.from.z.toFixed(1)}L${s.to.x.toFixed(1)},${s.to.z.toFixed(1)}`)
+        .join("");
+    return { roads: d("ROAD"), walks: d("WALK") };
+  }, [segments]);
   const start = routePath[0];
   const end = routePath[routePath.length - 1];
 
@@ -673,6 +682,12 @@ export function Campus2DMap({
                   />
                 </>
               )}
+              {photoPaths && (
+                <g strokeLinecap="round" strokeLinejoin="round" fill="none" pointerEvents="none">
+                  <path d={pathD.roads} stroke="#ffd54a" strokeWidth={3} strokeOpacity={0.9} vectorEffect="non-scaling-stroke" />
+                  <path d={pathD.walks} stroke="#7fe7ff" strokeWidth={2} strokeOpacity={0.9} vectorEffect="non-scaling-stroke" />
+                </g>
+              )}
             </g>
           ) : (
             <>
@@ -689,12 +704,8 @@ export function Campus2DMap({
               )}
               {layers.paths && (
                 <g strokeLinecap="round" strokeLinejoin="round" fill="none" stroke={PLAN.path}>
-                  {roads.map((r, i) => (
-                    <line key={`r${i}`} x1={r.from.x} y1={r.from.z} x2={r.to.x} y2={r.to.z} strokeWidth={7} />
-                  ))}
-                  {walks.map((r, i) => (
-                    <line key={`w${i}`} x1={r.from.x} y1={r.from.z} x2={r.to.x} y2={r.to.z} strokeWidth={2.5} />
-                  ))}
+                  <path d={pathD.roads} strokeWidth={7} />
+                  <path d={pathD.walks} strokeWidth={2.5} />
                 </g>
               )}
               {landCover.map((f) => (
@@ -1004,26 +1015,30 @@ export function Campus2DMap({
                 [
                   ["places", "Place markers"],
                   ["outlines", "Block outlines"],
-                  ["paths", "Paths (plan)"],
+                  ["paths", drone ? "Roads & walkways (mapped)" : "Roads & walkways"],
                   ["rooms", "Room plans (plan)"],
                 ] as const
-              ).map(([k, label]) => (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => setLayers((l) => ({ ...l, [k]: !l[k] }))}
-                  className="flex w-full items-center justify-between rounded-md px-1 py-1.5 text-left text-[#2b3640] hover:bg-[#f3f6f8]"
-                >
-                  {label}
-                  <span
-                    className={`flex h-4 w-4 items-center justify-center rounded border ${
-                      layers[k] ? "border-[#2ea3dc] bg-[#2ea3dc] text-white" : "border-[#c9d6de]"
-                    }`}
+              ).map(([k, label]) => {
+                // On the photo, the paths row shows the network detected from it.
+                const on = k === "paths" && drone ? photoPaths : layers[k];
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => (k === "paths" && drone ? setPhotoPaths((v) => !v) : setLayers((l) => ({ ...l, [k]: !l[k] })))}
+                    className="flex w-full items-center justify-between rounded-md px-1 py-1.5 text-left text-[#2b3640] hover:bg-[#f3f6f8]"
                   >
-                    {layers[k] && <Check className="h-3 w-3" strokeWidth={3} />}
-                  </span>
-                </button>
-              ))}
+                    {label}
+                    <span
+                      className={`flex h-4 w-4 items-center justify-center rounded border ${
+                        on ? "border-[#2ea3dc] bg-[#2ea3dc] text-white" : "border-[#c9d6de]"
+                      }`}
+                    >
+                      {on && <Check className="h-3 w-3" strokeWidth={3} />}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

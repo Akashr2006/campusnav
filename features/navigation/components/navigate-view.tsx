@@ -7,11 +7,13 @@ import {
   ArrowUp,
   ArrowUpDown,
   Box,
+  Bus,
   ChevronDown,
   CornerUpLeft,
   CornerUpRight,
   Eye,
   Flag,
+  Footprints,
   Home,
   LocateFixed,
   MapPin,
@@ -19,12 +21,14 @@ import {
   Pause,
   Play,
   Search,
+  Undo2,
   UserRound,
   X,
   type LucideIcon,
 } from "lucide-react";
 import type { Destination } from "@/shared/data/campus";
-import { shortestPath, type Route } from "@/features/navigation/services/graph";
+import { shortestPath } from "@/features/navigation/services/graph";
+import { createPathRouter, type PathNetworkFile, type PathRouter, type RouteEnd } from "@/features/navigation/lib/path-network";
 import { getValidNavigationDestinations } from "@/shared/lib/destination-utils";
 import type { TravelMode } from "@/lib/routing/edge-accessibility";
 import { applyPilotStructure } from "@/shared/data/pilot-structure";
@@ -32,7 +36,8 @@ import { findTourScene } from "@/shared/data/campus-tour";
 import { buildCampus3D, gpsToMetres, type Campus3D, type Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { FILTER_KINDS, KIND_LABEL, placeKind, type PlaceKind } from "../lib/place-kind";
 import { PLAN, buildFeatures, type Footprint, type MapFeature, type RoadSegment } from "./campus-2d-map";
-import { useDroneMeshAvailable, type DroneLoadProgress } from "@/features/navigation-3d/components/drone-layers";
+import { useDroneMeshAvailable } from "@/features/navigation-3d/components/drone-layers";
+import { warmDroneCache } from "@/features/navigation/lib/drone-warmup";
 import { cn } from "@/shared/lib/utils";
 
 /**
@@ -49,6 +54,10 @@ const CampusScene = dynamic(
   () => import("@/features/navigation-3d/components/campus-scene").then((m) => m.CampusScene),
   { ssr: false, loading: () => <Loading text="Building the 3D campus…" dark /> }
 );
+const DroneView3D = dynamic(() => import("./drone-view-3d").then((m) => m.DroneView3D), {
+  ssr: false,
+  loading: () => <Loading text="Opening the drone view…" />,
+});
 
 const ACCENT = "#2ea3dc";
 
@@ -87,8 +96,36 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number) {
   return 2 * 6371000 * Math.asin(Math.sqrt(a));
 }
 
-function stepIcon(text: string): LucideIcon {
-  const t = text.toLowerCase();
+/** What the sidebar shows of a route, from the surveyed paths or the published graph. */
+type RouteView = {
+  distance: number;
+  durationSec: number;
+  instructions: { text: string; distance: number; icon?: string }[];
+  isFallbackWalk?: boolean;
+  /** Routed along the roads and walkways detected in the drone survey. */
+  surveyed?: boolean;
+};
+
+function stepIcon(step: { text: string; icon?: string }): LucideIcon {
+  switch (step.icon) {
+    case "start":
+      return Navigation;
+    case "left":
+    case "slight-left":
+      return CornerUpLeft;
+    case "right":
+    case "slight-right":
+      return CornerUpRight;
+    case "u-turn":
+      return Undo2;
+    case "arrive":
+      return Flag;
+    case "shuttle":
+      return Bus;
+    case "walk":
+      return Footprints;
+  }
+  const t = step.text.toLowerCase();
   if (t.includes("arrive")) return Flag;
   if (t.includes("left")) return CornerUpLeft;
   if (t.includes("right")) return CornerUpRight;
@@ -331,13 +368,19 @@ export function NavigateView() {
   // The 3D tab shows the drone survey whenever the mesh is deployed (it is too
   // large for the hosted build, so it may only exist locally).
   const droneAvailable = useDroneMeshAvailable();
-  const [droneProgress, setDroneProgress] = useState<DroneLoadProgress>({ pending: 0, loaded: 0 });
+  const [studioViewer, setStudioViewer] = useState(false);
   // The availability check is a network round trip; wait before saying "not available".
   const [droneChecked, setDroneChecked] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setDroneChecked(true), 2500);
     return () => clearTimeout(t);
   }, []);
+  // Fetch the 3D view's decoder and root tileset while the 2D map is up (or
+  // alongside the 3D view on a ?view=3d link), so its first sharp tile is not
+  // held back waiting for them.
+  useEffect(() => {
+    if (droneAvailable) void warmDroneCache();
+  }, [droneAvailable]);
   const [focus, setFocus] = useState<{ id: string; n: number } | null>(null);
   const [kindFilter, setKindFilter] = useState<PlaceKind | null>(null);
   const [showLabels, setShowLabels] = useState(true);
@@ -376,7 +419,63 @@ export function NavigateView() {
     [graph]
   );
 
+  // Every roofed block the drone survey found (tools/drone/build-ortho.py),
+  // named from the 3D view's buildings where they overlap.
+  const [footprints, setFootprints] = useState<Footprint[] | null>(null);
+  useEffect(() => {
+    let live = true;
+    fetch("/drone/footprints.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => live && setFootprints(d?.footprints ?? []))
+      .catch(() => live && setFootprints([]));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const features = useMemo<MapFeature[]>(
+    () => (campus ? buildFeatures(campus, footprints) : []),
+    [campus, footprints]
+  );
+
+  // The roads and walkways detected in the drone survey (tools/drone/build-paths.mjs).
+  // Routes follow them; without the file, the published walkway graph is used.
+  const [network, setNetwork] = useState<PathNetworkFile | null>(null);
+  useEffect(() => {
+    let live = true;
+    fetch("/drone/paths.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => live && d?.nodes && setNetwork(d))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, []);
+  const router = useMemo<PathRouter | null>(
+    () =>
+      network && features.length
+        ? createPathRouter(
+            network,
+            features.map((f) => ({
+              key: f.key,
+              name: f.name,
+              polygons: f.polygons,
+              centre: f.centre,
+              land: f.land,
+              // Academic blocks and departments can be cut through; hostels and halls cannot.
+              walkThrough: f.kind === "academic" || f.kind === "lab",
+            }))
+          )
+        : null,
+    [network, features]
+  );
+
   const segments = useMemo<RoadSegment[]>(() => {
+    if (router) {
+      return router.lines.flatMap((l) =>
+        l.pts.slice(1).map((p, i) => ({ from: l.pts[i], to: p, kind: l.kind === "road" ? ("ROAD" as const) : ("WALK" as const) }))
+      );
+    }
     if (!campus || !graph) return [];
     return (graph.edges ?? []).flatMap((e: any) => {
       const a = campus.nodeById.get(String(e.fromNodeId ?? e.from));
@@ -384,7 +483,7 @@ export function NavigateView() {
       if (!a || !b) return [];
       return [{ from: a.position, to: b.position, kind: e.type === "ROAD" || e.pathType === "EV" ? "ROAD" : "WALK" }];
     });
-  }, [campus, graph]);
+  }, [campus, graph, router]);
 
   // Deep links: /navigate?to=<id|name>&from=<id|name>&view=3d
   const deepLinked = useRef(false);
@@ -401,11 +500,43 @@ export function NavigateView() {
     if (t) setTo(t);
     if (f) setFrom(f);
     if (params.get("view") === "3d") setViewMode("3d");
+    // `&viewer=studio`: the 3D studio's scene in this tab, as before the drone view, for comparison.
+    if (params.get("viewer") === "studio") setStudioViewer(true);
   }, [destinations]);
 
   const { route, routePath, routeError } = useMemo(() => {
-    const none = { route: null as Route | null, routePath: [] as Vec2[], routeError: null as string | null };
+    const none = { route: null as RouteView | null, routePath: [] as Vec2[], routeError: null as string | null };
     if (!campus || !graph || !from || !to) return none;
+    // Along the surveyed roads and walkways, door to door.
+    if (router) {
+      const end = (d: Destination): RouteEnd | null => {
+        if (d.id === MY_LOCATION_ID && myPos) return { point: myPos, name: "your location" };
+        const f = features.find((x) => x.key === d.id) ?? (d.buildingId ? features.find((x) => x.key === d.buildingId) : undefined);
+        if (f) return { place: f.key };
+        const n = campus.nodeById.get(String(d.nodeId ?? d.id));
+        return n ? { point: n.position, name: d.name } : null;
+      };
+      const s = end(from);
+      const e = end(to);
+      if (s && e && "place" in s && "place" in e && s.place === e.place) {
+        return { ...none, routeError: "Start and destination are the same place." };
+      }
+      const r = s && e ? router.route(s, e, travelMode) : null;
+      if (r) {
+        return {
+          route: {
+            distance: r.distance,
+            durationSec: r.durationSec,
+            instructions: r.steps.map((st) => ({ text: st.text, distance: st.distance, icon: st.icon })),
+            // EV asked for, but no road on the way: it is a walk.
+            isFallbackWalk: travelMode === "EV" && r.rideDistance === 0,
+            surveyed: true,
+          },
+          routePath: r.path,
+          routeError: null,
+        };
+      }
+    }
     // A building is not a graph node: route to its entrance, or failing that
     // to the path node nearest its centre.
     const endpoint = (d: Destination) => {
@@ -431,8 +562,8 @@ export function NavigateView() {
     const path = r.nodes
       .map((n: any) => campus.nodeById.get(String(n.id))?.position)
       .filter((p): p is Vec2 => Boolean(p));
-    return { route: r, routePath: path, routeError: null };
-  }, [campus, graph, from, to, travelMode]);
+    return { route: r as RouteView, routePath: path, routeError: null };
+  }, [campus, graph, from, to, travelMode, router, features, myPos]);
 
   useEffect(() => {
     setProgress(0);
@@ -473,24 +604,6 @@ export function NavigateView() {
     );
   }, [graph, campus]);
 
-  // Every roofed block the drone survey found (tools/drone/build-ortho.py),
-  // named from the 3D view's buildings where they overlap.
-  const [footprints, setFootprints] = useState<Footprint[] | null>(null);
-  useEffect(() => {
-    let live = true;
-    fetch("/drone/footprints.json")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => live && setFootprints(d?.footprints ?? []))
-      .catch(() => live && setFootprints([]));
-    return () => {
-      live = false;
-    };
-  }, []);
-
-  const features = useMemo<MapFeature[]>(
-    () => (campus ? buildFeatures(campus, footprints) : []),
-    [campus, footprints]
-  );
   const named = useMemo(
     () => features.filter((f) => f.name).sort((a, b) => a.name!.localeCompare(b.name!)),
     [features]
@@ -529,7 +642,7 @@ export function NavigateView() {
   useEffect(() => setPhotoOk(true), [selectedId]);
   const tour = selected?.name ? findTourScene(selected.name) : null;
 
-  const steps = route?.instructions ?? [];
+  const steps = useMemo(() => route?.instructions ?? [], [route]);
   const activeStep = useMemo(() => {
     if (!steps.length) return -1;
     const total = steps.reduce((n, s) => n + (s.distance || 0), 0) || 1;
@@ -542,13 +655,13 @@ export function NavigateView() {
     return steps.length - 1;
   }, [steps, progress]);
 
+  // Shows the place in whichever view is open: the 2D map pans to it, the 3D view flies there.
   const focusPlace = (id: string) => {
     setSelectedId(id);
-    setViewMode("2d");
     setFocus({ id, n: Date.now() });
   };
 
-  const showCard = viewMode === "2d" && Boolean(selected);
+  const showCard = Boolean(selected);
   const mapPadding = useMemo(
     () =>
       isMobile
@@ -698,7 +811,7 @@ export function NavigateView() {
           </div>
           <ol className="mt-3 space-y-1">
             {steps.map((s, i) => {
-              const Icon = stepIcon(s.text);
+              const Icon = stepIcon(s);
               const active = i === activeStep;
               return (
                 <li key={i} className={cn("flex items-center gap-3 rounded-lg px-2 py-2", active && "bg-[#eef9f2]")}>
@@ -723,6 +836,11 @@ export function NavigateView() {
               );
             })}
           </ol>
+          {route.surveyed && (
+            <p className="mt-3 text-[11px] leading-snug text-[#98a4ae]">
+              Follows the roads and walkways mapped from the drone survey.
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -902,26 +1020,33 @@ export function NavigateView() {
             />
           ) : (
             <div className="absolute inset-0 bg-[#0b1120]">
-              {/* Nothing is ever selected here, so no building opens into its
-                  structural / exploded frame: this tab is the drone view only. */}
-              <CampusScene
-                campus={campus}
-                routePath={routePath}
-                playing={playing}
-                selectedId={null}
-                onSelect={() => {}}
-                onRouteProgress={onProgress}
-                mode="REALISTIC"
-                droneMesh={droneAvailable}
-                onDroneProgress={setDroneProgress}
-              />
-              {droneAvailable && droneProgress.pending > 0 && (
-                <div className="pointer-events-none absolute inset-x-0 top-5 flex justify-center">
-                  <div className="flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[13px] text-[#2b3640] shadow-[0_4px_16px_rgba(30,60,80,0.18)]">
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#2ea3dc] border-t-transparent" />
-                    Loading drone survey… {droneProgress.pending} tile{droneProgress.pending === 1 ? "" : "s"} to go
-                  </div>
-                </div>
+              {/* The drone view: navigable anywhere, click or pick a place to see
+                  it. No building opens into its structural / exploded frame. */}
+              {droneAvailable && !studioViewer ? (
+                <DroneView3D
+                  campus={campus}
+                  features={features}
+                  routePath={routePath}
+                  playing={playing}
+                  onRouteProgress={onProgress}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  focus={focus}
+                  showLabels={showLabels}
+                />
+              ) : (
+                // No mesh on this server (the modelled campus), or ?viewer=studio.
+                // Nothing is selected, so no building opens into its exploded frame.
+                <CampusScene
+                  campus={campus}
+                  routePath={routePath}
+                  playing={playing}
+                  selectedId={null}
+                  onSelect={() => {}}
+                  onRouteProgress={onProgress}
+                  mode="REALISTIC"
+                  droneMesh={droneAvailable}
+                />
               )}
               {!droneAvailable && droneChecked && (
                 <div className="pointer-events-none absolute inset-x-0 top-5 flex justify-center">
