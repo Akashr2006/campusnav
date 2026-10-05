@@ -233,9 +233,15 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 5. Photogrammetry pilot on the **Aug 2022 RTK flight** (paused; downscaled to `pilot/images4k`). It covers only
    the NE corner (bus stop, East Pond, poly houses) with obliques. The new GPU makes this practical (see below).
 6. Admin login: `ADMIN_EMAIL` and `ADMIN_PASSWORD` are unset on Vercel.
-7. **Deploy web mesh v2 to the CDN** (built and verified 2026-10-01, not uploaded): `npx wrangler login`, then
-   `npx wrangler deploy` from `D:\BIT 3D\_work\pages-deploy`. It replaces v1 at the same URLs (no Vercel env change).
-   Then redeploy Vercel for the new 3D tab, the `/navigate` loading changes and the `/draco` cache header in `vercel.json`.
+7. ~~Deploy web mesh v2 to the CDN, then Vercel~~ **Done 2026-10-05**: CDN worker version `5e5b9f7e` serves v2
+   (checked byte for byte against `D:\BIT 3D\_work\web-mesh-v2`), and Vercel production (campusnav-rose) runs commit
+   `29942dc`+ with the new 3D tab, routing on `paths.json` and the `/draco` cache header. On the second machine wrangler
+   is installed in `D:\BIT 3D\_work\pages-deploy\node_modules` (outside the repo) and the repo is linked to the Vercel
+   project `campusnav` (`.vercel/`, not committed). **This laptop's network drops Cloudflare and Vercel connections
+   for seconds at a time** (wrangler and vercel both failed mid-upload with "fetch failed"): run them in a retry loop,
+   with `NODE_OPTIONS=--dns-result-order=ipv4first` (no working IPv6 here); both resume. The CDN on `*.workers.dev`
+   also stalled ~15 s per request now and then from here: if users on some networks see the 3D view hang, put the
+   worker on a custom domain.
 
 ## 9. New laptop (RTX 3060 8 GB, 32 GB RAM): what it unlocks
 
