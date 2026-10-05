@@ -7,3 +7,7 @@ backup
 tools
 *.log
 public/tour
+
+# Local only: Claude session files and screenshots, and local env (Vercel has its own env vars).
+.claude
+.env*.local
