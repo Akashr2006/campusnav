@@ -130,7 +130,10 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   (or the middle of the view) from the top, N/E/S/W, street level (the first of 16 directions with a clear line of
   sight, by raycast) and turns a 360 deg circle round it; views swing round the building rather than fly through it.
   Click a building for its outline and place card, a sidebar pick flies there framing it roof to ground, names
-  decluttered like the 2D map. The route is a screen-width line, drawn over everything. **Progressive sharpness:** loads at error target 4 (the old view's detail), then,
+  decluttered like the 2D map. The route is a screen-width line, drawn over everything. The tab waits ("Opening
+  the drone view…") while `useDroneMeshStatus` (`lib/drone-warmup.ts`) checks the mesh, retrying twice; it used to
+  show the studio's old modelled campus during that check, and stay on it after one failed request (2026-10-05).
+  The 2D map retries its photo tiles the same way before falling back to the plan drawing. **Progressive sharpness:** loads at error target 4 (the old view's detail), then,
   with nothing left to load, halves it down to one CSS pixel (1 on desktop, 2 on a 2x phone; Data Saver and
   phones with 3 GB or less stay at 4). During a sustained drag it drops back to 4 and parses one tile at a time,
   then re-sharpens about a second after it stops: measured on a 4x slowed CPU, a drag at full sharpness ran

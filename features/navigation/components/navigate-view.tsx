@@ -36,8 +36,7 @@ import { findTourScene } from "@/shared/data/campus-tour";
 import { buildCampus3D, gpsToMetres, type Campus3D, type Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { FILTER_KINDS, KIND_LABEL, placeKind, type PlaceKind } from "../lib/place-kind";
 import { PLAN, buildFeatures, type Footprint, type MapFeature, type RoadSegment } from "./campus-2d-map";
-import { useDroneMeshAvailable } from "@/features/navigation-3d/components/drone-layers";
-import { warmDroneCache } from "@/features/navigation/lib/drone-warmup";
+import { useDroneMeshStatus, warmDroneCache } from "@/features/navigation/lib/drone-warmup";
 import { cn } from "@/shared/lib/utils";
 
 /**
@@ -366,15 +365,11 @@ export function NavigateView() {
   const [progress, setProgress] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // The 3D tab shows the drone survey whenever the mesh is deployed (it is too
-  // large for the hosted build, so it may only exist locally).
-  const droneAvailable = useDroneMeshAvailable();
+  // large for the hosted build, so it may only exist locally). Until that is
+  // known the tab waits, rather than showing the modelled campus meanwhile.
+  const droneStatus = useDroneMeshStatus();
+  const droneAvailable = droneStatus === "yes";
   const [studioViewer, setStudioViewer] = useState(false);
-  // The availability check is a network round trip; wait before saying "not available".
-  const [droneChecked, setDroneChecked] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setDroneChecked(true), 2500);
-    return () => clearTimeout(t);
-  }, []);
   // Fetch the 3D view's decoder and root tileset while the 2D map is up (or
   // alongside the 3D view on a ?view=3d link), so its first sharp tile is not
   // held back waiting for them.
@@ -1022,7 +1017,9 @@ export function NavigateView() {
             <div className="absolute inset-0 bg-[#0b1120]">
               {/* The drone view: navigable anywhere, click or pick a place to see
                   it. No building opens into its structural / exploded frame. */}
-              {droneAvailable && !studioViewer ? (
+              {droneStatus === "checking" && !studioViewer ? (
+                <Loading text="Opening the drone view…" />
+              ) : droneAvailable && !studioViewer ? (
                 <DroneView3D
                   campus={campus}
                   features={features}
@@ -1048,7 +1045,7 @@ export function NavigateView() {
                   droneMesh={droneAvailable}
                 />
               )}
-              {!droneAvailable && droneChecked && (
+              {droneStatus === "no" && (
                 <div className="pointer-events-none absolute inset-x-0 top-5 flex justify-center">
                   <div className="rounded-full bg-white/95 px-4 py-2 text-[13px] text-[#8a5a00] shadow">
                     Drone survey mesh isn&apos;t available on this server — showing the modelled campus.

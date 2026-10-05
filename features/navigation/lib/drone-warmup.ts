@@ -1,5 +1,46 @@
+import { useEffect, useState } from "react";
 import { DEFAULT_DOWNLOAD_QUEUE } from "3d-tiles-renderer";
 import { TILESET_URL } from "@/features/navigation-3d/components/drone-layers";
+
+export type DroneMeshStatus = "checking" | "yes" | "no";
+
+/**
+ * Whether the drone mesh is served here, and "checking" until that is known.
+ *
+ * The studio's `useDroneMeshAvailable` says false until its one request
+ * returns, and false for good if it fails; the /navigate 3D tab used to show
+ * the modelled campus (the studio's old buildings) in that time, and stay on
+ * it after a hiccup (a dev server busy compiling, a dropped request). So: wait
+ * while checking, and retry a failed check twice before giving up. A 404 is a
+ * real answer (no mesh deployed) and is not retried.
+ */
+export function useDroneMeshStatus(): DroneMeshStatus {
+  const [status, setStatus] = useState<DroneMeshStatus>("checking");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      for (const wait of [0, 1500, 4000]) {
+        if (wait) await new Promise((r) => setTimeout(r, wait));
+        if (!live) return;
+        try {
+          const r = await fetch(TILESET_URL, { method: "HEAD", cache: "no-store" });
+          if (r.ok) {
+            if (live) setStatus("yes");
+            return;
+          }
+          if (r.status === 404) break;
+        } catch {
+          // Network hiccup: try again.
+        }
+      }
+      if (live) setStatus("no");
+    })();
+    return () => {
+      live = false;
+    };
+  }, []);
+  return status;
+}
 
 /**
  * Loading tuned for phones on Indian mobile data. Measured with

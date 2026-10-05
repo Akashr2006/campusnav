@@ -295,14 +295,27 @@ export function Campus2DMap({
     // `?style=plan` links straight to the clean plan style.
     if (new URLSearchParams(window.location.search).get("style") === "plan") setStyle("plan");
     let live = true;
-    fetch(`${ORTHO_BASE}meta.json`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((m) => {
+    // Retried twice: one dropped request must not leave the map on the plan
+    // drawing (the traced outlines) instead of the drone photo. A 404 means
+    // the photo tiles are not deployed here and is not retried.
+    (async () => {
+      for (const wait of [0, 1500, 4000]) {
+        if (wait) await new Promise((r) => setTimeout(r, wait));
         if (!live) return;
-        if (m) setOrtho(m);
-        else setOrthoMissing(true);
-      })
-      .catch(() => live && setOrthoMissing(true));
+        try {
+          const r = await fetch(`${ORTHO_BASE}meta.json`);
+          if (r.ok) {
+            const m = await r.json();
+            if (live) setOrtho(m);
+            return;
+          }
+          if (r.status === 404) break;
+        } catch {
+          // Network hiccup: try again.
+        }
+      }
+      if (live) setOrthoMissing(true);
+    })();
     return () => {
       live = false;
     };
