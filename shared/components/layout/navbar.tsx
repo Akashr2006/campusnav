@@ -9,10 +9,13 @@ import { cn } from "@/shared/lib/utils";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/navigate", label: "Navigate" },
-  { href: "/navigate-3d", label: "3D Campus" },
+// "3D Campus" opens the drone 3D view (the /navigate 3D tab: the survey mesh,
+// 360 degree views, routes on the surveyed roads). The modelled 3D studio
+// stays at /navigate-3d, which points back here.
+const links: { href: string; label: string; active: (pathname: string) => boolean }[] = [
+  { href: "/", label: "Home", active: (p) => p === "/" },
+  { href: "/navigate", label: "Navigate", active: (p) => p === "/navigate" },
+  { href: "/navigate?view=3d", label: "3D Campus", active: (p) => p.startsWith("/navigate-3d") },
 ];
 
 export function Navbar() {
@@ -87,8 +90,7 @@ export function Navbar() {
         {/* Desktop Navigation Links */}
         <nav aria-label="Desktop Navigation" className="hidden items-center gap-1 rounded-full border border-[rgb(var(--border))] bg-[rgb(var(--card))]/60 p-1 md:flex">
           {links.map((l) => {
-            const active =
-              l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
+            const active = l.active(pathname);
             return (
               <Link
                 key={l.href}

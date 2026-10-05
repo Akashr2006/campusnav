@@ -92,7 +92,7 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
 |---|---|---|
 | `/` | landing | `features/landing` |
 | `/navigate` | **main navigator**: own header, 2D map / 3D view tabs, sidebar, route | `features/navigation/components/navigate-view.tsx` |
-| `/navigate-3d` | 3D studio: structure, explode, section cut, presentation mode (`?present=1`), drone and thermal toggles | `features/navigation-3d/**` (**do not edit**) |
+| `/navigate-3d` | 3D studio: structure, explode, section cut, presentation mode (`?present=1`), drone and thermal toggles. **Not linked from the site menu since 2026-10-05**: the owner kept landing here and seeing the old modelled buildings, so the menu's "3D Campus" opens `/navigate?view=3d` (the drone view) and this page shows a bar pointing there (`app/navigate-3d/page.tsx`) | `features/navigation-3d/**` (**do not edit**) |
 | `/search`, `/map` | explore / older map | `features/search`, `app/map` |
 | `/admin` (`/admin/login`) | graph editor, floor-plan tracer, publish. The guard is client-side only; the API routes are the real control | `features/admin` |
 | `/dev-ortho` | **dev-only** capture tool for the 2D photo map (404 in production) | `app/dev-ortho`, `app/api/dev-ortho` |
