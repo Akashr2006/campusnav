@@ -105,6 +105,98 @@ the first picture rather than instead of it. Checks:
 `/dev-mesh-bench` also takes `et<N>` (error target) for comparing sharpness with `shoot-mesh.mjs`. Profile a
 production build (`next build`, `next start`): React's dev build alone costs several times more per frame.
 
+### Low-memory phones (2026-10-07)
+
+Each tile downloads at ~125 KB but its photo unpacks to 1-5 MB (1024 px with mipmaps: 5.3 MB), and three.js
+kept that decoded copy on the CPU beside the GPU one. On a 2 GB Android phone exploring held ~440 MB of GPU
+memory plus ~200 MB of decoded photos plus ~140 MB of JS, past the 300-500 MB Chrome gives one tab there: it
+kills the tab and the page reloads. `deviceBudget()` in `drone-view-3d.tsx` now sizes the view per device:
+
+| | 2 GB phone (`navigator.deviceMemory` <= 2) | other phones | desktop |
+|---|---|---|---|
+| canvas | 2x, no MSAA | 2x, MSAA | 2x, MSAA |
+| tile photos | resized to <= 512 px as decoded | as stored | as stored |
+| tile cache (min / max) | 140 / 200 MB | 220 / 300 MB | 322 MB / 1.2-2 GB |
+| decoded photo after GPU upload | freed | freed | kept |
+| sharpening past error target 4 | no | yes | yes |
+
+Freed photos cannot be uploaded again, so a lost WebGL context reloads the tiles (from the HTTP cache). The page
+also lost ~320 KB gzipped of first-load JS: `lib/drone-warmup.ts` imported three.js through drone-layers, and the
+walkway-graph router brought the admin campus store, which fetched the draft and the graph again. Measured on
+the same emulated phone (CPU / 6, 4G 9 Mbit/s 170 ms, the CDN), live site before -> after:
+
+| 2 GB phone, `/navigate?view=3d` | before | after |
+|---|---|---|
+| first picture, cold / reload | 6.1 s / 3.9 s | 3.4 s / 1.6 s |
+| settled, cold / reload | 15.2 s / 9.3 s | 12.7 s / 6.8 s |
+| peak GPU + decoded photos while exploring | 648 MB | 189 MB |
+| JS heap after exploring | 144 MB | 62 MB |
+| `/navigate` first-load JS (gzipped) | 473 KB | 147 KB |
+| sharpness, AS Block north / street / top (Laplacian contrast) | 26.7 / 16.8 / 32.2 | 31.9 / 19.3 / 37.2 |
+
+A first try at a 1.5x canvas used 150 MB but was visibly softer (23.5 / 15.5 / 31.0); 512 px photos made no
+visible difference at 2x. (The score runs a little high without MSAA: aliased edges count as contrast. By eye
+the 2x view matches the old one.) A 4 GB phone: first picture 6.1 -> 3.0 s, peak 717 -> 416 MB. Run it with:
+
+    node tools/drone/lowend-mobile.mjs --app <url> [--mem 2] [--cpu 6] [--down 9] [--rtt 170] [--timeline] [--cold-only] [--shots dir]
+
+It counts GPU memory by wrapping WebGL's allocation calls and decoded photos by wrapping `createImageBitmap`,
+then cold-loads the 3D tab, explores (zoom, swipes, turn, street view, whole campus) and reloads.
+`--device desktop --score` measures a laptop instead (1536x864 at 1.25x, no throttling): when the whole-campus view
+has loaded, when it has finished sharpening, and how sharp it ends up.
+
+### Sharpening speed and detail while moving (2026-10-07)
+
+The owner's laptop is fast but its link is not: ~5-9 Mbit/s from every server (the CDN, Vercel, cdnjs and
+Cloudflare's own speed test alike), so the sharp whole-campus view (~30 MB) was bandwidth-bound, and more
+downloads at once did not help there. Three changes:
+- **Straight to the finest target** once the base view has loaded, instead of halving 4 -> 2 -> 1: the middle level
+  was downloaded and then thrown away. 31 -> 26 MB for the sharp whole view.
+- **Detail kept while moving on devices that keep up.** A drag, a flight or a 360 turn used to drop every device to
+  the base target (for slow phones' frame rate), so a laptop blurred through every turn. It now drops only if
+  frames take over 25 ms during the movement (smoothed): AS Block mid-360-turn scored 20.3 before, 27.8 now
+  (28.2 at rest), at the same 58 fps; a 4x slowed CPU still drops and drags at 45 fps (47 before).
+- **Downloads at once by device and link** (`navigator.connection`): 16 on a fast desktop link, 10 on a fast
+  phone link, else 6. On a fast link 6 capped throughput at ~10 Mbit/s (6 x 125 KB per ~0.5 s round trip).
+
+| laptop, whole campus, this link | before | after |
+|---|---|---|
+| first picture | 2-3 s | 0.8 s |
+| base view loaded | 8-9 s | 6.6 s |
+| fully sharp | 32 s | 25 s |
+| bytes | 31 MB | 26 MB |
+| sharpness when done | 37.3 | 37.3 |
+
+What would cut the bytes further is the textures themselves: re-encoding the tiles' JPEGs as WebP (~30% smaller)
+or AVIF (~50%) in a v3 mesh, and uploading it to the CDN.
+
+### The opening-view poster (2026-10-07)
+
+The owner asked for every building crystal clear within 5 s. On a ~9 Mbit/s link that is ~5 MB, and the sharp
+whole-campus view is 26 MB of tiles, so the opening view starts as a picture of itself: `public/drone/poster/`
+holds the 3D tab's opening view rendered fully sharp (wide 3072x1280 for landscape canvases, square 1600x1600
+for portrait ones; AVIF ~400 KB, WebP fallback) and `poster.json`, the camera pose it was taken from.
+`PosterSwap` (drone-view-3d.tsx) shows it behind the canvas once loaded (if the tiles are not sharp yet), with
+the tiles drawn without colour (so they keep loading and uploading, and still hide the route and outline in
+depth), until the camera moves: not until the tiles are sharp, as a 2 GB phone never sharpens past the base
+detail and the poster is a little crisper than the sharp mesh anyway; mid-movement the swap does not show. Names, the route and the selected outline draw live on top,
+and picks still hit the mesh. It only shows when the camera is exactly at its pose and the canvas is no wider
+than it (covering by height then crops only the sides); `lib/drone-warmup.ts` starts it and the terrain
+downloading as the 3D tab opens. Measured on this link (sharp opening view, all buildings named):
+
+| | laptop | 4 GB phone (CPU / 4) | 2 GB phone (CPU / 6, 4G 9 Mbit/s 170 ms) |
+|---|---|---|---|
+| before (the sharp mesh itself) | 26-32 s | 21 s | not sharpened (base detail at 10 s) |
+| with the poster | 0.7 s | 2.6 s | 3.0 s |
+
+Against the sharp mesh, the poster lines up to the pixel (mean difference 6 grey levels; it is a
+little crisper, being rendered from finer tiles). **Re-render it whenever the mesh, the campus outline (its
+centre and size set the opening view) or the terrain change** (until then it simply stops showing, as the pose
+no longer matches), from a server reading the mesh from disk:
+
+    pnpm dev -p 5000
+    node tools/drone/render-poster.mjs --app http://localhost:5000
+
 ### Rebuilding the 2D layers
 
 1. Capture (only when the mesh changes): with `pnpm dev` running, open

@@ -27,7 +27,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Destination } from "@/shared/data/campus";
-import { shortestPath } from "@/features/navigation/services/graph";
+import type { shortestPath as ShortestPath } from "@/features/navigation/services/graph";
 import { createPathRouter, type PathNetworkFile, type PathRouter, type RouteEnd } from "@/features/navigation/lib/path-network";
 import { getValidNavigationDestinations } from "@/shared/lib/destination-utils";
 import type { TravelMode } from "@/lib/routing/edge-accessibility";
@@ -36,7 +36,7 @@ import { findTourScene } from "@/shared/data/campus-tour";
 import { buildCampus3D, gpsToMetres, type Campus3D, type Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { FILTER_KINDS, KIND_LABEL, placeKind, type PlaceKind } from "../lib/place-kind";
 import { PLAN, buildFeatures, type Footprint, type MapFeature, type RoadSegment } from "./campus-2d-map";
-import { useDroneMeshStatus, warmDroneCache } from "@/features/navigation/lib/drone-warmup";
+import { preloadOpeningView, useDroneMeshStatus, warmDroneCache } from "@/features/navigation/lib/drone-warmup";
 import { cn } from "@/shared/lib/utils";
 
 /**
@@ -53,7 +53,11 @@ const CampusScene = dynamic(
   () => import("@/features/navigation-3d/components/campus-scene").then((m) => m.CampusScene),
   { ssr: false, loading: () => <Loading text="Building the 3D campus…" dark /> }
 );
-const DroneView3D = dynamic(() => import("./drone-view-3d").then((m) => m.DroneView3D), {
+// The 3D view and its engine (three.js, the tiles renderer: ~290 KB gzipped)
+// are a separate chunk, so the page and its 2D map load without them.
+const loadDroneView = () => import("./drone-view-3d");
+const preloadDroneView = () => void loadDroneView().catch(() => {});
+const DroneView3D = dynamic(() => loadDroneView().then((m) => m.DroneView3D), {
   ssr: false,
   loading: () => <Loading text="Opening the drone view…" />,
 });
@@ -376,6 +380,17 @@ export function NavigateView() {
   useEffect(() => {
     if (droneAvailable) void warmDroneCache();
   }, [droneAvailable]);
+  // On the 3D tab, fetch the 3D view's code while the mesh check runs, not after it.
+  useEffect(() => {
+    if (viewMode !== "3d") return;
+    preloadDroneView();
+    if (droneStatus !== "no") preloadOpeningView();
+  }, [viewMode, droneStatus]);
+  // A ?view=3d link opens on the 3D tab straight away, so its code downloads
+  // alongside the campus data rather than after the data has been processed.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("view") === "3d") setViewMode("3d");
+  }, []);
   const [focus, setFocus] = useState<{ id: string; n: number } | null>(null);
   const [kindFilter, setKindFilter] = useState<PlaceKind | null>(null);
   const [showLabels, setShowLabels] = useState(true);
@@ -436,16 +451,30 @@ export function NavigateView() {
   // The roads and walkways detected in the drone survey (tools/drone/build-paths.mjs).
   // Routes follow them; without the file, the published walkway graph is used.
   const [network, setNetwork] = useState<PathNetworkFile | null>(null);
+  // The walkway-graph router, loaded only when it is needed (no paths.json, or a
+  // route the network cannot make): its module brings the admin editor's campus
+  // store, which on import fetches the admin draft and the published graph again
+  // (2 x 66 KB, parsed on a phone's main thread).
+  const [fallbackRouter, setFallbackRouter] = useState<{ shortestPath: typeof ShortestPath } | null>(null);
+  const loadFallbackRouter = useCallback(() => {
+    import("@/features/navigation/services/graph")
+      .then((m) => setFallbackRouter({ shortestPath: m.shortestPath }))
+      .catch(() => {});
+  }, []);
   useEffect(() => {
     let live = true;
     fetch("/drone/paths.json")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => live && d?.nodes && setNetwork(d))
-      .catch(() => {});
+      .then((d) => {
+        if (!live) return;
+        if (d?.nodes) setNetwork(d);
+        else loadFallbackRouter();
+      })
+      .catch(() => live && loadFallbackRouter());
     return () => {
       live = false;
     };
-  }, []);
+  }, [loadFallbackRouter]);
   const router = useMemo<PathRouter | null>(
     () =>
       network && features.length
@@ -464,6 +493,23 @@ export function NavigateView() {
         : null,
     [network, features]
   );
+
+  // Link the places to the network once the 2D map is idle, so the first route
+  // is instant. (Not under the 3D view: there the main thread is busy loading
+  // tiles, and the first route links them instead.)
+  useEffect(() => {
+    if (!router || viewMode !== "2d") return;
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(() => router.prepare(), { timeout: 5000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(() => router.prepare(), 2000);
+    return () => clearTimeout(t);
+  }, [router, viewMode]);
 
   const segments = useMemo<RoadSegment[]>(() => {
     if (router) {
@@ -494,7 +540,7 @@ export function NavigateView() {
     const f = resolve(params.get("from"));
     if (t) setTo(t);
     if (f) setFrom(f);
-    if (params.get("view") === "3d") setViewMode("3d");
+    // (`view=3d` is applied on mount, above.)
     // `&viewer=studio`: the 3D studio's scene in this tab, as before the drone view, for comparison.
     if (params.get("viewer") === "studio") setStudioViewer(true);
   }, [destinations]);
@@ -532,6 +578,9 @@ export function NavigateView() {
         };
       }
     }
+    // No surveyed network (or it is still loading): the published walkway graph,
+    // once its router has loaded.
+    if (!fallbackRouter) return none;
     // A building is not a graph node: route to its entrance, or failing that
     // to the path node nearest its centre.
     const endpoint = (d: Destination) => {
@@ -550,7 +599,7 @@ export function NavigateView() {
     const s = endpoint(from);
     const e = endpoint(to);
     if (s === e) return { ...none, routeError: "Start and destination are the same place." };
-    const r = shortestPath(s, e, { graphData: graph, travelMode });
+    const r = fallbackRouter.shortestPath(s, e, { graphData: graph, travelMode });
     if (!r || !r.nodes?.length) {
       return { ...none, routeError: "These two places are not linked on the published walkway map yet." };
     }
@@ -558,7 +607,11 @@ export function NavigateView() {
       .map((n: any) => campus.nodeById.get(String(n.id))?.position)
       .filter((p): p is Vec2 => Boolean(p));
     return { route: r as RouteView, routePath: path, routeError: null };
-  }, [campus, graph, from, to, travelMode, router, features, myPos]);
+  }, [campus, graph, from, to, travelMode, router, fallbackRouter, features, myPos]);
+  // The surveyed network could not make this route (an end far off it): try the walkway graph.
+  useEffect(() => {
+    if (router && campus && graph && from && to && !route && !routeError && !fallbackRouter) loadFallbackRouter();
+  }, [router, campus, graph, from, to, route, routeError, fallbackRouter, loadFallbackRouter]);
 
   useEffect(() => {
     setProgress(0);
@@ -927,7 +980,8 @@ export function NavigateView() {
     <div className="flex h-dvh flex-col overflow-hidden bg-white text-[#1f2a37]">
       {/* Header */}
       <header className="flex h-16 shrink-0 items-center border-b border-[#eef2f5] bg-white pr-4 md:pr-6">
-        <Link href="/" className="flex h-full shrink-0 items-center gap-2.5 px-4 md:w-64 md:px-5">
+        {/* The header's links don't prefetch: on a phone that competed with the map's own first downloads. */}
+        <Link href="/" prefetch={false} className="flex h-full shrink-0 items-center gap-2.5 px-4 md:w-64 md:px-5">
           <span
             className="flex h-9 w-9 items-center justify-center rounded-full text-white"
             style={{ background: "radial-gradient(circle at 30% 30%, #6cc6ee, #1f8fc8)" }}
@@ -948,6 +1002,9 @@ export function NavigateView() {
                 key={t.id}
                 type="button"
                 onClick={() => setViewMode(t.id)}
+                // Start fetching the 3D code as the finger or pointer lands, before the click.
+                onPointerEnter={t.id === "3d" ? preloadDroneView : undefined}
+                onPointerDown={t.id === "3d" ? preloadDroneView : undefined}
                 className={cn(
                   "flex h-10 items-center gap-2 whitespace-nowrap rounded-full px-3 text-[14px] transition md:px-4",
                   on ? "bg-[#e3f4fb] font-medium text-[#1e9bd7]" : "text-[#3c4752] hover:bg-[#f5f8fa]"
@@ -959,12 +1016,14 @@ export function NavigateView() {
             );
           })}
           <Link
+            prefetch={false}
             href="/search"
             className="hidden h-10 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[14px] text-[#3c4752] hover:bg-[#f5f8fa] xl:flex"
           >
             <Search className="h-[18px] w-[18px]" /> Explore
           </Link>
           <Link
+            prefetch={false}
             href="/"
             className="hidden h-10 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[14px] text-[#3c4752] hover:bg-[#f5f8fa] xl:flex"
           >
@@ -979,6 +1038,7 @@ export function NavigateView() {
             <ChevronDown className="h-3.5 w-3.5 text-[#6b7785]" />
           </div>
           <Link
+            prefetch={false}
             href="/admin/login"
             title="Admin sign in"
             className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e3f4fb] text-[#2ea3dc]"

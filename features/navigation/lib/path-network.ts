@@ -132,22 +132,41 @@ class MinHeap {
   }
 }
 
-/** Buckets of segments, for "nearest path to here" queries. */
+const NO_SEGMENTS: number[] = [];
+
+/**
+ * Buckets of segments, for "nearest path to here" queries.
+ *
+ * Linking places to the network asks this ~20,000 times while the /navigate page
+ * opens (every 2 m of every outline). It used to name cells and segments with
+ * strings and keep a Set per query: 1.8 s of a cheap phone's main thread on
+ * every page load. Numbers and a per-segment "last query" stamp give the same
+ * answers, in the same order, without the allocation.
+ */
 class SegmentGrid {
-  private cells = new Map<string, [number, number][]>();
+  private cells = new Map<number, number[]>();
+  /** Segment s runs from edges[segEdge[s]].pts[segK[s] - 1] to .pts[segK[s]]. */
+  private segEdge: number[] = [];
+  private segK: number[] = [];
+  /** The query that last looked at each segment. */
+  private seenIn = new Uint32Array(0);
+  private query = 0;
   constructor(
     private edges: Edge[],
     private size = 25
   ) {
     edges.forEach((e, i) => this.add(i));
   }
+  /** One number per cell (65,536 cells a side, ~1,600 km at 25 m). */
   private key(cx: number, cz: number) {
-    return `${cx},${cz}`;
+    return (cx + 32768) * 65536 + (cz + 32768);
   }
   add(i: number) {
     const e = this.edges[i];
     if (e.kind === "door" || e.kind === "through") return;
     for (let k = 1; k < e.pts.length; k++) {
+      const s = this.segEdge.push(i) - 1;
+      this.segK.push(k);
       const a = e.pts[k - 1];
       const b = e.pts[k];
       const x0 = Math.floor(Math.min(a.x, b.x) / this.size);
@@ -158,8 +177,8 @@ class SegmentGrid {
         for (let cz = z0; cz <= z1; cz++) {
           const key = this.key(cx, cz);
           const list = this.cells.get(key);
-          if (list) list.push([i, k]);
-          else this.cells.set(key, [[i, k]]);
+          if (list) list.push(s);
+          else this.cells.set(key, [s]);
         }
     }
   }
@@ -169,17 +188,33 @@ class SegmentGrid {
     const r = Math.ceil(reach / this.size);
     const cx = Math.floor(p.x / this.size);
     const cz = Math.floor(p.z / this.size);
-    const seen = new Set<string>();
+    if (this.seenIn.length < this.segEdge.length) {
+      const grown = new Uint32Array(this.segEdge.length * 2);
+      grown.set(this.seenIn);
+      this.seenIn = grown;
+    }
+    const q = ++this.query;
+    const { seenIn, segEdge, segK, edges } = this;
     for (let dx = -r; dx <= r; dx++)
       for (let dz = -r; dz <= r; dz++) {
-        for (const [i, k] of this.cells.get(this.key(cx + dx, cz + dz)) ?? []) {
-          const id = `${i}:${k}`;
-          if (seen.has(id) || !accept(i)) continue;
-          seen.add(id);
-          const e = this.edges[i];
-          const { point } = project(p, e.pts[k - 1], e.pts[k]);
-          const d = dist(p, point);
-          if (d <= reach && (!best || d < best.d)) best = { edge: i, seg: k, point, d };
+        for (const s of this.cells.get(this.key(cx + dx, cz + dz)) ?? NO_SEGMENTS) {
+          if (seenIn[s] === q) continue;
+          const i = segEdge[s];
+          if (!accept(i)) continue;
+          seenIn[s] = q;
+          const k = segK[s];
+          const e = edges[i];
+          const a = e.pts[k - 1];
+          const b = e.pts[k];
+          // project(p, a, b), inlined: the same arithmetic, without the objects.
+          const ex = b.x - a.x;
+          const ez = b.z - a.z;
+          const l2 = ex * ex + ez * ez || 1e-9;
+          const t = Math.max(0, Math.min(1, ((p.x - a.x) * ex + (p.z - a.z) * ez) / l2));
+          const x = a.x + t * ex;
+          const z = a.z + t * ez;
+          const d = Math.hypot(p.x - x, p.z - z);
+          if (d <= reach && (!best || d < best.d)) best = { edge: i, seg: k, point: { x, z }, d };
         }
       }
     return best;
@@ -243,17 +278,46 @@ export type PathRouter = {
   lines: { kind: PathKind; pts: Vec2[] }[];
   /** Where a place meets the network: each door and the path point it joins. */
   doorsOf: (key: string) => { at: Vec2; joins: Vec2 }[];
+  /** Link the places to the network now (it otherwise happens on the first route or door asked for). */
+  prepare: () => void;
 };
 
-export function createPathRouter(file: PathNetworkFile, places: RoutePlace[]): PathRouter {
+/** The file's nodes and edges as points and polylines. */
+function readNetwork(file: PathNetworkFile) {
   const nodes: Vec2[] = file.nodes.map(([x, z]) => ({ x, z }));
-  let edges: Edge[] = file.edges.map((e) => {
+  const edges: Edge[] = file.edges.map((e) => {
     const pts = [nodes[e.a]];
     for (let k = 0; k < e.pts.length; k += 2) pts.push({ x: e.pts[k], z: e.pts[k + 1] });
     pts.push(nodes[e.b]);
     return { a: e.a, b: e.b, kind: e.kind, pts, len: lengthOf(pts) };
   });
-  const lines = edges.map((e) => ({ kind: e.kind as PathKind, pts: e.pts }));
+  return { nodes, edges };
+}
+
+/**
+ * A router over the network, for these places.
+ *
+ * Drawing the network needs only the file, so `lines` is ready at once. Linking
+ * every place to it (its doors: the nearest paths round each outline) is the
+ * costly part, a few hundred ms on a cheap phone; it runs the first time a route
+ * or a door is asked for, or on `prepare()`, so it does not hold up the page.
+ */
+export function createPathRouter(file: PathNetworkFile, places: RoutePlace[]): PathRouter {
+  const lines = readNetwork(file).edges.map((e) => ({ kind: e.kind as PathKind, pts: e.pts }));
+  let linked: Omit<PathRouter, "lines" | "prepare"> | null = null;
+  const link = () => (linked ??= linkPlaces(file, places));
+  return {
+    lines,
+    route: (from, to, mode) => link().route(from, to, mode),
+    doorsOf: (key) => link().doorsOf(key),
+    prepare: () => void link(),
+  };
+}
+
+function linkPlaces(file: PathNetworkFile, places: RoutePlace[]): Omit<PathRouter, "lines" | "prepare"> {
+  const network = readNetwork(file);
+  const nodes = network.nodes;
+  let edges = network.edges;
 
   // Connected parts of the network, and the largest.
   const component = (() => {
@@ -725,5 +789,5 @@ export function createPathRouter(file: PathNetworkFile, places: RoutePlace[]): P
   }
 
   const doorsOf = (key: string) => (doorsByPlace.get(key) ?? []).map((d) => ({ at: d.at, joins: d.point }));
-  return { route, lines, doorsOf };
+  return { route, doorsOf };
 }

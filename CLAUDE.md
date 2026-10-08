@@ -110,7 +110,9 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   (EV mode drives the `road` edges, walks the rest), and writes turn-by-turn steps named after the building at each
   turn ("Turn left at AS Block", "past X on your right", "Arrive at Y, on your left"). Academic blocks and labs
   (`placeKind`) may be walked through door to door ("Go through ..."), hostels and halls never. Every building
-  reaches every other (`tests/path-network.test.ts`). Without `paths.json` it falls back to the old
+  reaches every other (`tests/path-network.test.ts`). Linking the places (their doors) is the costly part (1.8 s of
+  a cheap phone's main thread before 2026-10-07, when its nearest-path lookup lost its string keys): it runs on the
+  first route, or when the 2D map is idle, not while the page opens; `lines` is ready at once. Without `paths.json` it falls back to the old
   `shortestPath(start, end, { graphData, travelMode })` over the published graph (24 road junctions in a coarse
   grid, **two disconnected parts**).
 - `campus-2d-map.tsx`: SVG in scene metres (X east, Z south, the 3D frame), with its own pan, zoom and pinch camera.
@@ -139,6 +141,22 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   then re-sharpens about a second after it stops: measured on a 4x slowed CPU, a drag at full sharpness ran
   ~20 fps, now ~45-60 like the old view, and overview buildings go from blurred blobs to distinct roofs.
   Measured with `tools/drone/profile-3d-view.mjs` and `tools/drone/e2e-3d-view.mjs` (see public/drone/README.md).
+  **Low-memory phones (2026-10-07):** the owner wanted it fast and stable on 2 GB phones; there the view held ~650 MB
+  of photos (Chrome kills the tab and the page reloads). `deviceBudget()` now gives a 2 GB phone tile photos at
+  <= 512 px, no MSAA and a 200 MB tile cache, and every phone frees each decoded photo after its GPU upload: peak
+  648 -> 189 MB, first picture 6.1 -> 3.4 s, reload 3.9 -> 1.6 s, same sharpness (`tools/drone/lowend-mobile.mjs`,
+  table in public/drone/README.md). The owner rejected a softer 1.5x canvas: **don't trade sharpness for memory
+  without showing him a close-up first**. Same day, for his fast laptop on a ~9 Mbit/s link: sharpening goes
+  straight from 4 to the finest target (31 -> 26 MB for the whole view, sharp in 25 s instead of 32), the drop to
+  the base target while moving only happens when frames are slow (a laptop stays sharp through a 360 turn), and
+  16/10/6 downloads at once on a fast desktop/phone link or otherwise. Then, for "every building crystal clear in
+  5 s": the opening view starts as a **poster**, a picture of itself rendered fully sharp (`public/drone/poster/`,
+  `PosterSwap`), shown until the camera moves: 0.7 s on the laptop, 3.0 s on the 2 GB phone.
+  **Re-render it (`tools/drone/render-poster.mjs`, see public/drone/README.md) whenever the mesh, the campus outline
+  or the terrain change**; until then it just stops showing (its camera pose no longer matches). **Keep three.js out of the page's first load**: nothing `navigate-view.tsx`
+  imports statically may import three, 3d-tiles-renderer or drone-layers (`lib/drone-warmup.ts` used to, 290 KB
+  gzipped), nor `services/graph` (it brings the admin campus store, which fetches the draft on import); the 3D
+  view and the walkway-graph fallback are loaded on demand. `/navigate` first-load JS is 147 KB gzipped (was 473).
 - `features/navigation/lib/place-kind.ts`: kind, icon and colour from the building name.
 - The old `navigate-shell.tsx` (with `campus-plan-map.tsx`, built by a parallel session on 26 Sep) is kept
   but **no longer mounted**.
@@ -240,8 +258,9 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
    project `campusnav` (`.vercel/`, not committed). **This laptop's network drops Cloudflare and Vercel connections
    for seconds at a time** (wrangler and vercel both failed mid-upload with "fetch failed"): run them in a retry loop,
    with `NODE_OPTIONS=--dns-result-order=ipv4first` (no working IPv6 here); both resume. The CDN on `*.workers.dev`
-   also stalled ~15 s per request now and then from here: if users on some networks see the 3D view hang, put the
-   worker on a custom domain.
+   also stalled ~15 s per request now and then from here. A custom domain for the worker was considered and
+   **dropped on 2026-10-07: the owner keeps `workers.dev`**. The only domain in his Vercel account,
+   tdsprimegroups.com, belongs to a client: never use it for CampusNav.
 
 ## 9. New laptop (RTX 3060 8 GB, 32 GB RAM): what it unlocks
 
@@ -268,5 +287,9 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
   routing over roads and walkways detected from the drone photo with landmark turn-by-turn directions
   (`tools/drone/e2e-views-routes.mjs` checks both in Chrome). Nothing under `features/navigation-3d` was edited. Built on a second machine:
   project at `D:\campusnav`, survey on the USB drive `E:`, v2 mesh copied to `D:\BIT 3D`.
+- 10-07: lightweight for 2 GB phones: device-sized 3D view (photos, canvas, cache), decoded photos freed, three.js
+  and the admin store out of `/navigate`'s first load, faster place linking (identical routes). Measured with the
+  new `tools/drone/lowend-mobile.mjs`. Then, for high-end devices: direct sharpening, detail kept while moving
+  unless frames are slow, more downloads at once on fast links. A custom CDN domain was dropped (see section 8).
 - 09-30: this file, and the campus data committed, for the move to the new laptop. 2D photo tiles uploaded to the
   CDN, and the site deployed to production and checked live (lint clean, typecheck clean, 416 tests pass).

@@ -1,17 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Line } from "@react-three/drei";
 import { EnvironmentControls, TilesRenderer, WGS84_ELLIPSOID } from "3d-tiles-renderer";
 import { GLTFExtensionsPlugin, TilesFadePlugin } from "3d-tiles-renderer/plugins";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import type { GLTFLoaderPlugin, GLTFParser } from "three/addons/loaders/GLTFLoader.js";
 import { CircleStop, Compass, Hand, Maximize2, Minus, Orbit, PersonStanding, Plus, Rotate3d, RotateCcw, RotateCw, Square } from "lucide-react";
 import { MAP_ORIGIN } from "@/lib/geo/projection";
 import { TILESET_URL, useTerrain } from "@/features/navigation-3d/components/drone-layers";
 import type { Campus3D, Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import type { Terrain } from "@/features/navigation-3d/lib/terrain";
+import meshAlignment from "@/public/drone/mesh-alignment.json";
+import posterManifest from "@/public/drone/poster/poster.json";
+import { TILE_DOWNLOADS_IN_FLIGHT } from "../lib/drone-warmup";
 import type { MapFeature } from "./campus-2d-map";
 
 /**
@@ -29,8 +33,8 @@ import type { MapFeature } from "./campus-2d-map";
  *  - Every building from every side: top, north, east, south, west and street
  *    level views framing it roof to ground, and a 360 degree turn round it.
  *  - Sharper detail without a slower first picture: the view loads at the
- *    renderer's usual error target, then, once nothing is left to load, halves
- *    it until one screen pixel (measured: overview buildings go from blurred
+ *    renderer's usual error target, then, once nothing is left to load, goes
+ *    to one screen pixel (measured: overview buildings go from blurred
  *    blobs to distinct roofs, for ~3x the bytes, fetched after the view is up).
  *  - Picking: click a building for its place card; choose one in the sidebar
  *    and the camera flies to it. Nothing opens into the exploded frame.
@@ -61,6 +65,10 @@ type ViewerApi = {
   lastMove: number;
   /** Left-drag turns the view (instead of moving it). Mouse only. */
   rotateMode: boolean;
+  /** Everything in view has loaded at the finest detail this device sharpens to. */
+  sharp: boolean;
+  /** A poster stands in for the mesh: tiles are drawn without colour (see PosterSwap). */
+  meshHidden: boolean;
 };
 
 type DroneAlignment = { dx: number; dz: number; groundHeight: number; rotationDeg: number };
@@ -71,6 +79,8 @@ const BASE_ERROR_TARGET = 4;
 const SHARPEN_AFTER_MS = 350;
 /** A movement must last this long before the view drops to the fast target. */
 const MOTION_GRACE_MS = 300;
+/** ...and only if frames take longer than this meanwhile (under ~40 fps). */
+const SLOW_FRAME_MS = 25;
 /** Tiles parsed at once at rest (the renderer's default). */
 const PARSE_JOBS = 5;
 const FADE_MS = 250;
@@ -88,70 +98,216 @@ function ecefToScene(a: DroneAlignment): THREE.Matrix4 {
 
 type TileStats = { queued: number; downloading: number; parsing: number; loaded: number };
 
-/** The finest error target this device should sharpen to, in drawing-buffer pixels. */
-function finestErrorTarget(pixelRatio: number): number {
+/**
+ * How much of the survey this device can hold at once.
+ *
+ * Each tile downloads at ~125 KB but its photo unpacks to 1-5 MB, held twice:
+ * decoded on the CPU and uploaded to the GPU. On a 2 GB Android phone
+ * (tools/drone/lowend-mobile.mjs) exploring held ~440 MB of GPU memory plus
+ * ~200 MB of decoded photos, well past the 300-500 MB Chrome lets one tab have
+ * there before it kills it and the page reloads. So a small phone gets photos
+ * at most 512 px a side, no multisampling (35 MB at 2x) and a tile cache that
+ * pauses loading at 200 MB: ~190 MB at peak, and as sharp as before on its
+ * screen (same-camera close-ups compared by eye and by Laplacian contrast; a
+ * 1.5x canvas was visibly softer). `navigator.deviceMemory` is Chrome's,
+ * rounded to a power of two (a 3 GB phone reports 2 or 4); Safari does not report it.
+ */
+type DeviceBudget = {
+  /** Largest canvas pixel ratio. */
+  maxDpr: number;
+  antialias: boolean;
+  /** Tile photos are resized to at most this many pixels a side; null keeps them as stored (up to 1024). */
+  maxTexture: number | null;
+  /** The tile cache stops loading at max bytes / tiles, and evicts unused tiles down to min. */
+  cacheBytes: [min: number, max: number];
+  cacheTiles: [min: number, max: number];
+  /** Drop each photo's decoded copy once it is on the GPU. */
+  releaseImages: boolean;
+  /** Sharpen past the base error target once the view has loaded. */
+  sharpen: boolean;
+  anisotropy: number;
+  /** Tile downloads at once. */
+  downloads: number;
+};
+
+function deviceBudget(): DeviceBudget {
   const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
-  // Data Saver, or a phone with little memory: stay at the fast target.
-  if (nav.connection?.saveData || (nav.deviceMemory !== undefined && nav.deviceMemory <= 3)) return BASE_ERROR_TARGET;
-  // One CSS pixel: phones (pixel ratio 2) stop at 2, desktop monitors at 1.
+  const saveData = Boolean(nav.connection?.saveData);
+  if (nav.deviceMemory !== undefined && nav.deviceMemory <= 2) {
+    return {
+      maxDpr: 2,
+      antialias: false,
+      maxTexture: 512,
+      cacheBytes: [140e6, 200e6],
+      cacheTiles: [400, 600],
+      releaseImages: true,
+      sharpen: false,
+      anisotropy: 4,
+      downloads: TILE_DOWNLOADS_IN_FLIGHT,
+    };
+  }
+  const big = (nav.deviceMemory ?? 4) >= 8;
+  // A fast link has room for more downloads at once (see TILE_DOWNLOADS_IN_FLIGHT).
+  const link = (nav as { connection?: { downlink?: number; effectiveType?: string } }).connection;
+  const fast = !link || ((link.downlink ?? 10) >= 5 && (link.effectiveType ?? "4g") === "4g");
+  if (window.matchMedia("(pointer: coarse)").matches) {
+    // A high-end phone keeps as much as the view used before the decoded copies
+    // were freed (400 MB, which then held far more), so it sharpens as far.
+    return {
+      maxDpr: 2,
+      antialias: true,
+      maxTexture: null,
+      cacheBytes: big ? [450e6, 600e6] : [300e6, 400e6],
+      cacheTiles: big ? [1500, 2000] : [900, 1200],
+      releaseImages: true,
+      sharpen: !saveData,
+      anisotropy: 16,
+      downloads: fast ? 10 : TILE_DOWNLOADS_IN_FLIGHT,
+    };
+  }
+  return {
+    maxDpr: 2,
+    antialias: true,
+    maxTexture: null,
+    cacheBytes: [0.3 * 2 ** 30, big ? 2e9 : 1.2e9],
+    cacheTiles: [3000, 4000],
+    releaseImages: false,
+    sharpen: !saveData,
+    anisotropy: 16,
+    downloads: fast ? 16 : TILE_DOWNLOADS_IN_FLIGHT,
+  };
+}
+
+/** The finest error target to sharpen to, in drawing-buffer pixels: one CSS pixel (2 on a 2x phone, 1 on a desktop monitor). */
+function finestErrorTarget(budget: DeviceBudget, pixelRatio: number): number {
+  if (!budget.sharpen) return BASE_ERROR_TARGET;
   return Math.min(BASE_ERROR_TARGET, Math.max(1, pixelRatio));
+}
+
+/**
+ * glTF loader plugin: resizes each tile photo to at most `max` pixels a side
+ * as it is decoded, so the GPU copy (and the tile cache's count of it) is the
+ * small one. A 1024 px photo is 5.3 MB on the GPU with mipmaps, 1.3 MB at 512.
+ */
+function shrinkTextures(max: number) {
+  return (parser: GLTFParser): GLTFLoaderPlugin => {
+    const resized = new WeakMap<THREE.Texture, Promise<THREE.Texture>>();
+    return {
+      name: "CAMPUSNAV_shrink_textures",
+      // The parser's own loadTexture is the default this plugin stands in front of.
+      loadTexture: (index) =>
+        parser.loadTexture(index).then((texture) => {
+          if (!texture) return texture;
+          let done = resized.get(texture);
+          if (!done) resized.set(texture, (done = shrinkTexture(texture, max)));
+          return done;
+        }),
+    };
+  };
+}
+
+async function shrinkTexture(texture: THREE.Texture, max: number): Promise<THREE.Texture> {
+  const image = texture.image as ImageBitmap | HTMLImageElement | null;
+  if (!image || typeof createImageBitmap === "undefined") return texture;
+  const scale = max / Math.max(image.width, image.height);
+  if (!(scale < 1)) return texture;
+  try {
+    const small = await createImageBitmap(image, {
+      resizeWidth: Math.max(1, Math.round(image.width * scale)),
+      resizeHeight: Math.max(1, Math.round(image.height * scale)),
+      resizeQuality: "medium",
+    });
+    if ("close" in image) image.close();
+    texture.image = small;
+  } catch {
+    // Keep the full-size photo.
+  }
+  return texture;
+}
+
+/**
+ * After the GPU upload, swap the decoded photo for its size alone (what the tile
+ * cache counts) and free it. It would only be needed to upload again, which a
+ * lost WebGL context forces; DroneTiles reloads the tiles then.
+ */
+function releaseAfterUpload(texture: THREE.Texture) {
+  texture.onUpdate = () => {
+    texture.onUpdate = null;
+    const image = texture.image as ImageBitmap | null;
+    if (!image || typeof image.close !== "function") return;
+    texture.image = { width: image.width, height: image.height };
+    image.close();
+  };
 }
 
 function DroneTiles({
   api,
+  budget,
   onProgress,
 }: {
   api: React.MutableRefObject<ViewerApi>;
+  budget: DeviceBudget;
   onProgress?: (p: DroneViewProgress) => void;
 }) {
   const { camera, gl } = useThree();
-  const [alignment, setAlignment] = useState<DroneAlignment | null>(null);
+  // Built in rather than fetched: one round trip less before the first tile.
+  const alignment = meshAlignment as DroneAlignment;
   const [tiles, setTiles] = useState<TilesRenderer | null>(null);
   const fade = useRef<TilesFadePlugin | null>(null);
+  // Bumped when a lost WebGL context comes back: with the decoded photos
+  // released, the tiles are loaded again (from the HTTP cache) rather than re-uploaded.
+  const [generation, setGeneration] = useState(0);
+  useEffect(() => {
+    if (!budget.releaseImages) return;
+    const canvas = gl.domElement;
+    const onRestored = () => setGeneration((g) => g + 1);
+    canvas.addEventListener("webglcontextrestored", onRestored);
+    return () => canvas.removeEventListener("webglcontextrestored", onRestored);
+  }, [budget.releaseImages, gl]);
 
   useEffect(() => {
-    let live = true;
-    fetch("/drone/mesh-alignment.json")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((a) => live && setAlignment(a))
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!alignment) return;
     const t = new TilesRenderer(TILESET_URL);
     const draco = new DRACOLoader().setDecoderPath("/draco/");
     // Start the decoder now rather than when the first tile arrives.
     draco.preload();
-    t.registerPlugin(new GLTFExtensionsPlugin({ dracoLoader: draco }));
+    t.registerPlugin(
+      new GLTFExtensionsPlugin({
+        dracoLoader: draco,
+        plugins: budget.maxTexture ? [shrinkTextures(budget.maxTexture)] : [],
+        // Disposed below. (Its own disposal also calls the KTX2 loader, which is
+        // not set, and threw out of TilesRenderer.dispose before the tiles were freed.)
+        autoDispose: false,
+      })
+    );
     // Sharper tiles fade in over the coarser ones instead of popping.
     fade.current = new TilesFadePlugin({ fadeDuration: FADE_MS });
     t.registerPlugin(fade.current);
     t.errorTarget = BASE_ERROR_TARGET;
+    // A few downloads at a time, nearest first, fill the view progressively on a
+    // phone link (lib/drone-warmup.ts); a fast link takes more at once.
+    t.downloadQueue.maxJobsPerOrigin = budget.downloads;
     // Only what is on screen, nearest first (see DroneMesh and public/drone/README.md).
     t.loadAncestors = false;
     t.loadSiblings = false;
-    const mobile = window.matchMedia("(pointer: coarse)").matches;
-    const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
-    t.lruCache.maxSize = mobile ? 1200 : 4000;
-    t.lruCache.maxBytesSize = mobile ? 4e8 : memory >= 8 ? 2e9 : 1.2e9;
+    [t.lruCache.minBytesSize, t.lruCache.maxBytesSize] = budget.cacheBytes;
+    [t.lruCache.minSize, t.lruCache.maxSize] = budget.cacheTiles;
     t.group.matrixAutoUpdate = false;
     t.group.matrix.copy(ecefToScene(alignment));
     t.group.matrixWorldNeedsUpdate = true;
-    const anisotropy = gl.capabilities.getMaxAnisotropy();
+    const anisotropy = Math.min(budget.anisotropy, gl.capabilities.getMaxAnisotropy());
     const onLoad = ({ scene }: { scene: THREE.Object3D }) => {
       scene.traverse((o) => {
         const mesh = o as THREE.Mesh;
         if (!mesh.isMesh) return;
         for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+          // Behind the opening poster, tiles load without colour (see PosterSwap).
+          m.colorWrite = !api.current.meshHidden;
           // With the v2 mesh's mipmaps this keeps photos crisp at grazing angles.
           const map = (m as THREE.MeshBasicMaterial).map;
           if (map) {
             map.anisotropy = anisotropy;
             map.needsUpdate = true;
+            if (budget.releaseImages) releaseAfterUpload(map);
           }
         }
       });
@@ -173,9 +329,9 @@ function DroneTiles({
       fade.current = null;
       setTiles(null);
     };
-  }, [alignment, api, camera, gl]);
+  }, [alignment, api, budget, camera, gl, generation]);
 
-  const finest = useMemo(() => finestErrorTarget(gl.getPixelRatio()), [gl]);
+  const finest = useMemo(() => finestErrorTarget(budget, gl.getPixelRatio()), [budget, gl]);
   const idleSince = useRef<number | null>(null);
   const lastReport = useRef({ at: 0, key: "" });
   const buffer = useMemo(() => new THREE.Vector2(), []);
@@ -183,6 +339,8 @@ function DroneTiles({
   const sharpTarget = useRef<number | null>(null);
   /** When the current camera movement began, if it is moving. */
   const motionSince = useRef<number | null>(null);
+  /** Frame time while moving at the sharp target (ms, smoothed). */
+  const frameMs = useRef(1000 / 60);
 
   useEffect(() => {
     api.current.resetDetail = () => {
@@ -192,7 +350,7 @@ function DroneTiles({
     };
   }, [api]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!tiles) return;
     const now = performance.now();
     const moving = now - api.current.lastMove < 200;
@@ -201,19 +359,25 @@ function DroneTiles({
     // While the camera moves, loading sharp tiles is what costs frames: on a
     // CPU slowed like a low-end phone, a drag ran at ~20 fps sharp against ~45 at
     // the fast target (tools/drone/profile-3d-view.mjs), drawing them costs
-    // nothing. So a sustained movement drops to the fast target (the old 3D
-    // view's detail), and the sharp one comes back about a second after it stops.
-    // Short nudges and single wheel ticks keep the sharp view.
-    if (moving && now - (motionSince.current ?? now) > MOTION_GRACE_MS && tiles.errorTarget < BASE_ERROR_TARGET) {
-      sharpTarget.current = tiles.errorTarget;
-      tiles.errorTarget = BASE_ERROR_TARGET;
+    // nothing. So when frames get slow during a sustained movement (a drag, a
+    // flight, a 360 turn), the view drops to the fast target for the rest of it,
+    // and the sharp one comes back as soon as it stops. A device that keeps up
+    // stays sharp while it moves: it used to drop on every device, which made a
+    // fast laptop blur through every turn.
+    if (moving && tiles.errorTarget < BASE_ERROR_TARGET) {
+      frameMs.current += (Math.min(delta * 1000, 100) - frameMs.current) * 0.1;
+      if (now - (motionSince.current ?? now) > MOTION_GRACE_MS && frameMs.current > SLOW_FRAME_MS) {
+        sharpTarget.current = tiles.errorTarget;
+        tiles.errorTarget = BASE_ERROR_TARGET;
+      }
     } else if (!moving && sharpTarget.current !== null) {
       tiles.errorTarget = sharpTarget.current;
       sharpTarget.current = null;
     }
-    // One tile parsed at a time while moving (each one is main-thread work), and
-    // no fading while tiles swap quickly (it shows as grain); both back at rest.
-    tiles.parseQueue.maxJobs = moving ? 1 : PARSE_JOBS;
+    const struggling = moving && sharpTarget.current !== null;
+    // One tile parsed at a time while that happens (each one is main-thread
+    // work), and no fading while tiles swap quickly (it shows as grain).
+    tiles.parseQueue.maxJobs = struggling ? 1 : PARSE_JOBS;
     // `fadeDuration` is a setter at runtime but missing from the plugin's typings.
     if (fade.current) (fade.current as unknown as { fadeDuration: number }).fadeDuration = moving ? 0 : FADE_MS;
 
@@ -226,12 +390,16 @@ function DroneTiles({
     const pending = s.queued + s.downloading + s.parsing;
     const ready = Boolean(tiles.root) && tiles.visibleTiles.size > 0;
     const sharpening = tiles.errorTarget < BASE_ERROR_TARGET && pending > 0;
+    api.current.sharp = ready && pending === 0 && tiles.errorTarget <= finest;
     if (pending === 0 && ready && !moving) {
       idleSince.current ??= now;
       const cache = tiles.lruCache as unknown as { cachedBytes: number; maxBytesSize: number };
       const room = cache.cachedBytes < 0.7 * cache.maxBytesSize;
+      // Straight to the finest target: stepping through the halves on the way
+      // downloaded a middle level that was then thrown away (~20% of the bytes
+      // of a sharp whole-campus view, on links of a few Mbit/s).
       if (now - idleSince.current > SHARPEN_AFTER_MS && tiles.errorTarget > finest && room) {
-        tiles.errorTarget = Math.max(finest, tiles.errorTarget / 2);
+        tiles.errorTarget = finest;
         idleSince.current = null;
       }
     } else {
@@ -245,6 +413,124 @@ function DroneTiles({
     }
   });
 
+  return null;
+}
+
+/**
+ * The poster: a picture of the opening view at full sharpness
+ * (tools/drone/render-poster.mjs, public/drone/poster/). A sharp whole-campus
+ * view is ~26 MB of tiles, half a minute on a link of a few Mbit/s; the poster
+ * is well under 1 MB. It shows behind the canvas, with the mesh hidden, from
+ * the moment it has loaded until the camera moves (it is shown only if the
+ * mesh is not sharp yet when it arrives). Names, the route and the selected
+ * outline still draw live on top, and picks still hit the (hidden) mesh.
+ *
+ * A poster is only right for the exact camera it was taken from: the same
+ * pose and vertical field of view. Its aspect is wider than the canvas's, so
+ * covering the canvas by height crops it at the sides and nowhere else.
+ */
+type PosterImage = { file: string; width: number; height: number };
+type PosterManifest = {
+  pose: { position: number[]; quaternion: number[]; fov: number } | null;
+  images: PosterImage[];
+};
+
+/** Draws the mesh without colour while a poster stands in for it, or normally again. */
+function setMeshHidden(group: THREE.Object3D, hidden: boolean) {
+  group.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) m.colorWrite = !hidden;
+  });
+}
+
+/**
+ * The same camera rotation, to ~0.01 deg. (Not Quaternion.angleTo: its acos is
+ * so ill-conditioned near zero that a 1e-6 difference reads as 0.1 deg.)
+ */
+function sameRotation(a: THREE.Quaternion, b: THREE.Quaternion): boolean {
+  const s = a.dot(b) < 0 ? -1 : 1;
+  return Math.max(Math.abs(a.x - s * b.x), Math.abs(a.y - s * b.y), Math.abs(a.z - s * b.z), Math.abs(a.w - s * b.w)) < 1e-4;
+}
+
+/** The narrowest poster still at least as wide (in aspect) as the canvas. */
+function choosePoster(manifest: PosterManifest, width: number, height: number): PosterImage | null {
+  if (!manifest.pose || !width || !height) return null;
+  const aspect = width / height;
+  const fits = manifest.images.filter((im) => im.width / im.height >= aspect - 1e-3);
+  return fits.sort((a, b) => a.width / a.height - b.width / b.height)[0] ?? null;
+}
+
+function PosterSwap({
+  api,
+  image,
+  poster,
+  pose,
+  onChange,
+}: {
+  api: React.MutableRefObject<ViewerApi>;
+  image: React.RefObject<HTMLImageElement | null>;
+  poster: PosterImage;
+  pose: NonNullable<PosterManifest["pose"]>;
+  onChange: (state: "shown" | "done") => void;
+}) {
+  const { camera, size } = useThree();
+  const target = useMemo(
+    () => ({ position: new THREE.Vector3().fromArray(pose.position), quaternion: new THREE.Quaternion().fromArray(pose.quaternion).normalize() }),
+    [pose]
+  );
+  const state = useRef<"waiting" | "shown" | "done">("waiting");
+  useFrame(() => {
+    if (state.current === "done") return;
+    const el = image.current;
+    const tiles = api.current.tiles;
+    // The camera it was taken from, and a canvas no wider than it (covering by height then only crops the sides).
+    const atPose =
+      Math.abs((camera as THREE.PerspectiveCamera).fov - pose.fov) < 1e-3 &&
+      camera.position.distanceTo(target.position) < 0.05 &&
+      sameRotation(camera.quaternion, target.quaternion) &&
+      size.height > 0 &&
+      size.width / size.height <= poster.width / poster.height + 1e-3;
+    const finish = () => {
+      state.current = "done";
+      if (tiles && api.current.meshHidden) setMeshHidden(tiles.group, false);
+      api.current.meshHidden = false;
+      if (el) {
+        el.style.transition = "none";
+        el.style.opacity = "0";
+      }
+      onChange("done");
+    };
+    // Shown: it stays until the camera moves. (Not until the tiles are sharp: a
+    // 2 GB phone never sharpens past the base detail, and elsewhere the poster,
+    // rendered from finer tiles, is still a little crisper; mid-movement the
+    // swap does not show.)
+    if (state.current === "shown") {
+      if (!atPose) finish();
+      return;
+    }
+    // Waiting: show it once it has loaded, if the camera is (still) at its pose and the mesh is not sharp yet.
+    if (api.current.sharp) return finish();
+    if (!tiles || !el || !el.complete || !el.naturalWidth || !atPose) return;
+    state.current = "shown";
+    // Not `visible = false`: hidden tiles would not upload, and all of them would
+    // then upload in the frame the poster goes. Drawn without colour, they keep
+    // uploading as they load and still hide what is behind them in depth.
+    api.current.meshHidden = true;
+    setMeshHidden(tiles.group, true);
+    el.style.transition = "none";
+    el.style.opacity = "1";
+    onChange("shown");
+  });
+  // A poster that has not shown within 20 s is no use any more: stop waiting for it.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (state.current !== "waiting") return;
+      state.current = "done";
+      onChange("done");
+    }, 20000);
+    return () => clearTimeout(t);
+  }, [onChange]);
   return null;
 }
 
@@ -298,12 +584,34 @@ function Navigation({
   } | null>(null);
   const spin = useRef<{ pivot: THREE.Vector3; left: number } | null>(null);
 
+  // The opening view. `home` changes once, when the terrain arrives (its target
+  // is the ground at the campus centre); the camera follows it then only if
+  // nothing has moved it yet, so the opening view is always the same one (the
+  // poster is a picture of it) and the user is never yanked.
+  const placedAt = useRef<Pose | null>(null);
   useEffect(() => {
+    const placed = placedAt.current;
+    if (placed && (camera.position.distanceToSquared(placed.position) > 1e-8 || flight.current)) return;
     camera.position.copy(home.position);
     camera.quaternion.copy(poseLookingAt(home.position, home.target));
     camera.updateMatrixWorld();
-    // Only the first pose: later changes to `home` must not yank the camera.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    placedAt.current = { position: home.position.clone(), target: home.target.clone() };
+  }, [camera, home]);
+
+  // For tools (tools/drone/render-poster.mjs): the camera's pose, with ?debug in the URL.
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has("debug")) return;
+    const w = window as Window & { __droneView?: unknown };
+    w.__droneView = {
+      pose: () => ({
+        position: camera.position.toArray(),
+        quaternion: camera.quaternion.toArray(),
+        fov: (camera as THREE.PerspectiveCamera).fov,
+      }),
+    };
+    return () => {
+      delete w.__droneView;
+    };
   }, [camera]);
 
   useEffect(() => {
@@ -840,9 +1148,29 @@ export function DroneView3D({
   showLabels: boolean;
 }) {
   const terrain = useTerrain();
+  // This component only renders in the browser (next/dynamic, ssr: false).
+  const budget = useMemo(() => deviceBudget(), []);
   // Kept here, not in the page: a counter that changes while tiles stream must
   // not re-render the whole /navigate page (measured: ~9% of a drag's CPU).
   const [progress, setProgress] = useState<DroneViewProgress>({ pending: 0, loaded: 0, sharpening: false });
+  // The opening-view poster (see PosterSwap), chosen for the canvas's shape once it has one.
+  const manifest = posterManifest as PosterManifest;
+  const container = useRef<HTMLDivElement>(null);
+  const posterImage = useRef<HTMLImageElement>(null);
+  const [poster, setPoster] = useState<PosterImage | null>(null);
+  const [posterState, setPosterState] = useState<"waiting" | "shown" | "done">("waiting");
+  const [posterGone, setPosterGone] = useState(false);
+  const posterShown = posterState === "shown";
+  useLayoutEffect(() => {
+    const el = container.current;
+    if (el) setPoster(choosePoster(manifest, el.clientWidth, el.clientHeight));
+  }, [manifest]);
+  // Once it is done (faded out, or never shown), drop it from the page and from memory.
+  useEffect(() => {
+    if (posterState !== "done") return;
+    const t = setTimeout(() => setPosterGone(true), 600);
+    return () => clearTimeout(t);
+  }, [posterState]);
   const c = campus.centre;
   const r = campus.radius;
   const homeY = terrain.heightAt(c.x, c.z);
@@ -864,6 +1192,8 @@ export function DroneView3D({
     resetDetail: () => {},
     lastMove: 0,
     rotateMode: false,
+    sharp: false,
+    meshHidden: false,
   });
 
   const [spinning, setSpinning] = useState(false);
@@ -1045,13 +1375,30 @@ export function DroneView3D({
 
   return (
     <div
+      ref={container}
       className="absolute inset-0"
       // Sky behind the mesh; the fog fades the survey edge into its horizon colour.
       style={{ background: "linear-gradient(180deg, #b9d7ee 0%, #dcebf6 55%, #eef3f7 100%)" }}
     >
+      {poster && !posterGone && (
+        // Behind the canvas (which draws the names, route and outline over it); transparent sky.
+        <picture>
+          <source type="image/avif" srcSet={`/drone/poster/${poster.file}.avif`} />
+          <img
+            ref={posterImage}
+            src={`/drone/poster/${poster.file}.webp`}
+            alt=""
+            aria-hidden
+            decoding="async"
+            fetchPriority="high"
+            className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+            style={{ opacity: 0 }}
+          />
+        </picture>
+      )}
       <Canvas
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance", toneMapping: THREE.NoToneMapping }}
+        dpr={[1, budget.maxDpr]}
+        gl={{ antialias: budget.antialias, alpha: true, powerPreference: "high-performance", toneMapping: THREE.NoToneMapping }}
         camera={{ position: home.position.toArray(), fov: 45, near: 1, far: r * 16 }}
         onCreated={({ scene, gl }) => {
           scene.fog = new THREE.Fog("#eef3f7", r * 1.8, r * 6);
@@ -1060,7 +1407,10 @@ export function DroneView3D({
         }}
       >
         <primitive object={api.current.world} />
-        <DroneTiles api={api} onProgress={setProgress} />
+        <DroneTiles api={api} budget={budget} onProgress={setProgress} />
+        {poster && manifest.pose && !posterGone && (
+          <PosterSwap api={api} image={posterImage} poster={poster} pose={manifest.pose} onChange={setPosterState} />
+        )}
         <Navigation api={api} home={home} maxDistance={r * 3.5} groundY={homeY} onSpinChange={setSpinning} />
         <Picking api={api} features={features} onPick={onSelect} onHover={setHoverId} />
         <Route path={routePath} playing={playing} onProgress={onRouteProgress} terrain={terrain} />
@@ -1168,7 +1518,7 @@ export function DroneView3D({
         </div>
       </div>
 
-      {progress.pending > 0 && (
+      {progress.pending > 0 && !posterShown && (
         <div className="pointer-events-none absolute inset-x-0 top-16 z-10 flex justify-center md:top-5">
           <div className="flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[13px] text-[#2b3640] shadow-[0_4px_16px_rgba(30,60,80,0.18)]">
             <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#2ea3dc] border-t-transparent" />
