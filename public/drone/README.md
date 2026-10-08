@@ -18,7 +18,7 @@ Source: DJI Terra output in `E:\BIT 3D` (see the survey reports there).
 /navigate routes along these (`features/navigation/lib/path-network.ts`): every place is linked to its nearest
 paths at run time, so renaming buildings never needs a rebuild. Built from the orthophoto at 0.5 m/px:
 
-    node tools/drone/build-paths.mjs "D:/BIT 3D/_work/web-mesh-v2/ortho" public/drone/paths.json --debug <dir>
+    node tools/drone/build-paths.mjs "D:/BIT 3D/_work/web-mesh-v2/ortho" public/drone/paths.json --raw "D:/BIT 3D/_work/ortho/raw" --debug <dir>
 
 1. Paved: neutral grey (asphalt and concrete, in sun or in the shade of the trees lining most roads), pink
    pavers, blue walkway roofs; never on a roof from `footprints.json`, except long thin unnamed ones (covered
@@ -26,7 +26,17 @@ paths at run time, so renaming buildings never needs a rebuild. Built from the o
 2. Cleaned, thinned to centre lines, traced into a graph; junction tangles folded, short spurs pruned.
 3. A dead end is carried on in the direction it was heading, over the cheapest ground (paving < shade <
    canopy < soil; roofs and ponds impassable), to the network it was heading for; islands are joined the same way.
-4. Hand corrections from `tools/drone/paths-edits.json`: `add` polylines (with a width) for ways the photo
+4. With `--raw` (the /dev-ortho capture: colour plus the 3D survey's height for every 0.25 m pixel; rerun it with
+   the dev server up by opening `/dev-ortho`, ~6 min on the RTX laptop): a line that mostly runs over something
+   roof-like (2.5 m+ above the bare earth across 8 m+, that no footprint or covered walkway explains, such as a grey
+   sheet roof read as concrete) is dropped if the network can get round without it, and dead ends beyond the campus
+   edge (village lanes, yards) are dropped too. Centre lines are smoothed over ~4 m before simplifying, so roads
+   drawn at their width do not wobble. 2026-10-08: 21 lines (600 m) over roofs and 44 outside dead ends dropped; roads
+   10.4 km, paths 5.1 km, links 5.0 km. Two other uses of the heights were tried and dropped because they broke
+   routes in the test: cutting raised or rough road-coloured pixels (people walk under the covered spines, main
+   roads run on banks the 5 m terrain grid misses, leaves make road rough), and bridging gaps under tall canopy
+   in preference to lawns.
+5. Hand corrections from `tools/drone/paths-edits.json`: `add` polylines (with a width) for ways the photo
    cannot show, such as roads under continuous canopy, covered walkways or porches that broke a road; `remove`
    polygons for false finds. Each has a `why`.
 

@@ -25,6 +25,7 @@ import {
 import type { Building3D, Campus3D, Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { frameFor, type BuildingFrame } from "@/features/navigation-3d/lib/building-structure";
 import { isLandCover, placeKind, type PlaceKind } from "../lib/place-kind";
+import { neatOutline } from "../lib/neat-outline";
 
 /**
  * The 2D campus map, built from the 3D view's own data:
@@ -39,7 +40,7 @@ import { isLandCover, placeKind, type PlaceKind } from "../lib/place-kind";
 export const PLAN = {
   canvas: "#f4f8fa",
   droneCanvas: "#e7ecef",
-  site: "#fbfdfe",
+  site: "#edf1f4",
   siteEdge: "#dcebf2",
   wall: "#a9d6e9",
   block: "#b8ddec",
@@ -47,6 +48,11 @@ export const PLAN = {
   blockActive: "#4fb0da",
   room: "#e9f5fa",
   path: "#e8f2f6",
+  // Roads and walkways in the plan: white at their surveyed width, with a grey edge.
+  road: "#ffffff",
+  roadEdge: "#c2ced6",
+  walk: "#ffffff",
+  walkEdge: "#cfd9df",
   grass: "#eef7f0",
   grassEdge: "#cde6d5",
   water: "#d6ecf6",
@@ -98,7 +104,8 @@ const ORTHO_BASE = (process.env.NEXT_PUBLIC_DRONE_TILESET_URL ?? "/drone/mesh/ti
   "ortho/"
 );
 
-export type RoadSegment = { from: Vec2; to: Vec2; kind: "ROAD" | "WALK" };
+/** `w`: the paved width measured in the survey (metres), when known. */
+export type RoadSegment = { from: Vec2; to: Vec2; kind: "ROAD" | "WALK"; w?: number };
 export type MapStyle = "drone" | "plan";
 
 /** One thing on the map: a named building (from the 3D view) or an unnamed block. */
@@ -182,7 +189,8 @@ function roomPlan(frame: BuildingFrame | null) {
 /**
  * Joins the 3D view's buildings with the drone footprints. A building takes
  * the outlines of every roof that overlaps it; roofs no building claims stay
- * as unnamed blocks.
+ * as unnamed blocks. Roof outlines are straightened (lib/neat-outline.ts): the
+ * survey traces them from pixels, so straight walls came out as zig-zags.
  */
 export function buildFeatures(campus: Campus3D, footprints: Footprint[] | null): MapFeature[] {
   const fps = footprints ?? [];
@@ -195,7 +203,7 @@ export function buildFeatures(campus: Campus3D, footprints: Footprint[] | null):
     // the traced outline does, so the survey only replaces it when it found most of it.
     const found = mine.reduce((n, f) => n + f.areaM2, 0);
     if (mine.length && !land && found >= 0.2 * polyArea(b.outline)) {
-      const polygons = mine.map((f) => f.outline.map(([x, z]) => ({ x, z })));
+      const polygons = mine.map((f) => neatOutline(f.outline.map(([x, z]) => ({ x, z }))));
       const largest = polygons.reduce((a, p) => (polyArea(p) > polyArea(a) ? p : a), polygons[0]);
       out.push({
         key: b.id,
@@ -224,7 +232,7 @@ export function buildFeatures(campus: Campus3D, footprints: Footprint[] | null):
   }
   for (const f of fps) {
     if (f.buildingId) continue;
-    const poly = f.outline.map(([x, z]) => ({ x, z }));
+    const poly = neatOutline(f.outline.map(([x, z]) => ({ x, z })));
     out.push({
       key: f.id,
       name: null,
@@ -616,13 +624,29 @@ export function Campus2DMap({
   }, [features, view, size.w, size.h, selectedId, destinationKey, layers.places, showLabels]);
 
   // One SVG path per kind: the surveyed network is thousands of short segments.
+  // For the plan, one per kind and width as well: roads drawn as wide as the
+  // survey measured them (a plaza's 28 m capped at 12), walkways at theirs.
   const pathD = useMemo(() => {
+    const seg = (s: RoadSegment) => `M${s.from.x.toFixed(1)},${s.from.z.toFixed(1)}L${s.to.x.toFixed(1)},${s.to.z.toFixed(1)}`;
     const d = (kind: RoadSegment["kind"]) =>
       segments
         .filter((s) => s.kind === kind)
-        .map((s) => `M${s.from.x.toFixed(1)},${s.from.z.toFixed(1)}L${s.to.x.toFixed(1)},${s.to.z.toFixed(1)}`)
+        .map(seg)
         .join("");
-    return { roads: d("ROAD"), walks: d("WALK") };
+    const groups = new Map<string, { kind: RoadSegment["kind"]; w: number; d: string[] }>();
+    for (const s of segments) {
+      const road = s.kind === "ROAD";
+      const w = road ? Math.round(Math.min(12, Math.max(5, s.w ?? 7))) : Math.round(2 * Math.min(4.5, Math.max(2, s.w ?? 2.5))) / 2;
+      const key = `${s.kind}-${w}`;
+      let g = groups.get(key);
+      if (!g) groups.set(key, (g = { kind: s.kind, w, d: [] }));
+      g.d.push(seg(s));
+    }
+    // Walkways under roads, narrow under wide, so junctions join cleanly.
+    const bands = [...groups.values()]
+      .map((g) => ({ key: `${g.kind}-${g.w}`, kind: g.kind, w: g.w, d: g.d.join("") }))
+      .sort((a, b) => (a.kind === b.kind ? a.w - b.w : a.kind === "WALK" ? -1 : 1));
+    return { roads: d("ROAD"), walks: d("WALK"), bands };
   }, [segments]);
   const start = routePath[0];
   const end = routePath[routePath.length - 1];
@@ -716,9 +740,14 @@ export function Campus2DMap({
                 />
               )}
               {layers.paths && (
-                <g strokeLinecap="round" strokeLinejoin="round" fill="none" stroke={PLAN.path}>
-                  <path d={pathD.roads} strokeWidth={7} />
-                  <path d={pathD.walks} strokeWidth={2.5} />
+                <g strokeLinecap="round" strokeLinejoin="round" fill="none" pointerEvents="none">
+                  {/* Every edge first, then every surface, so crossings and junctions read as one network. */}
+                  {pathD.bands.map((b) => (
+                    <path key={`e-${b.key}`} d={b.d} stroke={b.kind === "ROAD" ? PLAN.roadEdge : PLAN.walkEdge} strokeWidth={b.w + 1.6} />
+                  ))}
+                  {pathD.bands.map((b) => (
+                    <path key={`s-${b.key}`} d={b.d} stroke={b.kind === "ROAD" ? PLAN.road : PLAN.walk} strokeWidth={b.w} />
+                  ))}
                 </g>
               )}
               {landCover.map((f) => (

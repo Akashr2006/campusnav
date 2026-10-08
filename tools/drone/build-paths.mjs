@@ -3,7 +3,11 @@
  * Roads and walking paths, detected from the drone orthophoto, as a routing network.
  *
  *   node tools/drone/build-paths.mjs <ortho dir> public/drone/paths.json \
- *     --footprints public/drone/footprints.json --graph .data/published_graph.json [--debug <dir>]
+ *     --footprints public/drone/footprints.json --graph .data/published_graph.json \
+ *     [--raw "D:/BIT 3D/_work/ortho/raw"] [--debug <dir>]
+ *
+ * --raw adds the 3D survey's heights (the /dev-ortho capture): lines that run
+ * over a roof the footprints missed are dropped (step 3b, below).
  *
  * <ortho dir> is the 2D map's photo pyramid (`mesh/ortho`, made by build-ortho.py):
  * the mesh rendered straight down, here read at 0.5 m/px. Steps:
@@ -74,6 +78,99 @@ for (const name of L.tiles) {
   for (let y = 0; y < info.height; y++) {
     data.copy(rgba, ((r * T + y) * W + c * T) * 4, y * info.width * 4, (y + 1) * info.width * 4);
   }
+}
+
+/*
+ * The 3D survey's heights (--raw <dir>): the /dev-ortho capture, one h_<i>_<j>.png
+ * per 128 m window at 0.25 m/px, height encoded as (y + 100) * 100 in R * 256 + G
+ * (0 = no survey there), on the same grid as the photo. Each 0.5 m pixel gets the
+ * lowest surface height of its four, and how far that is above the bare earth
+ * (public/drone/terrain.*, a 5 m grid of the ground under the buildings and
+ * trees). A road is at ground level and smooth; a grey roof, a parked bus or a
+ * wall is not, however road-like its colour; and a road hidden under trees runs
+ * under tall canopy, not across an open lawn.
+ */
+const rawDir = flag("raw", null);
+let above = null; // metres above the bare earth (NaN: no survey)
+let rough = null; // height range over the 3x3 pixels around (metres)
+if (rawDir) {
+  const WIN_PX = 256; // 128 m at 0.5 m/px
+  const hgt = new Float32Array(N).fill(NaN);
+  const names = fs.readdirSync(rawDir).filter((n) => /^h_\d+_\d+\.png$/.test(n));
+  for (const name of names) {
+    const [, i, j] = name.match(/^h_(\d+)_(\d+)\.png$/).map(Number);
+    const { data, info } = await sharp(path.join(rawDir, name)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    const ch = info.channels;
+    for (let y = 0; y < WIN_PX; y++)
+      for (let x = 0; x < WIN_PX; x++) {
+        let lo = Infinity;
+        for (let dy = 0; dy < 2; dy++)
+          for (let dx = 0; dx < 2; dx++) {
+            const q = ((2 * y + dy) * info.width + 2 * x + dx) * ch;
+            const v = data[q] * 256 + data[q + 1];
+            if (v > 0) lo = Math.min(lo, v / 100 - 100);
+          }
+        const X = i * WIN_PX + x;
+        const Y = j * WIN_PX + y;
+        if (lo < Infinity && X < W && Y < H) hgt[Y * W + X] = lo;
+      }
+  }
+  const tMeta = JSON.parse(fs.readFileSync("public/drone/terrain.json", "utf8"));
+  const tBytes = fs.readFileSync("public/drone/terrain.bin");
+  const tH = new Int16Array(tBytes.buffer, tBytes.byteOffset, tBytes.byteLength / 2);
+  const ground = (x, z) => {
+    const fx = Math.min(Math.max((x - tMeta.originX) / tMeta.cell - 0.5, 0), tMeta.cols - 1);
+    const fz = Math.min(Math.max((z - tMeta.originZ) / tMeta.cell - 0.5, 0), tMeta.rows - 1);
+    const c0 = Math.floor(fx);
+    const r0 = Math.floor(fz);
+    const c1 = Math.min(c0 + 1, tMeta.cols - 1);
+    const r1 = Math.min(r0 + 1, tMeta.rows - 1);
+    const at = (c, r) => tH[r * tMeta.cols + c] / 10;
+    const tx = fx - c0;
+    const tz = fz - r0;
+    return (at(c0, r0) * (1 - tx) + at(c1, r0) * tx) * (1 - tz) + (at(c0, r1) * (1 - tx) + at(c1, r1) * tx) * tz;
+  };
+  above = new Float32Array(N);
+  rough = new Float32Array(N);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const p = y * W + x;
+      above[p] = hgt[p] - ground(toX(x), toZ(y));
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dx = -1; dx <= 1; dx++) {
+          const yy = y + dy;
+          const xx = x + dx;
+          if (yy < 0 || xx < 0 || yy >= H || xx >= W) continue;
+          const v = hgt[yy * W + xx];
+          if (v === v) {
+            lo = Math.min(lo, v);
+            hi = Math.max(hi, v);
+          }
+        }
+      rough[p] = hi >= lo ? hi - lo : NaN;
+    }
+  log(`heights from ${names.length} windows of the 3D survey`);
+}
+/*
+ * How the heights are used: a finished line that mostly runs over something
+ * roof-like (at least ROOF_HEIGHT above the bare earth, over a region at least
+ * 8 m across, that no footprint, covered walkway or hand trace accounts for: a
+ * grey sheet roof read as concrete) is dropped in step 3b, if the network does
+ * not need it to get anywhere. Tried and dropped (2026-10-08, both broke routes
+ * in tests/path-network.test.ts): cutting raised or rough road-coloured pixels
+ * one by one (here people walk under roofs on the covered spines, main roads
+ * run on banks the 5 m bare-earth grid misses, and shade and leaves make road
+ * look rough), and bridging gaps under tall canopy in preference to lawns.
+ */
+const ROOF_HEIGHT = 2.5;
+let roofLike = null;
+if (above) {
+  const raisedMask = new Uint8Array(N);
+  for (let p = 0; p < N; p++) raisedMask[p] = above[p] > ROOF_HEIGHT && !(rough[p] > 1.2) ? 1 : 0;
+  const r = Math.round(4 / MPP);
+  roofLike = dilate(erode(raisedMask, r), r);
 }
 
 const graph = JSON.parse(fs.readFileSync(graphFile, "utf8"));
@@ -999,6 +1096,56 @@ log(`joined ${islands} islands`);
 mergeThrough();
 pruneSpurs(2);
 
+/* ---------------------------------------------------------------- 3b. clean up with the survey's heights */
+
+if (roofLike) {
+  // A line that mostly runs over a roof the footprints missed (a grey sheet roof
+  // read as concrete) goes, if the network can get round without it.
+  const onRoof = (e) => {
+    let n = 0;
+    let hit = 0;
+    for (const [x, y] of e.pts) {
+      const p = Math.round(y) * W + Math.round(x);
+      if (traced[p] || underCover[p]) continue;
+      n++;
+      if (roofLike[p]) hit++;
+    }
+    return n ? hit / n : 0;
+  };
+  let dropped = 0;
+  let droppedM = 0;
+  for (const e of E.filter((x) => onRoof(x) > 0.6).sort((a, b) => lengthOf(b.pts) - lengthOf(a.pts))) {
+    const len = lengthOf(e.pts);
+    const all = E;
+    E = E.filter((x) => x !== e);
+    const deg = degrees();
+    const spur = deg[e.a] === 0 || deg[e.b] === 0;
+    if (spur || networkDistance(e.a, e.b, 1.5 * len + 40) <= 1.5 * len + 40) {
+      dropped++;
+      droppedM += len;
+    } else E = all;
+  }
+  mergeThrough();
+  log(`heights: dropped ${dropped} lines (${droppedM.toFixed(0)} m) running over roofs`);
+}
+{
+  // Lanes and yards beyond the campus edge that end nowhere: not campus routes.
+  let dropped = 0;
+  for (let r = 0; r < 8; r++) {
+    const deg = degrees();
+    const before = E.length;
+    E = E.filter((e) => {
+      if (deg[e.a] !== 1 && deg[e.b] !== 1) return true;
+      const outside = e.pts.filter(([x, y]) => !campus[Math.round(y) * W + Math.round(x)]).length / e.pts.length;
+      return outside < 0.8;
+    });
+    dropped += before - E.length;
+    mergeThrough();
+    if (E.length === before) break;
+  }
+  log(`dropped ${dropped} dead ends outside the campus`);
+}
+
 /* ---------------------------------------------------------------- 4. simplify and write */
 
 function simplify(pts, tol) {
@@ -1028,6 +1175,22 @@ function simplify(pts, tol) {
   return pts.filter((_, k) => keep[k]);
 }
 
+/** Moving average over r points either side; the ends stay put (they are junctions). */
+function smoothLine(pts, r) {
+  if (pts.length < 3) return pts;
+  return pts.map((p, i) => {
+    if (i === 0 || i === pts.length - 1) return p;
+    const k = Math.min(r, i, pts.length - 1 - i);
+    let sx = 0;
+    let sy = 0;
+    for (let j = i - k; j <= i + k; j++) {
+      sx += pts[j][0];
+      sy += pts[j][1];
+    }
+    return [sx / (2 * k + 1), sy / (2 * k + 1)];
+  });
+}
+
 // Drop nodes no edge uses, and renumber.
 const used = new Map();
 const outNodes = [];
@@ -1044,8 +1207,10 @@ let pathM = 0;
 let bridgeM = 0;
 for (const e of E) {
   if (e.a === e.b && lengthOf(e.pts) < 20) continue;
-  // A gap link is a guess at a hidden line: keep it straight rather than following the photo's noise.
-  const smooth = simplify(e.pts, (e.kind === "bridge" ? 2.5 : 0.6) / MPP);
+  // A gap link is a guess at a hidden line: keep it straight rather than following
+  // the photo's noise. A detected line is smoothed over ~4 m first: the skeleton
+  // wanders a pixel or two either side of the centre, which drawn as a road looks shaky.
+  const smooth = e.kind === "bridge" ? simplify(e.pts, 2.5 / MPP) : simplify(smoothLine(e.pts, 4), 0.6 / MPP);
   const widths = e.pts.map(([x, y]) => widthAt(x, y)).filter((w) => w > 0).sort((a, b) => a - b);
   const width = widths.length ? widths[Math.floor(widths.length / 2)] : 0;
   const len = lengthOf(e.pts);

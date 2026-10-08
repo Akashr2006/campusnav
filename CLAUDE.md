@@ -191,6 +191,13 @@ against footprints the offset is effectively 0, so `mesh-alignment.json` has dx=
   `node tools/drone/build-paths.mjs "<web-mesh>/ortho" public/drone/paths.json --debug <dir>` (writes
   `paths-review.png`, the photo with the network drawn on it; `--probe x,z` traces a missing line through each step).
   Then `pnpm test` (the network test checks every building pair: reachable, off roofs, at most 2.8x the straight line).
+  **Since 2026-10-08 it also uses the 3D survey's heights** (`--raw "D:/BIT 3D/_work/ortho/raw"`, the /dev-ortho capture,
+  re-captured that day): lines running over roofs the footprints missed and village dead ends outside the campus are
+  dropped, and centre lines are smoothed. The 2D plan draws each road and walkway at its surveyed width (white with a
+  grey edge) and straightens roof outlines to square walls (`features/navigation/lib/neat-outline.ts`, tested on all
+  190 footprints: area within 13%, centre within 3 m). The owner asked for the **original building names**: OSM has
+  almost none for this campus, so a numbered sheet (`.claude/shots/name-the-buildings.png`, 22 placeholder names in
+  orange) went to him to fill in; apply his answers to `.data/*.json` (admin editor) and rerun build-ortho `--skip-tiles`.
 - `features/navigation-3d/components/drone-layers.tsx`: loads the mesh (ECEF, then scene matrix), the thermal
   shader overlay and the terrain.
 - **2D layers (2026-09-26):** `/dev-ortho` renders the mesh straight down (orthographic, 182 windows of 128 m at
@@ -287,6 +294,8 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
   routing over roads and walkways detected from the drone photo with landmark turn-by-turn directions
   (`tools/drone/e2e-views-routes.mjs` checks both in Chrome). Nothing under `features/navigation-3d` was edited. Built on a second machine:
   project at `D:\campusnav`, survey on the USB drive `E:`, v2 mesh copied to `D:\BIT 3D`.
+- 10-08: deployed the 10-07 work (commit 4d4bb88). Roads re-detected with the 3D heights, the 2D plan redrawn (roads at
+  their width, square building outlines), and a building-naming sheet sent to the owner.
 - 10-07: lightweight for 2 GB phones: device-sized 3D view (photos, canvas, cache), decoded photos freed, three.js
   and the admin store out of `/navigate`'s first load, faster place linking (identical routes). Measured with the
   new `tools/drone/lowend-mobile.mjs`. Then, for high-end devices: direct sharpening, detail kept while moving

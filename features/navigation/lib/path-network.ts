@@ -274,8 +274,8 @@ export function roundDistance(m: number) {
 
 export type PathRouter = {
   route: (from: RouteEnd, to: RouteEnd, mode?: TravelMode) => NetworkRoute | null;
-  /** The network as drawable lines (roads, paths and gap links). */
-  lines: { kind: PathKind; pts: Vec2[] }[];
+  /** The network as drawable lines (roads, paths and gap links), with the paved width measured along each (metres). */
+  lines: { kind: PathKind; pts: Vec2[]; w: number }[];
   /** Where a place meets the network: each door and the path point it joins. */
   doorsOf: (key: string) => { at: Vec2; joins: Vec2 }[];
   /** Link the places to the network now (it otherwise happens on the first route or door asked for). */
@@ -303,7 +303,7 @@ function readNetwork(file: PathNetworkFile) {
  * or a door is asked for, or on `prepare()`, so it does not hold up the page.
  */
 export function createPathRouter(file: PathNetworkFile, places: RoutePlace[]): PathRouter {
-  const lines = readNetwork(file).edges.map((e) => ({ kind: e.kind as PathKind, pts: e.pts }));
+  const lines = readNetwork(file).edges.map((e, i) => ({ kind: e.kind as PathKind, pts: e.pts, w: file.edges[i].w }));
   let linked: Omit<PathRouter, "lines" | "prepare"> | null = null;
   const link = () => (linked ??= linkPlaces(file, places));
   return {

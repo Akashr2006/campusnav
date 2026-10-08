@@ -514,7 +514,7 @@ export function NavigateView() {
   const segments = useMemo<RoadSegment[]>(() => {
     if (router) {
       return router.lines.flatMap((l) =>
-        l.pts.slice(1).map((p, i) => ({ from: l.pts[i], to: p, kind: l.kind === "road" ? ("ROAD" as const) : ("WALK" as const) }))
+        l.pts.slice(1).map((p, i) => ({ from: l.pts[i], to: p, kind: l.kind === "road" ? ("ROAD" as const) : ("WALK" as const), w: l.w }))
       );
     }
     if (!campus || !graph) return [];
