@@ -269,6 +269,22 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
    **dropped on 2026-10-07: the owner keeps `workers.dev`**. The only domain in his Vercel account,
    tdsprimegroups.com, belongs to a client: never use it for CampusNav.
 
+8. **First-load speed on a poor link (2026-10-12, first laptop).** Measured live with real Chrome from the owner's
+   network (about 2 Mbit/s, connections dropping for seconds): four loads of `/navigate?view=3d` showed the campus at
+   5.5 s, 12.4 s, 27.9 s and never ("Could not load the campus map", no retry). Fixed in commit `24266be`:
+   - `app/navigate/page.tsx` renders the published campus **into the page** (`initialGraph`, `revalidate = 60`,
+     `.data` traced for `/navigate`). No `/api/published-graph` call on load any more when there is no database (that
+     function took ~2.8 s from cold). **Keep it that way: nothing on `/navigate`'s first paint may wait on an API route.**
+   - `withRetry` (navigate-view.tsx) retries the campus request and the 3D view's code; the error has "Try again".
+   - `OpeningPoster` shows the opening view's poster as soon as the page hydrates, before the 3D engine, the mesh
+     check and the tiles; it must stay laid out exactly as drone-view-3d lays its poster out (same gradient,
+     `object-cover`, same wide/tall rule), or the picture jumps when the viewer mounts.
+   After: campus on screen at 1.5 s, 1.9 s, 2.4 s and 8.4 s (that last one had a 4.7 s wait for the HTML itself).
+   Sharpening after you move still depends on the link: a full sharp view is ~5 MB of tiles.
+   The measuring script is not in the repo; `tools/drone/bench-mesh.mjs` and `lowend-mobile.mjs` cover the same ground.
+   This laptop's dev server now runs Turbopack (`.claude/launch.json` in the folder above the repo; first compile
+   18 s -> 4 s) and reads the old v1 mesh on `D:` (the new viewer works with it).
+
 ## 9. New laptop (RTX 3060 8 GB, 32 GB RAM): what it unlocks
 
 - **Photogrammetry:** COLMAP and OpenMVS on CUDA. Resume the Aug 2022 RTK pilot for sharper, better-georeferenced
