@@ -55,12 +55,80 @@ const CampusScene = dynamic(
 );
 // The 3D view and its engine (three.js, the tiles renderer: ~290 KB gzipped)
 // are a separate chunk, so the page and its 2D map load without them.
-const loadDroneView = () => import("./drone-view-3d");
+/**
+ * Runs `load` again after a failure, with growing pauses. On a link that drops
+ * connections for a few seconds at a time (measured on the owner's: resets and
+ * failed lookups in one page load out of four), a single failed request used to
+ * leave the page on an error or a spinner for good.
+ */
+async function withRetry<T>(load: () => Promise<T>, waits = [800, 2000, 5000]): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await load();
+    } catch (e) {
+      if (i >= waits.length) throw e;
+      await new Promise((r) => setTimeout(r, waits[i]));
+    }
+  }
+}
+
+let droneViewModule: Promise<typeof import("./drone-view-3d")> | null = null;
+const loadDroneView = () =>
+  (droneViewModule ??= withRetry(() => import("./drone-view-3d")).catch((e) => {
+    droneViewModule = null;
+    throw e;
+  }));
 const preloadDroneView = () => void loadDroneView().catch(() => {});
 const DroneView3D = dynamic(() => loadDroneView().then((m) => m.DroneView3D), {
   ssr: false,
-  loading: () => <Loading text="Opening the drone view…" />,
+  loading: () => <OpeningPoster />,
 });
+
+/**
+ * The 3D tab before its viewer is running: the opening view's poster
+ * (public/drone/poster), laid out exactly as the viewer lays it out, so the
+ * campus is on screen as soon as that one picture arrives instead of after the
+ * 3D engine (~290 KB), the mesh check and the first tiles. The viewer mounts
+ * over it with the same picture in the same place, so nothing jumps.
+ */
+function OpeningPoster() {
+  const box = useRef<HTMLDivElement>(null);
+  const [file, setFile] = useState<"wide" | "tall" | null>(null);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || !el.clientHeight) return;
+    // As drone-view-3d's choosePoster: the narrowest poster at least as wide as the view.
+    const aspect = el.clientWidth / el.clientHeight;
+    setFile(aspect <= 1 ? "tall" : aspect <= 3072 / 1280 ? "wide" : null);
+  }, []);
+  return (
+    <div
+      ref={box}
+      className="absolute inset-0"
+      style={{ background: "linear-gradient(180deg, #b9d7ee 0%, #dcebf6 55%, #eef3f7 100%)" }}
+    >
+      {file && (
+        <picture>
+          <source type="image/avif" srcSet={`/drone/poster/${file}.avif`} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/drone/poster/${file}.webp`}
+            alt=""
+            aria-hidden
+            fetchPriority="high"
+            className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+          />
+        </picture>
+      )}
+      <div className="absolute inset-x-0 bottom-6 flex justify-center">
+        <div className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-[13px] text-[#2b3640] shadow">
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#2ea3dc] border-t-transparent" />
+          Opening the drone view…
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const ACCENT = "#2ea3dc";
 
@@ -353,9 +421,12 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 
 /* ------------------------------------------------------------------------------------ */
 
-export function NavigateView() {
-  const [graph, setGraph] = useState<Graph | null>(null);
+export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | null }) {
+  // The published campus normally arrives inside the page (app/navigate/page.tsx),
+  // so nothing waits on a request for it; fetched here only when it did not.
+  const [graph, setGraph] = useState<Graph | null>(() => (initialGraph ? applyPilotStructure(initialGraph) : null));
   const [error, setError] = useState<string | null>(null);
+  const [graphAttempt, setGraphAttempt] = useState(0);
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
 
   const [from, setFrom] = useState<Destination | null>(null);
@@ -407,9 +478,15 @@ export function NavigateView() {
   }, []);
 
   useEffect(() => {
+    if (initialGraph) return;
     let cancelled = false;
-    fetch("/api/published-graph", { cache: "no-store" })
-      .then((r) => r.json())
+    setError(null);
+    withRetry(() =>
+      fetch("/api/published-graph", { cache: "no-store" }).then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
+    )
       .then((payload) => {
         if (cancelled) return;
         const g = payload?.graph;
@@ -420,7 +497,7 @@ export function NavigateView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialGraph, graphAttempt]);
 
   const campus: Campus3D | null = useMemo(() => (graph ? buildCampus3D(graph) : null), [graph]);
   const campusName = String(graph?.campus?.name ?? "Campus");
@@ -718,7 +795,19 @@ export function NavigateView() {
     [isMobile, showCard, sheetOpen]
   );
 
-  if (error) return <Loading text={error} />;
+  if (error)
+    return (
+      <div className="flex h-dvh w-full flex-col items-center justify-center gap-4 bg-[#f4f8fa] text-sm text-[#6b7785]">
+        {error}
+        <button
+          type="button"
+          onClick={() => setGraphAttempt((n) => n + 1)}
+          className="rounded-full bg-[#2ea3dc] px-5 py-2 text-[13px] font-medium text-white"
+        >
+          Try again
+        </button>
+      </div>
+    );
   if (!campus) return <Loading text="Loading campus map…" />;
 
   const tabs = [
@@ -1078,7 +1167,7 @@ export function NavigateView() {
               {/* The drone view: navigable anywhere, click or pick a place to see
                   it. No building opens into its structural / exploded frame. */}
               {droneStatus === "checking" && !studioViewer ? (
-                <Loading text="Opening the drone view…" />
+                <OpeningPoster />
               ) : droneAvailable && !studioViewer ? (
                 <DroneView3D
                   campus={campus}

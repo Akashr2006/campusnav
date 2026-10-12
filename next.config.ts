@@ -30,6 +30,8 @@ const nextConfig: NextConfig = {
   // nothing imports it, so the tracer must be told to ship it with the routes.
   outputFileTracingIncludes: {
     "/api/**": ["./.data/**"],
+    // /navigate embeds the published campus and re-reads it when it revalidates.
+    "/navigate": ["./.data/**"],
   },
   reactStrictMode: true,
   eslint: {
