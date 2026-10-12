@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { dominantAngle, neatOutline, outlineSize, simplifyRing } from "../features/navigation/lib/neat-outline";
+import { campusAxis, dominantAngle, neatOutline, outlineSize, simplifyRing } from "../features/navigation/lib/neat-outline";
 import type { Vec2 } from "../features/navigation-3d/lib/campus-3d";
 
 const area = (o: Vec2[]) => Math.abs(o.reduce((s, p, i) => s + p.x * o[(i + 1) % o.length].z - o[(i + 1) % o.length].x * p.z, 0)) / 2;
@@ -104,9 +104,41 @@ describe("neat building outlines", () => {
     expect(neatOutline(stepped).length).toBe(4);
   });
 
+  it("fills in a tab narrower than 2.5 m on a wall, but keeps a wing", () => {
+    const tabbed = (w: number): Vec2[] => [
+      { x: 0, z: 0 },
+      { x: 30, z: 0 },
+      { x: 30, z: -2 },
+      { x: 30 + w, z: -2 },
+      { x: 30 + w, z: 0 },
+      { x: 60, z: 0 },
+      { x: 60, z: 20 },
+      { x: 0, z: 20 },
+    ];
+    expect(neatOutline(tabbed(1.8)).length).toBe(4);
+    expect(neatOutline(tabbed(8)).length).toBe(8);
+  });
+
+  it("squares a block a few degrees off the campus grid to the grid", () => {
+    const grid = (88.5 * Math.PI) / 180;
+    const neat = neatOutline(traced(rotate(rect, 88.5 + 3.5), 5), grid);
+    expect(rectilinear(neat, 88.5)).toBe(true);
+    // Well off the grid: its own axis.
+    const own = neatOutline(traced(rotate(rect, 88.5 + 20), 5), grid);
+    expect(rectilinear(own, 88.5 + 20)).toBe(true);
+  });
+
   const FOOTPRINTS = resolve(__dirname, "../public/drone/footprints.json");
+  it("finds the campus grid most blocks share", () => {
+    const fps = JSON.parse(readFileSync(FOOTPRINTS, "utf-8")).footprints as { outline: [number, number][] }[];
+    const deg = (campusAxis(fps.map((f) => f.outline.map(([x, z]) => ({ x, z }))))! * 180) / Math.PI;
+    expect(deg).toBeGreaterThan(86);
+    expect(deg).toBeLessThan(90);
+  });
+
   it("straightens every surveyed roof without moving or resizing it", () => {
     const fps = JSON.parse(readFileSync(FOOTPRINTS, "utf-8")).footprints as { outline: [number, number][] }[];
+    const grid = campusAxis(fps.map((f) => f.outline.map(([x, z]) => ({ x, z }))));
     /** Share of the perimeter square to the building's own axis (within a degree). */
     const square = (o: Vec2[]) => {
       const deg = (dominantAngle(o) * 180) / Math.PI;
@@ -126,7 +158,7 @@ describe("neat building outlines", () => {
     let after = 0;
     for (const f of fps) {
       const o = f.outline.map(([x, z]) => ({ x, z }));
-      const neat = neatOutline(o);
+      const neat = neatOutline(o, grid);
       expect(neat.length).toBeGreaterThanOrEqual(3);
       expect(Math.abs(area(neat) - area(o)) / area(o)).toBeLessThan(0.13);
       const bbox = (p: Vec2[]) => [Math.min(...p.map((q) => q.x)), Math.max(...p.map((q) => q.x)), Math.min(...p.map((q) => q.z)), Math.max(...p.map((q) => q.z))];

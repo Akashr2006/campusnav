@@ -6,9 +6,11 @@
  * bevels. Campus buildings are almost all rectilinear, so: find the building's
  * own axis (the length-weighted direction of its edges, modulo 90 degrees),
  * snap every edge within 25 degrees of that axis onto it, merge the runs that
- * end up collinear, drop steps shorter than a metre and a bit, and put the
- * corners where the snapped walls meet. Edges well off the axis (a splayed
- * wing, a round end) stay as they were.
+ * end up collinear, drop steps shorter than a metre and a half, and put the
+ * corners where the snapped walls meet; a tab or notch under 2.5 m wide goes too. A
+ * building within 6 degrees of the campus grid (campusAxis: most blocks here share one)
+ * is squared to the grid rather than its own axis, so neighbours line up exactly.
+ * Edges well off the axis (a splayed wing, a round end) stay as they were.
  *
  * The result keeps the building's size and place: if straightening changes
  * the area by more than 12%, or folds the outline over itself, the outline is
@@ -18,7 +20,12 @@ import type { Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 
 const SNAP_DEG = 25;
 /** Steps in a wall shorter than this (metres) are survey noise, not architecture. */
-const MIN_STEP = 1.2;
+const MIN_STEP = 1.5;
+/** A tab or notch narrower than this (metres) along a wall, and shallower than TAB_DEPTH, is filled in. */
+const TAB_WIDTH = 2.5;
+const TAB_DEPTH = 4;
+/** A building within this many degrees of the campus grid is put on it. */
+const GRID_DEG = 6;
 const MAX_AREA_CHANGE = 0.12;
 
 function area(o: Vec2[]) {
@@ -145,10 +152,43 @@ function selfIntersects(o: Vec2[]) {
   return false;
 }
 
-export function neatOutline(outline: Vec2[]): Vec2[] {
+/**
+ * The campus grid: the axis most of the built area shares (radians, 0..pi/2),
+ * as the area-weighted mean of the buildings' own axes near the commonest one.
+ */
+export function campusAxis(outlines: Vec2[][]): number | null {
+  const items = outlines
+    .filter((o) => o.length >= 4)
+    .map((o) => ({ a: dominantAngle(simplifyRing(o, 0.6)), w: Math.abs(area(o)) }));
+  if (!items.length) return null;
+  const bins = new Float64Array(90);
+  for (const { a, w } of items) bins[Math.round((a * 180) / Math.PI) % 90] += w;
+  let peak = 0;
+  for (let b = 1; b < 90; b++) if (bins[b] > bins[peak]) peak = b;
+  // Mean on the circle of period 90 degrees (angles x4), over the axes within GRID_DEG of the peak.
+  let sx = 0;
+  let sy = 0;
+  for (const { a, w } of items) {
+    const deg = (a * 180) / Math.PI;
+    let diff = deg - peak;
+    if (diff > 45) diff -= 90;
+    if (diff < -45) diff += 90;
+    if (Math.abs(diff) > GRID_DEG) continue;
+    sx += Math.cos(4 * a) * w;
+    sy += Math.sin(4 * a) * w;
+  }
+  const mean = Math.atan2(sy, sx) / 4;
+  return ((mean % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2);
+}
+
+/** `grid`: the campus axis (campusAxis); a building within GRID_DEG of it is squared to it, so neighbours line up. */
+export function neatOutline(outline: Vec2[], grid: number | null = null): Vec2[] {
   if (outline.length < 4) return outline;
   const base = simplifyRing(outline, 0.6);
-  const theta = dominantAngle(base);
+  const own = dominantAngle(base);
+  let off = grid === null ? Infinity : Math.abs(own - grid) % (Math.PI / 2);
+  off = Math.min(off, Math.PI / 2 - off);
+  const theta = grid !== null && off <= (GRID_DEG * Math.PI) / 180 ? grid : own;
   const cos = Math.cos(theta);
   const sin = Math.sin(theta);
   // Into the building's frame: its axis along x.
@@ -198,6 +238,28 @@ export function neatOutline(outline: Vec2[]): Vec2[] {
       prev.b = next.b;
       const ni = (i + 1) % runs.length;
       runs = runs.filter((_, k) => k !== i && k !== ni);
+      changed = true;
+      break;
+    }
+  }
+  // 2b. A narrow tab or notch in a wall (h, v, short h, v, h back on the first line): one wall.
+  for (let changed = true; changed && runs.length > 6; ) {
+    changed = false;
+    for (let i = 0; i < runs.length && runs.length > 6; i++) {
+      const n = runs.length;
+      const prev = runs[i];
+      const up = runs[(i + 1) % n];
+      const top = runs[(i + 2) % n];
+      const down = runs[(i + 3) % n];
+      const next = runs[(i + 4) % n];
+      if (prev.kind === "d" || prev.kind !== top.kind || prev.kind !== next.kind) continue;
+      if (up.kind === "d" || up.kind === prev.kind || down.kind !== up.kind) continue;
+      if (top.len >= TAB_WIDTH || Math.abs(prev.c - next.c) >= MIN_STEP || Math.abs(top.c - prev.c) >= TAB_DEPTH) continue;
+      prev.c = (prev.c * prev.len + next.c * next.len) / (prev.len + next.len);
+      prev.len += next.len + top.len;
+      prev.b = next.b;
+      const drop = new Set([(i + 1) % n, (i + 2) % n, (i + 3) % n, (i + 4) % n]);
+      runs = runs.filter((_, k) => !drop.has(k));
       changed = true;
       break;
     }

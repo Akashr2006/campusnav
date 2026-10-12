@@ -119,9 +119,13 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   - **Map style (default since 2026-10-08, "plan" in the code):** the owner found the photo default "very poor in
     clearance". A map drawn entirely from the survey: land cover (`public/drone/landcover.json`, trees, lawns and
     crops, open ground, paved yards, ponds; `tools/drone/build-landcover.mjs`), the campus outside faded behind a
-    dashed boundary, roads and walkways white at their surveyed width with a darker edge (never thinner than 3.2 / 1.8
-    px on screen), roofs shaded by height (named buildings purple, the rest grey). Buildings with a room survey (Aero
-    Block) open into rooms and stairs when zoomed in. The Navigine white inner band was dropped for the shadow.
+    dashed boundary, roads and walkways white with a darker edge in even classes (2026-10-12: main roads 8 m, roads 6 m,
+    walkways 3 m, bends rounded, `roundedPath`; never thinner than 3.2 / 1.8 px on screen; the route is rounded the same
+    way so it stays on them), roofs shaded by height and tinted by kind (`BLOCK_TINT`: academic lavender, labs blue,
+    hostels pink, halls orange, library teal, staff housing violet, sheds grey; unnamed grey; markers stay purple), all
+    blocks squared to the campus grid (`campusAxis` in lib/neat-outline.ts, ~89 deg; tabs and notches under 2.5 m
+    filled). Names grow from 11.5 to 13.5 px as the map zooms in. Buildings with a room survey (Aero Block) open into
+    rooms and stairs when zoomed in. The Navigine white inner band was dropped for the shadow.
   - **Photo style:** photo tiles `mesh/ortho/<level>/<c>_<r>.webp` (levels 0-4 = 0.25 to 4 m/px), the area outside
     the campus faded, every block outlined; `?style=photo` links to it. A "Map | Photo" switch sits beside the
     controls (bottom right on phones, where the search bar takes the top).
@@ -131,7 +135,7 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
     (`outlineSize` in `lib/neat-outline.ts`) and the walk from the chosen start point.
   - Labels are placed greedily with collision avoidance, largest and selected first; grounds and ponds in italics.
   - The roads and walkways routing uses are drawn in map style, and over the photo with the layers menu's
-    "Roads & walkways (mapped)" (off by default there). One SVG path per kind and width, consecutive segments joined.
+    "Roads & walkways (mapped)" (off by default there). One SVG path per class, consecutive segments joined.
   - A pan only moves the world `<g>`: the ground and the blocks are memoized and rebuilt when they change or the
     zoom moves a quarter of a doubling (26 fps dragging on a 4x slowed phone, was 10). `?debug` exposes
     `window.__map2d` (`setView`) for screenshots.
@@ -212,8 +216,11 @@ against footprints the offset is effectively 0, so `mesh-alignment.json` has dx=
   orange) went to him to fill in; apply his answers to `.data/*.json` (admin editor) and rerun build-ortho `--skip-tiles`.
   A final **tidy** step (same day) keeps the drawn network neat: of two ways between the same junctions within 25% +
   12 m the weaker goes, loops under 80 m and stubs under 15 m go, lines are straightened to within 1 m; the NE
-  utility yard is a `remove` polygon in `paths-edits.json`. Roads 9.3 km, paths 3.7 km, links 4.8 km.
-- **Land cover (2026-10-08)**, `tools/drone/build-landcover.mjs` to `public/drone/landcover.json` (370 KB, committed):
+  utility yard is a `remove` polygon in `paths-edits.json`. Roads 9.3 km, paths 3.7 km, links 4.8 km. Then (10-12) each
+  line is **squared to the campus grid** (`squareToGrid`: runs within 18 deg of it put on it, jogs under 4 m out, kept
+  only within 3 m / 2.5 m of the survey line and at most 3% longer; gap links and hand traces left alone, because squaring
+  the east spine moved the Auditorium's door and pushed a route past the 2.8x test limit).
+- **Land cover (2026-10-08)**, `tools/drone/build-landcover.mjs` to `public/drone/landcover.json` (280 KB, committed; specks under 60-250 m2 dropped since 10-12):
   trees, lawns/crops, open ground, paved yards and ponds classified at 1 m from the photo and the capture's heights,
   traced and smoothed into one SVG path per class; drawn under everything in the 2D map's Map style.
 - `features/navigation-3d/components/drone-layers.tsx`: loads the mesh (ECEF, then scene matrix), the thermal
@@ -332,7 +339,10 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
   their width, square building outlines), and a building-naming sheet sent to the owner. Then, for "2D map very poor in
   clearance, paths not detected properly, show proper distance and land": the map style became the default, with
   land cover from the survey, a tidied road network (loops, second ways and stubs removed, lines straightened, the
-  NE utility yard cut out), a scale bar, a ruler, route distance marks and building sizes. Not deployed yet.
+  NE utility yard cut out), a scale bar, a ruler, route distance marks and building sizes.
+- 10-12: deployed that (commit 61bc910, on top of the first laptop's first-load fixes 24266be), then for "crystal
+  clear and neat": roads in even width classes with rounded bends, lines squared to the campus grid, blocks squared to
+  it and tinted by kind, cleaner land cover, larger names when zoomed in.
 - 10-07: lightweight for 2 GB phones: device-sized 3D view (photos, canvas, cache), decoded photos freed, three.js
   and the admin store out of `/navigate`'s first load, faster place linking (identical routes). Measured with the
   new `tools/drone/lowend-mobile.mjs`. Then, for high-end devices: direct sharpening, detail kept while moving

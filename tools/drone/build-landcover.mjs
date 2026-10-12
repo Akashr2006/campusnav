@@ -353,10 +353,10 @@ water = tidy(erode(dilate(water, 2), 2), 40, 400);
 const out = {};
 const layers = [
   // [name, class, open radius, close radius, min area m2, max hole m2]
-  ["bare", C.BARE, 1, 2, 120, 60],
-  ["paved", C.PAVED, 1, 1, 80, 30],
-  ["grass", C.GRASS, 1, 1, 60, 40],
-  ["trees", C.TREES, 1, 2, 40, 60],
+  ["bare", C.BARE, 2, 2, 250, 120],
+  ["paved", C.PAVED, 2, 2, 200, 80],
+  ["grass", C.GRASS, 2, 2, 120, 80],
+  ["trees", C.TREES, 1, 2, 60, 100],
 ];
 // The campus and a band of its surroundings (--margin metres): the map fades
 // what lies outside the campus, and the farms further out only cost bytes.
@@ -529,10 +529,10 @@ function toPath(rings, tol, smooth, minArea) {
 const STYLE = {
   // [simplify tolerance m, Chaikin passes, smallest ring m2]
   water: [0.6, 2, 30],
-  bare: [1.4, 2, 80],
-  paved: [1.0, 1, 60],
-  grass: [1.3, 2, 40],
-  trees: [1.2, 2, 30],
+  bare: [1.6, 3, 150],
+  paved: [1.4, 2, 120],
+  grass: [1.6, 3, 80],
+  trees: [1.4, 3, 50],
 };
 for (const name of ["bare", "paved", "grass", "trees", "water"]) {
   const [tol, smooth, minArea] = STYLE[name];

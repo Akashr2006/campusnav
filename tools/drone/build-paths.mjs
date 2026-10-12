@@ -1148,6 +1148,9 @@ if (roofLike) {
 
 /* ---------------------------------------------------------------- 3c. tidy */
 
+/** Mostly along a hand trace (paths-edits.json `add`): drawn by hand, so left as drawn. */
+const handDrawn = (e) => e.pts.filter(([x, y]) => traced[Math.round(y) * W + Math.round(x)]).length > 0.5 * e.pts.length;
+
 /*
  * What is left routes well but drawn as a map it scribbles (2026-10-08, the
  * owner: "not detected the paths properly"): a loop round a tree, a line down
@@ -1158,7 +1161,6 @@ if (roofLike) {
  *  - Dead ends under 15 m go (/navigate adds the doors itself, at run time).
  */
 {
-  const handDrawn = (e) => e.pts.filter(([x, y]) => traced[Math.round(y) * W + Math.round(x)]).length > 0.5 * e.pts.length;
   const sinuosity = (e) => {
     const [ax, ay] = e.pts[0];
     const [bx, by] = e.pts[e.pts.length - 1];
@@ -1244,6 +1246,135 @@ function smoothLine(pts, r) {
   });
 }
 
+/*
+ * Squared to the campus grid (2026-10-08, for "neat and clean"): the blocks here
+ * nearly all share one axis, and so do the roads and paths between them, but a
+ * centre line traced from the photo (or guessed under canopy) wanders. A line's
+ * runs within 18 degrees of the grid are put on it (each at its length-weighted
+ * offset; the first and last through the junctions they start and end at), a
+ * jog under 4 m between two runs on the same line is taken out, and corners go
+ * where the runs meet. Kept only if no point moves more than `maxDev` metres
+ * from the survey's line and it is no more than 3% longer; the line keeps its
+ * ends. Curves and diagonals stay, and gap links stay straight.
+ */
+const GRID = (() => {
+  const bins = new Float64Array(90);
+  const edges = [];
+  for (const f of footprints) {
+    const o = f.outline;
+    for (let i = 0; i < o.length; i++) {
+      const [x0, z0] = o[i];
+      const [x1, z1] = o[(i + 1) % o.length];
+      const len = Math.hypot(x1 - x0, z1 - z0);
+      if (len < 2) continue;
+      const deg = ((((Math.atan2(z1 - z0, x1 - x0) * 180) / Math.PI) % 90) + 90) % 90;
+      bins[Math.round(deg) % 90] += len;
+      edges.push([deg, len]);
+    }
+  }
+  let peak = 0;
+  for (let b = 1; b < 90; b++) if (bins[b] > bins[peak]) peak = b;
+  let sx = 0;
+  let sy = 0;
+  for (const [deg, len] of edges) {
+    let d = deg - peak;
+    if (d > 45) d -= 90;
+    if (d < -45) d += 90;
+    if (Math.abs(d) > 3) continue;
+    const r = ((peak + d) * 4 * Math.PI) / 180;
+    sx += Math.cos(r) * len;
+    sy += Math.sin(r) * len;
+  }
+  return Math.atan2(sy, sx) / 4;
+})();
+log(`campus grid at ${((GRID * 180) / Math.PI).toFixed(2)} degrees`);
+
+function distToPolyline(p, line) {
+  let best = Infinity;
+  for (let i = 1; i < line.length; i++) {
+    const [ax, ay] = line[i - 1];
+    const [bx, by] = line[i];
+    const dx = bx - ax;
+    const dy = by - ay;
+    const L2 = dx * dx + dy * dy || 1e-9;
+    const t = Math.max(0, Math.min(1, ((p[0] - ax) * dx + (p[1] - ay) * dy) / L2));
+    best = Math.min(best, Math.hypot(p[0] - ax - t * dx, p[1] - ay - t * dy));
+  }
+  return best;
+}
+
+function squareToGrid(pts, maxDev) {
+  if (pts.length < 3) return pts;
+  const c = Math.cos(GRID);
+  const s = Math.sin(GRID);
+  const toL = ([x, y]) => [x * c + y * s, -x * s + y * c];
+  const toW = ([u, v]) => [u * c - v * s, u * s + v * c];
+  const L = pts.map(toL);
+  const snap = Math.tan((18 * Math.PI) / 180);
+  let runs = [];
+  for (let i = 1; i < L.length; i++) {
+    const [u0, v0] = L[i - 1];
+    const [u1, v1] = L[i];
+    const du = u1 - u0;
+    const dv = v1 - v0;
+    const len = Math.hypot(du, dv);
+    if (len < 1e-6) continue;
+    const kind = Math.abs(dv) <= snap * Math.abs(du) ? "h" : Math.abs(du) <= snap * Math.abs(dv) ? "v" : "d";
+    const off = kind === "h" ? (v0 + v1) / 2 : (u0 + u1) / 2;
+    const prev = runs[runs.length - 1];
+    if (prev && prev.kind === kind && kind !== "d") {
+      prev.off = (prev.off * prev.len + off * len) / (prev.len + len);
+      prev.len += len;
+      prev.b = L[i];
+    } else runs.push({ kind, off, len, a: L[i - 1], b: L[i] });
+  }
+  // A jog under 4 m between two runs on the same line: one run.
+  const jog = 4 / MPP;
+  for (let changed = true; changed; ) {
+    changed = false;
+    for (let i = 1; i + 1 < runs.length; i++) {
+      const [p, r, n] = [runs[i - 1], runs[i], runs[i + 1]];
+      if (p.kind === "d" || p.kind !== n.kind || r.kind === p.kind || r.len >= jog) continue;
+      p.off = (p.off * p.len + n.off * n.len) / (p.len + n.len);
+      p.len += r.len + n.len;
+      p.b = n.b;
+      runs.splice(i, 2);
+      changed = true;
+      break;
+    }
+  }
+  if (runs.length === 1) return runs[0].kind === "d" ? pts : [pts[0], pts[pts.length - 1]];
+  // The first and last runs pass through the line's ends (its junctions).
+  const fix = (r, [u, v]) => {
+    if (r.kind === "h") r.off = v;
+    else if (r.kind === "v") r.off = u;
+  };
+  fix(runs[0], L[0]);
+  fix(runs[runs.length - 1], L[L.length - 1]);
+  const lineOf = (r) =>
+    r.kind === "h"
+      ? { p: [0, r.off], d: [1, 0] }
+      : r.kind === "v"
+        ? { p: [r.off, 0], d: [0, 1] }
+        : { p: r.a, d: [r.b[0] - r.a[0], r.b[1] - r.a[1]] };
+  const out = [L[0]];
+  for (let i = 0; i + 1 < runs.length; i++) {
+    const A = lineOf(runs[i]);
+    const B = lineOf(runs[i + 1]);
+    const den = A.d[0] * B.d[1] - A.d[1] * B.d[0];
+    if (Math.abs(den) < 1e-9) return pts;
+    const t = ((B.p[0] - A.p[0]) * B.d[1] - (B.p[1] - A.p[1]) * B.d[0]) / den;
+    out.push([A.p[0] + A.d[0] * t, A.p[1] + A.d[1] * t]);
+  }
+  out.push(L[L.length - 1]);
+  const W2 = out.map(toW);
+  const dev = maxDev / MPP;
+  if (pts.some((p) => distToPolyline(p, W2) > dev) || W2.some((p) => distToPolyline(p, pts) > dev)) return pts;
+  // Nor longer to walk (a diagonal squared into an L is): routes must not grow.
+  if (lengthOf(W2) > lengthOf(pts) * 1.03 + 1) return pts;
+  return W2;
+}
+
 // Drop nodes no edge uses, and renumber.
 const used = new Map();
 const outNodes = [];
@@ -1268,8 +1399,11 @@ for (const e of E) {
   // the photo's noise. A detected line is smoothed over ~6 m first (the skeleton
   // wanders a pixel or two either side of the centre, which drawn as a road looks
   // shaky), then straightened to within a metre of it (a road) or 0.8 m (a path).
+  const traced0 = e.kind === "bridge" ? simplify(e.pts, 2.5 / MPP) : simplify(smoothLine(e.pts, 6), (kind === "road" ? 1.0 : 0.8) / MPP);
+  // A gap link stays the straight guess it is (squared, a diagonal short cut would
+  // become a longer L), and a hand trace as it was drawn.
   const smooth =
-    e.kind === "bridge" ? simplify(e.pts, 2.5 / MPP) : simplify(smoothLine(e.pts, 6), (kind === "road" ? 1.0 : 0.8) / MPP);
+    e.kind === "bridge" || handDrawn(e) ? traced0 : simplify(squareToGrid(traced0, kind === "road" ? 3 : 2.5), 0.3 / MPP);
   if (kind === "road") roadM += len;
   else if (kind === "path") pathM += len;
   else bridgeM += len;

@@ -12,7 +12,7 @@ Source: DJI Terra output in `E:\BIT 3D` (see the survey reports there).
 | `mesh/ortho/` | Orthophoto for the 2D map: the mesh rendered straight down, 256 px WebP tiles, levels 0-4 at 0.25-4 m/px, `meta.json` lists them (765 files, ~6 MB). Lives in the mesh folder so it is served, and deployed, with the mesh | `tools/drone/build-ortho.py` (below) |
 | `footprints.json` | Every roofed block on campus (190), outline in scene metres, height and storeys from the survey, named from the 3D view's buildings where they overlap (`buildingId`/`name`, `null` if no building claims it) | `tools/drone/build-ortho.py` (below) |
 | `paths.json` | Roads and walkways as a routing network: nodes, and edges with a polyline, `kind` (`road` from 4.5 m wide, `path`, or `link` across a gap the photo cannot show), width and length, in scene metres | `tools/drone/build-paths.mjs` (below) |
-| `landcover.json` | Land cover for the 2D map's Map style: one SVG path per class (`bare` ground, `paved` yards, `grass` lawns and crops, `trees`, `water`), scene metres, the campus and 150 m round it (370 KB, 120 KB gzipped) | `tools/drone/build-landcover.mjs` (below) |
+| `landcover.json` | Land cover for the 2D map's Map style: one SVG path per class (`bare` ground, `paved` yards, `grass` lawns and crops, `trees`, `water`), scene metres, the campus and 150 m round it (280 KB, 93 KB gzipped) | `tools/drone/build-landcover.mjs` (below) |
 
 ## Roads and walkways (routing network, 2026-10-01)
 
@@ -46,6 +46,11 @@ paths at run time, so renaming buildings never needs a rebuild. Built from the o
    over ~6 m and straightened to within 1 m (roads) or 0.8 m (paths). 12 loops, 44 second ways and 26 stubs went,
    and the north-east utility yard (a web of false paths over scattered concrete) is a `remove` polygon. Now:
    roads 9.3 km, paths 3.7 km, links 4.8 km, 420 edges; every test still passes.
+7. Squared to the campus grid (2026-10-12): the grid is the length-weighted axis of the footprints' walls (-0.87
+   deg here). Each line's runs within 18 deg of it are put on it, the first and last through their junctions, jogs
+   under 4 m taken out; kept only if nothing moves more than 3 m (roads) / 2.5 m (paths) and the line is at most 3%
+   longer. Gap links stay straight guesses and hand traces stay as drawn (squaring the traced east spine moved the
+   Auditorium's door 23 m and pushed one route past the test's 2.8x).
 
 `--debug` writes `paths-review.png` (the photo with roads red, paths blue, gap links magenta, hand traces
 yellow); `--probe x,z` prints the network near a point after each step. `tests/path-network.test.ts` checks
@@ -241,7 +246,8 @@ Per 1 m pixel (photo level 2, heights from the /dev-ortho capture against `terra
 water where the survey has a hole inside the campus (the mesh has no surface over the ponds) plus the dark water
 on its banks; trees where it stands 3 m+ above the bare earth and is green or dark; grass where green and low;
 paved where neutral grey or blue; bare where brown or red. Then a 5 x 5 majority vote, specks out, small holes
-filled, traced, simplified (1-1.4 m), rounded off and written as relative SVG path data. About 4 s.
+filled, traced, simplified (1.4-1.6 m), rounded off and written as relative SVG path data. About 5 s. Since
+2026-10-12 patches under 60 m2 (trees) to 250 m2 (open ground) are dropped, for a cleaner map.
 `--debug` writes the classes and a rendering. Rebuild it when the mesh, the footprints or the boundary change.
 
 ## Accuracy

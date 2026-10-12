@@ -26,7 +26,7 @@ import {
 import type { Building3D, Campus3D, Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { frameFor, type BuildingFrame } from "@/features/navigation-3d/lib/building-structure";
 import { isLandCover, placeKind, type PlaceKind } from "../lib/place-kind";
-import { neatOutline } from "../lib/neat-outline";
+import { campusAxis, neatOutline } from "../lib/neat-outline";
 
 /**
  * The 2D campus map, built from the 3D view's own data:
@@ -71,6 +71,25 @@ export const PLAN = {
   route: "#3bb26a",
   label: "#26313c",
 } as const;
+
+/**
+ * A named building's fill, edge and hover fill by what it is, so a hostel reads
+ * apart from a lab at a glance: soft tints in the family of each kind's colour
+ * (lib/place-kind.ts KIND_COLOR). Markers stay purple; selection is purple for all.
+ */
+const BLOCK_TINT: Record<PlaceKind, [string, string, string]> = {
+  academic: [PLAN.block, PLAN.blockEdge, PLAN.blockHover],
+  lab: ["#d7e3fb", "#87a3df", "#c3d5f8"],
+  hostel: ["#f7dbe7", "#d68aac", "#f1c6d9"],
+  hall: ["#fbe3d1", "#e0a173", "#f7d1b5"],
+  library: ["#d3efe9", "#6fb8ab", "#bde6de"],
+  residence: ["#ecdcf7", "#b08bd7", "#e0c8f3"],
+  transport: ["#d9e6fb", "#7fa0dc", "#c5d8f8"],
+  utility: ["#e4e6ea", "#a6aeb9", "#d4d8de"],
+  construction: ["#f4eac6", "#c8ac5b", "#ece0ae"],
+  sports: ["#dcefd0", "#8cc070", "#cde7bd"],
+  water: [PLAN.water, PLAN.waterEdge, "#94c9ef"],
+};
 
 /** One SVG path per land cover class, in scene metres (tools/drone/build-landcover.mjs). */
 type LandCover = { bare: string; paved: string; grass: string; trees: string; water: string };
@@ -209,6 +228,42 @@ function walkMinutes(m: number) {
 
 const LAND_URL = "/drone/landcover.json";
 
+/** How the map draws a road or walkway: its width (metres) and how round its bends are. */
+type RoadClass = { key: string; kind: RoadSegment["kind"]; w: number; r: number };
+const ROAD_CLASSES = {
+  main: { key: "ROAD-main", kind: "ROAD", w: 8, r: 9 },
+  road: { key: "ROAD", kind: "ROAD", w: 6, r: 7 },
+  walk: { key: "WALK", kind: "WALK", w: 3, r: 4 },
+} satisfies Record<string, RoadClass>;
+
+/**
+ * A polyline as SVG path data with each bend rounded off (a quadratic curve
+ * through the corner, at most `r` metres either side and less than half of
+ * either leg). The survey's lines are straight runs between points; drawn wide,
+ * every vertex showed as a kink.
+ */
+export function roundedPath(pts: Vec2[], r: number) {
+  const f = (v: number) => v.toFixed(1);
+  let d = `M${f(pts[0].x)},${f(pts[0].z)}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const a = pts[i - 1];
+    const b = pts[i];
+    const c = pts[i + 1];
+    const l1 = Math.hypot(b.x - a.x, b.z - a.z);
+    const l2 = Math.hypot(c.x - b.x, c.z - b.z);
+    const t = Math.min(r, 0.45 * l1, 0.45 * l2);
+    if (t < 0.2) {
+      d += `L${f(b.x)},${f(b.z)}`;
+      continue;
+    }
+    const p = { x: b.x - ((b.x - a.x) / l1) * t, z: b.z - ((b.z - a.z) / l1) * t };
+    const q = { x: b.x + ((c.x - b.x) / l2) * t, z: b.z + ((c.z - b.z) / l2) * t };
+    d += `L${f(p.x)},${f(p.z)}Q${f(b.x)},${f(b.z)} ${f(q.x)},${f(q.z)}`;
+  }
+  const end = pts[pts.length - 1];
+  return `${d}L${f(end.x)},${f(end.z)}`;
+}
+
 function roomPlan(frame: BuildingFrame | null) {
   if (!frame || !frame.rooms.length) return null;
   const floorId = frame.rooms[0].floorId;
@@ -222,10 +277,12 @@ function roomPlan(frame: BuildingFrame | null) {
  * Joins the 3D view's buildings with the drone footprints. A building takes
  * the outlines of every roof that overlaps it; roofs no building claims stay
  * as unnamed blocks. Roof outlines are straightened (lib/neat-outline.ts): the
- * survey traces them from pixels, so straight walls came out as zig-zags.
+ * survey traces them from pixels, so straight walls came out as zig-zags. Blocks
+ * near the campus grid are squared to it, so neighbouring blocks run parallel.
  */
 export function buildFeatures(campus: Campus3D, footprints: Footprint[] | null): MapFeature[] {
   const fps = footprints ?? [];
+  const grid = campusAxis(fps.map((f) => f.outline.map(([x, z]) => ({ x, z }))));
   const out: MapFeature[] = [];
   for (const b of campus.buildings) {
     const kind = placeKind(b.name);
@@ -235,7 +292,7 @@ export function buildFeatures(campus: Campus3D, footprints: Footprint[] | null):
     // the traced outline does, so the survey only replaces it when it found most of it.
     const found = mine.reduce((n, f) => n + f.areaM2, 0);
     if (mine.length && !land && found >= 0.2 * polyArea(b.outline)) {
-      const polygons = mine.map((f) => neatOutline(f.outline.map(([x, z]) => ({ x, z }))));
+      const polygons = mine.map((f) => neatOutline(f.outline.map(([x, z]) => ({ x, z })), grid));
       const largest = polygons.reduce((a, p) => (polyArea(p) > polyArea(a) ? p : a), polygons[0]);
       out.push({
         key: b.id,
@@ -264,7 +321,7 @@ export function buildFeatures(campus: Campus3D, footprints: Footprint[] | null):
   }
   for (const f of fps) {
     if (f.buildingId) continue;
-    const poly = neatOutline(f.outline.map(([x, z]) => ({ x, z })));
+    const poly = neatOutline(f.outline.map(([x, z]) => ({ x, z })), grid);
     out.push({
       key: f.id,
       name: null,
@@ -665,6 +722,8 @@ export function Campus2DMap({
   }, [drone, ortho, tileSets, view, size.w, size.h, dpr]);
 
   // ---- labels: greedy placement, biggest and selected first, no overlaps ----------------
+  // Names a little larger as the map zooms in, where there is room for them.
+  const labelPx = view.s >= 3 ? 13.5 : view.s >= 1.5 ? 12.5 : 11.5;
   const labelled = useMemo(() => {
     const placed: { l: number; t: number; r: number; b: number }[] = [];
     const result = new Map<string, { marker: boolean; label: boolean }>();
@@ -685,12 +744,12 @@ export function Campus2DMap({
       const markerOn = layers.places && !f.land && (forced || view.s >= 0.3);
       const nameOn = showLabels || forced;
       const d = markerOn ? 28 : 0;
-      const w = nameOn ? Math.min(150, (f.name?.length ?? 0) * 6.3 + 12) : d;
+      const w = nameOn ? Math.min(150 * (labelPx / 11.5), (f.name?.length ?? 0) * 0.55 * labelPx + 12) : d;
       const box = {
         l: p.left - Math.max(w, d) / 2,
         r: p.left + Math.max(w, d) / 2,
         t: p.top - d / 2 - 2,
-        b: p.top + d / 2 + (nameOn ? 18 : 0),
+        b: p.top + d / 2 + (nameOn ? labelPx * 1.6 : 0),
       };
       const hit = placed.some((q) => box.l < q.r && box.r > q.l && box.t < q.b && box.b > q.t);
       if (hit && !forced) continue;
@@ -698,46 +757,40 @@ export function Campus2DMap({
       result.set(f.key, { marker: markerOn, label: nameOn });
     }
     return result;
-  }, [features, view, size.w, size.h, selectedId, destinationKey, layers.places, showLabels]);
+  }, [features, view, size.w, size.h, selectedId, destinationKey, layers.places, showLabels, labelPx]);
 
-  // One SVG path per kind: the surveyed network is thousands of short segments.
-  // For the plan, one per kind and width as well: roads drawn as wide as the
-  // survey measured them (a plaza's 28 m capped at 12), walkways at theirs.
-  // Consecutive segments of one line are drawn as one polyline, so its bends join smoothly.
+  // One SVG path per drawing class: the surveyed network is thousands of short
+  // segments. The classes are even widths, not each line's measured one (that
+  // varied from 5 to 12 m along one road, and plazas swelled it): main roads
+  // (measured 8.5 m or more) 8 m, other roads 6 m, walkways 3 m. Consecutive
+  // segments of one line are one path, its bends rounded off.
   const pathD = useMemo(() => {
-    const p = (v: Vec2) => `${v.x.toFixed(1)},${v.z.toFixed(1)}`;
-    const groups = new Map<string, { kind: RoadSegment["kind"]; w: number; hidden: boolean; d: string[] }>();
-    const all = { ROAD: [] as string[], WALK: [] as string[] };
-    let prev: RoadSegment | null = null;
-    let prevKey = "";
+    const classOf = (s: RoadSegment): RoadClass =>
+      s.kind === "ROAD" ? ((s.w ?? 6) >= 8.5 ? ROAD_CLASSES.main : ROAD_CLASSES.road) : ROAD_CLASSES.walk;
+    const chains: { cls: RoadClass; pts: Vec2[] }[] = [];
+    let cur: { cls: RoadClass; pts: Vec2[] } | null = null;
     for (const s of segments) {
-      const road = s.kind === "ROAD";
-      const w = road
-        ? Math.round(Math.min(12, Math.max(5, s.w ?? 7)))
-        : Math.round(2 * Math.min(4.5, Math.max(2, s.w ?? 2.5))) / 2;
-      const hidden = !road && Boolean(s.hidden);
-      const key = `${s.kind}-${w}${hidden ? "-h" : ""}`;
-      let g = groups.get(key);
-      if (!g) groups.set(key, (g = { kind: s.kind, w, hidden, d: [] }));
-      const joined = prev && key === prevKey && prev.to.x === s.from.x && prev.to.z === s.from.z;
-      const piece = joined ? `L${p(s.to)}` : `M${p(s.from)}L${p(s.to)}`;
-      g.d.push(piece);
-      all[s.kind].push(joined ? piece : `M${p(s.from)}L${p(s.to)}`);
-      prev = s;
-      prevKey = key;
+      const cls = classOf(s);
+      const last = cur?.pts[cur.pts.length - 1];
+      if (cur && cur.cls === cls && last && last.x === s.from.x && last.z === s.from.z) cur.pts.push(s.to);
+      else chains.push((cur = { cls, pts: [s.from, s.to] }));
+    }
+    const groups = new Map<RoadClass, string[]>();
+    const all = { ROAD: [] as string[], WALK: [] as string[] };
+    for (const ch of chains) {
+      const d = roundedPath(ch.pts, ch.cls.r);
+      const g = groups.get(ch.cls);
+      if (g) g.push(d);
+      else groups.set(ch.cls, [d]);
+      all[ch.cls.kind].push(d);
     }
     // Walkways under roads, narrow under wide, so junctions join cleanly.
-    const bands = [...groups.values()]
-      .map((g) => ({
-        key: `${g.kind}-${g.w}${g.hidden ? "-h" : ""}`,
-        kind: g.kind,
-        w: g.w,
-        hidden: g.hidden,
-        d: g.d.join(""),
-      }))
+    const bands = [...groups.entries()]
+      .map(([cls, d]) => ({ key: cls.key, kind: cls.kind, w: cls.w, d: d.join("") }))
       .sort((a, b) => (a.kind === b.kind ? a.w - b.w : a.kind === "WALK" ? -1 : 1));
     return { roads: all.ROAD.join(""), walks: all.WALK.join(""), bands };
   }, [segments]);
+  const routeD = useMemo(() => (routePath.length >= 2 ? roundedPath(routePath, ROAD_CLASSES.road.r) : ""), [routePath]);
   const start = routePath[0];
   const end = routePath[routePath.length - 1];
 
@@ -940,26 +993,15 @@ export function Campus2DMap({
                 </g>
               );
             }
+            const [tint, edge, over] = f.name && f.kind ? BLOCK_TINT[f.kind] : [PLAN.unnamed, PLAN.unnamedEdge, "#ccd2db"];
             return (
               <g key={f.key} {...handlers} opacity={dim ? 0.35 : 1}>
                 {f.polygons.map((o, i) => (
                   <polygon
                     key={i}
                     points={pts(o)}
-                    fill={
-                      plan
-                        ? "#ffffff"
-                        : dest
-                          ? "#bfe7cd"
-                          : sel
-                            ? PLAN.blockActive
-                            : hot
-                              ? PLAN.blockHover
-                              : f.name
-                                ? PLAN.block
-                                : PLAN.unnamed
-                    }
-                    stroke={dest ? PLAN.route : sel ? PLAN.blockActiveEdge : f.name ? PLAN.blockEdge : PLAN.unnamedEdge}
+                    fill={plan ? "#ffffff" : dest ? "#bfe7cd" : sel ? PLAN.blockActive : hot ? over : tint}
+                    stroke={dest ? PLAN.route : sel ? PLAN.blockActiveEdge : edge}
                     strokeWidth={sel || dest ? 2 : 1}
                     vectorEffect="non-scaling-stroke"
                     strokeLinejoin="round"
@@ -1117,29 +1159,18 @@ export function Campus2DMap({
           {routePath.length >= 2 && (
             <g fill="none" strokeLinecap="round" strokeLinejoin="round">
               {/* On the white roads of the map, a green rim keeps the route's band visible. */}
+              {/* Rounded at its bends as the roads are, so it stays on them. */}
               {!drone && (
-                <polyline
-                  points={pts(routePath)}
-                  stroke={PLAN.route}
-                  strokeOpacity={0.35}
-                  strokeWidth={14}
-                  vectorEffect="non-scaling-stroke"
-                />
+                <path d={routeD} stroke={PLAN.route} strokeOpacity={0.35} strokeWidth={14} vectorEffect="non-scaling-stroke" />
               )}
-              <polyline
-                points={pts(routePath)}
+              <path
+                d={routeD}
                 stroke="#ffffff"
                 strokeOpacity={drone ? 0.9 : 1}
                 strokeWidth={drone ? 9 : 10}
                 vectorEffect="non-scaling-stroke"
               />
-              <polyline
-                points={pts(routePath)}
-                stroke={PLAN.route}
-                strokeWidth={5}
-                strokeDasharray="0.1 9"
-                vectorEffect="non-scaling-stroke"
-              />
+              <path d={routeD} stroke={PLAN.route} strokeWidth={5} strokeDasharray="0.1 9" vectorEffect="non-scaling-stroke" />
             </g>
           )}
 
@@ -1233,15 +1264,19 @@ export function Campus2DMap({
               )}
               {show.label && (
                 <span
-                  className="mt-0.5 max-w-[150px] text-center text-[11.5px] font-semibold leading-tight"
+                  className="mt-0.5 text-center font-semibold leading-tight"
                   style={
                     drone
                       ? {
+                          fontSize: labelPx,
+                          maxWidth: 150 * (labelPx / 11.5),
                           color: "#ffffff",
                           textShadow: "0 0 2px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.8), 0 1px 4px rgba(0,0,0,.7)",
                         }
                       : {
                           // Grounds and ponds are named like a map names land: italic, in their own colour.
+                          fontSize: labelPx,
+                          maxWidth: 150 * (labelPx / 11.5),
                           color: f.land ? (f.kind === "water" ? "#1f6aa5" : "#46702c") : PLAN.label,
                           fontStyle: f.land ? "italic" : undefined,
                           textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 5px #fff",
@@ -1406,8 +1441,14 @@ export function Campus2DMap({
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 px-1 pb-1 text-[12px] text-[#3c4752]">
                     {(
                       [
-                        [PLAN.block, PLAN.blockEdge, "Named building"],
-                        [PLAN.unnamed, PLAN.unnamedEdge, "Other building"],
+                        [BLOCK_TINT.academic[0], BLOCK_TINT.academic[1], "Academic"],
+                        [BLOCK_TINT.lab[0], BLOCK_TINT.lab[1], "Departments, labs"],
+                        [BLOCK_TINT.hostel[0], BLOCK_TINT.hostel[1], "Hostels"],
+                        [BLOCK_TINT.hall[0], BLOCK_TINT.hall[1], "Halls"],
+                        [BLOCK_TINT.library[0], BLOCK_TINT.library[1], "Library"],
+                        [BLOCK_TINT.residence[0], BLOCK_TINT.residence[1], "Staff housing"],
+                        [BLOCK_TINT.utility[0], BLOCK_TINT.utility[1], "Sheds, utility"],
+                        [PLAN.unnamed, PLAN.unnamedEdge, "Not yet named"],
                         [PLAN.road, PLAN.roadEdge, "Road / walkway"],
                         [PLAN.trees, PLAN.trees, "Trees"],
                         [PLAN.grass, PLAN.grass, "Lawn, crops"],
