@@ -12,6 +12,7 @@ Source: DJI Terra output in `E:\BIT 3D` (see the survey reports there).
 | `mesh/ortho/` | Orthophoto for the 2D map: the mesh rendered straight down, 256 px WebP tiles, levels 0-4 at 0.25-4 m/px, `meta.json` lists them (765 files, ~6 MB). Lives in the mesh folder so it is served, and deployed, with the mesh | `tools/drone/build-ortho.py` (below) |
 | `footprints.json` | Every roofed block on campus (190), outline in scene metres, height and storeys from the survey, named from the 3D view's buildings where they overlap (`buildingId`/`name`, `null` if no building claims it) | `tools/drone/build-ortho.py` (below) |
 | `paths.json` | Roads and walkways as a routing network: nodes, and edges with a polyline, `kind` (`road` from 4.5 m wide, `path`, or `link` across a gap the photo cannot show), width and length, in scene metres | `tools/drone/build-paths.mjs` (below) |
+| `landcover.json` | Land cover for the 2D map's Map style: one SVG path per class (`bare` ground, `paved` yards, `grass` lawns and crops, `trees`, `water`), scene metres, the campus and 150 m round it (370 KB, 120 KB gzipped) | `tools/drone/build-landcover.mjs` (below) |
 
 ## Roads and walkways (routing network, 2026-10-01)
 
@@ -30,7 +31,7 @@ paths at run time, so renaming buildings never needs a rebuild. Built from the o
    the dev server up by opening `/dev-ortho`, ~6 min on the RTX laptop): a line that mostly runs over something
    roof-like (2.5 m+ above the bare earth across 8 m+, that no footprint or covered walkway explains, such as a grey
    sheet roof read as concrete) is dropped if the network can get round without it, and dead ends beyond the campus
-   edge (village lanes, yards) are dropped too. Centre lines are smoothed over ~4 m before simplifying, so roads
+   edge (village lanes, yards) are dropped too. Centre lines are smoothed before simplifying (step 6), so roads
    drawn at their width do not wobble. 2026-10-08: 21 lines (600 m) over roofs and 44 outside dead ends dropped; roads
    10.4 km, paths 5.1 km, links 5.0 km. Two other uses of the heights were tried and dropped because they broke
    routes in the test: cutting raised or rough road-coloured pixels (people walk under the covered spines, main
@@ -39,6 +40,12 @@ paths at run time, so renaming buildings never needs a rebuild. Built from the o
 5. Hand corrections from `tools/drone/paths-edits.json`: `add` polylines (with a width) for ways the photo
    cannot show, such as roads under continuous canopy, covered walkways or porches that broke a road; `remove`
    polygons for false finds. Each has a `why`.
+6. Tidy (2026-10-08, for the map: the owner found the drawn network scribbly): of two ways between the same
+   junctions within 25% + 12 m of each other the weaker goes (a gap link before a seen line, narrow before wide,
+   wiggly before straight), loops under 80 m and dead ends under 15 m go, never a hand trace; lines are smoothed
+   over ~6 m and straightened to within 1 m (roads) or 0.8 m (paths). 12 loops, 44 second ways and 26 stubs went,
+   and the north-east utility yard (a web of false paths over scattered concrete) is a `remove` polygon. Now:
+   roads 9.3 km, paths 3.7 km, links 4.8 km, 420 edges; every test still passes.
 
 `--debug` writes `paths-review.png` (the photo with roads red, paths blue, gap links magenta, hand traces
 yellow); `--probe x,z` prints the network near a point after each step. `tests/path-network.test.ts` checks
@@ -222,6 +229,20 @@ is not green (trees); covered walkways are cut away, and each named building
 claims the roofs inside its traced outline (with 4 m tolerance), which also splits
 roofs that touch. Roofs no building claims show on the map as unnamed buildings:
 the data has no name for them (see HANDOFF.md, "building names").
+
+## Land cover (the 2D map's Map style, 2026-10-08)
+
+The Map style (the 2D map's default since 2026-10-08) draws the campus as a map, all of it from the survey: land
+cover, the roads and walkways above at their measured width, the roofs from `footprints.json`.
+
+    node tools/drone/build-landcover.mjs "D:/BIT 3D/_work/web-mesh-v2/ortho" "D:/BIT 3D/_work/ortho/raw" public/drone/landcover.json --debug <dir>
+
+Per 1 m pixel (photo level 2, heights from the /dev-ortho capture against `terrain.*`), roofs left out:
+water where the survey has a hole inside the campus (the mesh has no surface over the ponds) plus the dark water
+on its banks; trees where it stands 3 m+ above the bare earth and is green or dark; grass where green and low;
+paved where neutral grey or blue; bare where brown or red. Then a 5 x 5 majority vote, specks out, small holes
+filled, traced, simplified (1-1.4 m), rounded off and written as relative SVG path data. About 4 s.
+`--debug` writes the classes and a rendering. Rebuild it when the mesh, the footprints or the boundary change.
 
 ## Accuracy
 

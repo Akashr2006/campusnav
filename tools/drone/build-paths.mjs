@@ -1146,6 +1146,59 @@ if (roofLike) {
   log(`dropped ${dropped} dead ends outside the campus`);
 }
 
+/* ---------------------------------------------------------------- 3c. tidy */
+
+/*
+ * What is left routes well but drawn as a map it scribbles (2026-10-08, the
+ * owner: "not detected the paths properly"): a loop round a tree, a line down
+ * each side of a yard or round a building's apron, a stub into a doorway.
+ *  - Of two ways between the same junctions within 25% + 12 m of each other,
+ *    the weaker goes (a gap link before a seen line, narrow before wide, wiggly
+ *    before straight), as long as the other stays. A hand trace never goes.
+ *  - Dead ends under 15 m go (/navigate adds the doors itself, at run time).
+ */
+{
+  const handDrawn = (e) => e.pts.filter(([x, y]) => traced[Math.round(y) * W + Math.round(x)]).length > 0.5 * e.pts.length;
+  const sinuosity = (e) => {
+    const [ax, ay] = e.pts[0];
+    const [bx, by] = e.pts[e.pts.length - 1];
+    return lengthOf(e.pts) / Math.max(1, Math.hypot(bx - ax, by - ay) * MPP);
+  };
+  const medianWidth = (e) => {
+    const w = e.pts.map(([x, y]) => widthAt(x, y)).sort((a, b) => a - b);
+    return w[Math.floor(w.length / 2)] ?? 0;
+  };
+  const strength = (e) => (e.kind === "bridge" ? 0 : 10) + Math.min(10, medianWidth(e)) - 3 * Math.min(2, sinuosity(e) - 1);
+  let loops = 0;
+  let twins = 0;
+  for (const e of [...E].sort((a, b) => strength(a) - strength(b))) {
+    if (handDrawn(e)) continue;
+    const len = lengthOf(e.pts);
+    if (e.a === e.b) {
+      if (len < 80) {
+        E = E.filter((x) => x !== e);
+        loops++;
+      }
+      continue;
+    }
+    const all = E;
+    E = E.filter((x) => x !== e);
+    if (networkDistance(e.a, e.b, 1.25 * len + 12) <= 1.25 * len + 12) twins++;
+    else E = all;
+  }
+  mergeThrough();
+  let stubs = 0;
+  for (let r = 0; r < 3; r++) {
+    const deg = degrees();
+    const before = E.length;
+    E = E.filter((e) => !((deg[e.a] === 1) !== (deg[e.b] === 1) && lengthOf(e.pts) < 15 && !handDrawn(e)));
+    stubs += before - E.length;
+    mergeThrough();
+    if (E.length === before) break;
+  }
+  log(`tidy: ${loops} small loops, ${twins} second ways and ${stubs} stubs removed`);
+}
+
 /* ---------------------------------------------------------------- 4. simplify and write */
 
 function simplify(pts, tol) {
@@ -1207,14 +1260,16 @@ let pathM = 0;
 let bridgeM = 0;
 for (const e of E) {
   if (e.a === e.b && lengthOf(e.pts) < 20) continue;
-  // A gap link is a guess at a hidden line: keep it straight rather than following
-  // the photo's noise. A detected line is smoothed over ~4 m first: the skeleton
-  // wanders a pixel or two either side of the centre, which drawn as a road looks shaky.
-  const smooth = e.kind === "bridge" ? simplify(e.pts, 2.5 / MPP) : simplify(smoothLine(e.pts, 4), 0.6 / MPP);
   const widths = e.pts.map(([x, y]) => widthAt(x, y)).filter((w) => w > 0).sort((a, b) => a - b);
   const width = widths.length ? widths[Math.floor(widths.length / 2)] : 0;
   const len = lengthOf(e.pts);
   const kind = e.kind === "bridge" ? "link" : width >= 4.5 ? "road" : "path";
+  // A gap link is a guess at a hidden line: keep it straight rather than following
+  // the photo's noise. A detected line is smoothed over ~6 m first (the skeleton
+  // wanders a pixel or two either side of the centre, which drawn as a road looks
+  // shaky), then straightened to within a metre of it (a road) or 0.8 m (a path).
+  const smooth =
+    e.kind === "bridge" ? simplify(e.pts, 2.5 / MPP) : simplify(smoothLine(e.pts, 6), (kind === "road" ? 1.0 : 0.8) / MPP);
   if (kind === "road") roadM += len;
   else if (kind === "path") pathM += len;
   else bridgeM += len;

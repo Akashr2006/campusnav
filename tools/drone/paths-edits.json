@@ -1,5 +1,5 @@
 {
-  "note": "Hand corrections to tools/drone/build-paths.mjs, in scene metres (x east, z south). `add`: roads and walkways the orthophoto cannot show (under continuous tree canopy, or under a covered walkway roof), drawn from where they are visible on either side; w is the width in metres. `remove`: polygons where a detection is false (none so far). Checked against the photo on 2026-10-01.",
+  "note": "Hand corrections to tools/drone/build-paths.mjs, in scene metres (x east, z south). `add`: roads and walkways the orthophoto cannot show (under continuous tree canopy, or under a covered walkway roof), drawn from where they are visible on either side; w is the width in metres. `remove`: polygons where a detection is false. Checked against the photo on 2026-10-01 and 2026-10-08.",
   "add": [
     {
       "why": "Main gate to the central avenue, under the avenue's trees",
@@ -62,5 +62,10 @@
       "pts": [[105, 67], [200, 67], [300, 65], [370, 59], [430, 59], [480, 60], [560, 58]]
     }
   ],
-  "remove": []
+  "remove": [
+    {
+      "why": "North-east utility yard: scattered concrete and spoil heaps on bare ground read as a web of paths; no road crosses it",
+      "poly": [[378, -525], [490, -525], [490, -425], [378, -425]]
+    }
+  ]
 }

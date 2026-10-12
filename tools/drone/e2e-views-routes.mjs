@@ -79,7 +79,9 @@ const surveyed = await page.evaluate(() => /mapped from the drone survey/.test(d
 console.log(`follows the surveyed paths: ${surveyed}`);
 await shot("01-route-2d");
 
-// The detected network over the photo (map layers menu).
+// The detected network over the photo (the map style is the default since 2026-10-08: switch to the photo first).
+await page.evaluate(() => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Photo")?.click());
+await wait(500);
 if (await clickButton("Map style and layers")) {
   await wait(300);
   await page.evaluate(() => [...document.querySelectorAll("button")].find((b) => /Roads & walkways/.test(b.textContent ?? ""))?.click());

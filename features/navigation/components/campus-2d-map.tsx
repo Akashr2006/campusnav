@@ -17,6 +17,7 @@ import {
   Maximize2,
   Minus,
   Plus,
+  Ruler,
   Theater,
   Trophy,
   Warehouse,
@@ -38,28 +39,41 @@ import { neatOutline } from "../lib/neat-outline";
  */
 
 export const PLAN = {
-  canvas: "#f4f8fa",
+  canvas: "#eceeec",
   droneCanvas: "#e7ecef",
-  site: "#edf1f4",
-  siteEdge: "#dcebf2",
-  wall: "#a9d6e9",
-  block: "#b8ddec",
-  blockHover: "#9fd1e6",
-  blockActive: "#4fb0da",
-  room: "#e9f5fa",
-  path: "#e8f2f6",
-  // Roads and walkways in the plan: white at their surveyed width, with a grey edge.
+  site: "#f3f1ec",
+  siteEdge: "#7d8a97",
+  // Land cover from the drone survey (public/drone/landcover.json).
+  bare: "#eee2cb",
+  paved: "#ebe9e5",
+  grass: "#d3eac2",
+  trees: "#acd595",
+  water: "#a6d3f3",
+  waterEdge: "#73b2e2",
+  // Buildings: named ones in the markers' purple family, the rest grey.
+  block: "#ddd5f4",
+  blockEdge: "#9c8ed6",
+  blockHover: "#cbbff0",
+  blockActive: "#b4a3ee",
+  blockActiveEdge: "#5b3fa6",
+  unnamed: "#d9dee6",
+  unnamedEdge: "#a3acb9",
+  shadow: "#5a6478",
+  wall: "#a99fd0",
+  room: "#f3f0fc",
+  // Roads and walkways: white at their surveyed width, with a darker edge.
   road: "#ffffff",
-  roadEdge: "#c2ced6",
+  roadEdge: "#a7b1bc",
   walk: "#ffffff",
-  walkEdge: "#cfd9df",
-  grass: "#eef7f0",
-  grassEdge: "#cde6d5",
-  water: "#d6ecf6",
+  walkEdge: "#bcc5ce",
+  grassEdge: "#9cc985",
   marker: "#5b3fa6",
   route: "#3bb26a",
-  label: "#34414d",
+  label: "#26313c",
 } as const;
+
+/** One SVG path per land cover class, in scene metres (tools/drone/build-landcover.mjs). */
+type LandCover = { bare: string; paved: string; grass: string; trees: string; water: string };
 
 const ICON: Record<PlaceKind, LucideIcon> = {
   academic: GraduationCap,
@@ -104,8 +118,11 @@ const ORTHO_BASE = (process.env.NEXT_PUBLIC_DRONE_TILESET_URL ?? "/drone/mesh/ti
   "ortho/"
 );
 
-/** `w`: the paved width measured in the survey (metres), when known. */
-export type RoadSegment = { from: Vec2; to: Vec2; kind: "ROAD" | "WALK"; w?: number };
+/**
+ * `w`: the paved width measured in the survey (metres), when known. `hidden`:
+ * a link the survey inferred under tree canopy rather than saw.
+ */
+export type RoadSegment = { from: Vec2; to: Vec2; kind: "ROAD" | "WALK"; w?: number; hidden?: boolean };
 export type MapStyle = "drone" | "plan";
 
 /** One thing on the map: a named building (from the 3D view) or an unnamed block. */
@@ -163,19 +180,34 @@ function centroid(o: Vec2[]): Vec2 {
     cx += (p.x + q.x) * c;
     cz += (p.z + q.z) * c;
   }
-  if (Math.abs(a) < 1e-6) return { x: o.reduce((s, p) => s + p.x, 0) / o.length, z: o.reduce((s, p) => s + p.z, 0) / o.length };
+  if (Math.abs(a) < 1e-6)
+    return { x: o.reduce((s, p) => s + p.x, 0) / o.length, z: o.reduce((s, p) => s + p.z, 0) / o.length };
   return { x: cx / (3 * a), z: cz / (3 * a) };
 }
 
 const pts = (o: Vec2[]) => o.map((p) => `${p.x},${p.z}`).join(" ");
 
-function niceScale(s: number, px = 90) {
+function niceScale(s: number, px = 120) {
   const metres = px / s;
   const pow = Math.pow(10, Math.floor(Math.log10(metres)));
   const n = metres / pow;
   const m = (n >= 5 ? 5 : n >= 2 ? 2 : 1) * pow;
-  return { px: m * s, label: m >= 1000 ? `${m / 1000} km` : `${m} m` };
+  const fmt = (v: number) => (m >= 1000 ? `${v / 1000}` : `${v}`);
+  return { px: m * s, metres: m, half: fmt(m / 2), label: m >= 1000 ? `${m / 1000} km` : `${m} m` };
 }
+
+/** Walking pace the router uses (features/navigation/lib/path-network.ts). */
+const WALK_SPEED = 1.3;
+
+export function formatMetres(m: number) {
+  return m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m)} m`;
+}
+
+function walkMinutes(m: number) {
+  return Math.max(1, Math.round(m / WALK_SPEED / 60));
+}
+
+const LAND_URL = "/drone/landcover.json";
 
 function roomPlan(frame: BuildingFrame | null) {
   if (!frame || !frame.rooms.length) return null;
@@ -263,6 +295,7 @@ export function Campus2DMap({
   onLocate,
   locating,
   destinationKey,
+  routeLabel,
   showLabels = true,
   padding = { top: 40, right: 40, bottom: 40, left: 80 },
 }: {
@@ -280,17 +313,26 @@ export function Campus2DMap({
   onLocate?: () => void;
   locating?: boolean;
   destinationKey?: string | null;
+  /** Shown at the route's end, e.g. "732 m · 9 min". */
+  routeLabel?: string | null;
   showLabels?: boolean;
   padding?: { top: number; right: number; bottom: number; left: number };
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ w: 800, h: 600 });
+  // Unmeasured until the first layout: fitting the campus to a guessed size left it small.
+  const [size, setSize] = useState({ w: 0, h: 0 });
   const [view, setView] = useState<View>({ cx: campus.centre.x, cz: campus.centre.z, s: 0.6 });
   const [layers, setLayers] = useState({ places: true, paths: true, outlines: true, rooms: true });
   // On the photo the roads already show; the detected network is drawn over it on request.
   const [photoPaths, setPhotoPaths] = useState(false);
-  const [style, setStyle] = useState<MapStyle>("drone");
+  // The map drawn from the survey opens first: it reads at every zoom, where
+  // the photo blurs past 0.25 m a pixel and its labels fight the roofs.
+  const [style, setStyle] = useState<MapStyle>("plan");
+  const [land, setLand] = useState<LandCover | null>(null);
   const [layersOpen, setLayersOpen] = useState(false);
+  // The ruler: taps on the map add points, distances shown along the way.
+  const [measuring, setMeasuring] = useState(false);
+  const [measure, setMeasure] = useState<Vec2[]>([]);
   const [walker, setWalker] = useState<Vec2 | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [grabbing, setGrabbing] = useState(false);
@@ -300,8 +342,9 @@ export function Campus2DMap({
 
   useEffect(() => {
     setDpr(Math.min(2, window.devicePixelRatio || 1));
-    // `?style=plan` links straight to the clean plan style.
-    if (new URLSearchParams(window.location.search).get("style") === "plan") setStyle("plan");
+    // `?style=photo` (or `drone`) opens on the drone photo; `?style=plan` is the default map.
+    const asked = new URLSearchParams(window.location.search).get("style");
+    if (asked === "photo" || asked === "drone") setStyle("drone");
     let live = true;
     // Retried twice: one dropped request must not leave the map on the plan
     // drawing (the traced outlines) instead of the drone photo. A 404 means
@@ -332,6 +375,33 @@ export function Campus2DMap({
   // Without the orthophoto there is nothing to draw in drone style.
   const effectiveStyle: MapStyle = style === "drone" && orthoMissing ? "plan" : style;
   const drone = effectiveStyle === "drone";
+
+  // Land cover is drawn in the map style only: fetched the first time it shows,
+  // retried like the photo (the map still reads without it, as plain ground).
+  useEffect(() => {
+    if (drone || land) return;
+    let live = true;
+    (async () => {
+      for (const wait of [0, 1500, 4000]) {
+        if (wait) await new Promise((r) => setTimeout(r, wait));
+        if (!live) return;
+        try {
+          const r = await fetch(LAND_URL);
+          if (r.ok) {
+            const j = (await r.json()) as LandCover;
+            if (live) setLand(j);
+            return;
+          }
+          if (r.status === 404) return;
+        } catch {
+          // Network hiccup: try again.
+        }
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [drone, land]);
 
   const tileSets = useMemo(() => ortho?.levels.map((l) => new Set(l.tiles)) ?? [], [ortho]);
 
@@ -397,6 +467,12 @@ export function Campus2DMap({
     [campus]
   );
 
+  // `?debug`: the camera, for tools/drone screenshots of exact places.
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has("debug")) return;
+    (window as unknown as { __map2d: unknown }).__map2d = { view: () => viewRef.current, setView };
+  }, []);
+
   const fitted = useRef(false);
   useEffect(() => {
     if (fitted.current || size.w < 10) return;
@@ -405,10 +481,12 @@ export function Campus2DMap({
   }, [size.w, fitTo, campusPoints]);
 
   const routeKey = routePath.map((p) => `${p.x.toFixed(1)},${p.z.toFixed(1)}`).join("|");
+  // Also once the map has a size: a route opened from a link arrives before it does.
+  const measured = size.w >= 10;
   useEffect(() => {
     if (routePath.length >= 2) fitTo(routePath, true, 2.2);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeKey]);
+  }, [routeKey, measured]);
 
   useEffect(() => {
     if (!focusId) return;
@@ -550,7 +628,6 @@ export function Campus2DMap({
   const worldTransform = `translate(${size.w / 2 - view.cx * view.s} ${size.h / 2 - view.cz * view.s}) scale(${view.s})`;
   const scale = niceScale(view.s);
   const roomsOn = !drone && layers.rooms && view.s >= ROOM_ZOOM;
-  const margin = Math.min(6, Math.max(1.6, 7 / view.s));
 
   // ---- orthophoto tiles in view ----------------------------------------------------
   const orthoTiles = useMemo(() => {
@@ -626,45 +703,341 @@ export function Campus2DMap({
   // One SVG path per kind: the surveyed network is thousands of short segments.
   // For the plan, one per kind and width as well: roads drawn as wide as the
   // survey measured them (a plaza's 28 m capped at 12), walkways at theirs.
+  // Consecutive segments of one line are drawn as one polyline, so its bends join smoothly.
   const pathD = useMemo(() => {
-    const seg = (s: RoadSegment) => `M${s.from.x.toFixed(1)},${s.from.z.toFixed(1)}L${s.to.x.toFixed(1)},${s.to.z.toFixed(1)}`;
-    const d = (kind: RoadSegment["kind"]) =>
-      segments
-        .filter((s) => s.kind === kind)
-        .map(seg)
-        .join("");
-    const groups = new Map<string, { kind: RoadSegment["kind"]; w: number; d: string[] }>();
+    const p = (v: Vec2) => `${v.x.toFixed(1)},${v.z.toFixed(1)}`;
+    const groups = new Map<string, { kind: RoadSegment["kind"]; w: number; hidden: boolean; d: string[] }>();
+    const all = { ROAD: [] as string[], WALK: [] as string[] };
+    let prev: RoadSegment | null = null;
+    let prevKey = "";
     for (const s of segments) {
       const road = s.kind === "ROAD";
-      const w = road ? Math.round(Math.min(12, Math.max(5, s.w ?? 7))) : Math.round(2 * Math.min(4.5, Math.max(2, s.w ?? 2.5))) / 2;
-      const key = `${s.kind}-${w}`;
+      const w = road
+        ? Math.round(Math.min(12, Math.max(5, s.w ?? 7)))
+        : Math.round(2 * Math.min(4.5, Math.max(2, s.w ?? 2.5))) / 2;
+      const hidden = !road && Boolean(s.hidden);
+      const key = `${s.kind}-${w}${hidden ? "-h" : ""}`;
       let g = groups.get(key);
-      if (!g) groups.set(key, (g = { kind: s.kind, w, d: [] }));
-      g.d.push(seg(s));
+      if (!g) groups.set(key, (g = { kind: s.kind, w, hidden, d: [] }));
+      const joined = prev && key === prevKey && prev.to.x === s.from.x && prev.to.z === s.from.z;
+      const piece = joined ? `L${p(s.to)}` : `M${p(s.from)}L${p(s.to)}`;
+      g.d.push(piece);
+      all[s.kind].push(joined ? piece : `M${p(s.from)}L${p(s.to)}`);
+      prev = s;
+      prevKey = key;
     }
     // Walkways under roads, narrow under wide, so junctions join cleanly.
     const bands = [...groups.values()]
-      .map((g) => ({ key: `${g.kind}-${g.w}`, kind: g.kind, w: g.w, d: g.d.join("") }))
+      .map((g) => ({
+        key: `${g.kind}-${g.w}${g.hidden ? "-h" : ""}`,
+        kind: g.kind,
+        w: g.w,
+        hidden: g.hidden,
+        d: g.d.join(""),
+      }))
       .sort((a, b) => (a.kind === b.kind ? a.w - b.w : a.kind === "WALK" ? -1 : 1));
-    return { roads: d("ROAD"), walks: d("WALK"), bands };
+    return { roads: all.ROAD.join(""), walks: all.WALK.join(""), bands };
   }, [segments]);
   const start = routePath[0];
   const end = routePath[routePath.length - 1];
 
-  const buildings = features.filter((f) => !f.land);
-  const landCover = features.filter((f) => f.land);
+  const buildings = useMemo(() => features.filter((f) => !f.land), [features]);
+  const landCover = useMemo(() => features.filter((f) => f.land), [features]);
+  const routeTotal = lengths[lengths.length - 1] ?? 0;
+
+  // Distance marks along the route: every 100 m (50 m on a short one), doubled
+  // until they sit at least 70 px apart on screen.
+  const routeMarks = useMemo(() => {
+    if (routePath.length < 2 || routeTotal < 120) return [];
+    let step = routeTotal > 600 ? 100 : 50;
+    while (step * view.s < 70) step *= 2;
+    const out: { at: Vec2; d: number }[] = [];
+    let i = 1;
+    for (let d = step; d < routeTotal - step * 0.4; d += step) {
+      while (i < lengths.length - 1 && lengths[i] < d) i++;
+      const t = (d - lengths[i - 1]) / (lengths[i] - lengths[i - 1] || 1);
+      const a = routePath[i - 1];
+      const b = routePath[i];
+      out.push({ at: { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t }, d });
+    }
+    return out;
+  }, [routePath, lengths, routeTotal, view.s]);
+
+  const measureLegs = measure.slice(1).map((p, i) => Math.hypot(p.x - measure[i].x, p.z - measure[i].z));
+  const measureTotal = measureLegs.reduce((a, b) => a + b, 0);
+  const stopMeasuring = useCallback(() => {
+    setMeasuring(false);
+    setMeasure([]);
+  }, []);
+  useEffect(() => {
+    if (!measuring) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && stopMeasuring();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [measuring, stopMeasuring]);
+
+  // A drag only moves the world <g> (worldTransform): what is drawn in it is rebuilt
+  // when it changes, or when the zoom moves a quarter of a doubling (strokes and
+  // shadows are sized for the screen), not on every frame of a pan.
+  const zs = Math.pow(2, Math.round(Math.log2(view.s) * 4) / 4);
+  const planGround = useMemo(
+    () =>
+      drone ? null : (
+        <>
+          {/* The ground: the campus, then what the survey found on it. */}
+          <rect x={-5000} y={-5000} width={10000} height={10000} fill={PLAN.canvas} onClick={() => pick(null)} />
+          {campus.boundary.length > 2 && (
+            <polygon points={pts(campus.boundary)} fill={PLAN.site} onClick={() => pick(null)} />
+          )}
+          {land && (
+            <g pointerEvents="none">
+              <path d={land.bare} fill={PLAN.bare} />
+              <path d={land.paved} fill={PLAN.paved} />
+              <path d={land.grass} fill={PLAN.grass} />
+              <path d={land.trees} fill={PLAN.trees} />
+              <path
+                d={land.water}
+                fill={PLAN.water}
+                stroke={PLAN.waterEdge}
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            </g>
+          )}
+          {/* Outside the campus: the same survey, faded, behind a crisp boundary line. */}
+          {campus.boundary.length > 2 && (
+            <>
+              <path
+                d={`M-5000,-5000H5000V5000H-5000Z M${campus.boundary.map((p) => `${p.x},${p.z}`).join("L")}Z`}
+                fillRule="evenodd"
+                fill="#ffffff"
+                fillOpacity={0.55}
+                pointerEvents="none"
+              />
+              <polygon
+                points={pts(campus.boundary)}
+                fill="none"
+                stroke={PLAN.siteEdge}
+                strokeWidth={1.5}
+                strokeDasharray="7 4"
+                vectorEffect="non-scaling-stroke"
+                pointerEvents="none"
+              />
+            </>
+          )}
+          {/* Grounds and ponds named in the campus map: their land cover is drawn above,
+            these are where a click selects them (outlined while selected). */}
+          {landCover.map((f) => {
+            const on = selectedId === f.key || hoverId === f.key;
+            const water = f.kind === "water";
+            return (
+              <polygon
+                key={f.key}
+                points={pts(f.polygons[0])}
+                fill={land ? "rgba(0,0,0,0.001)" : water ? PLAN.water : PLAN.grass}
+                stroke={on ? PLAN.blockActiveEdge : land ? "none" : water ? PLAN.waterEdge : PLAN.grassEdge}
+                strokeWidth={selectedId === f.key ? 2 : 1.2}
+                strokeDasharray={land ? "5 4" : undefined}
+                vectorEffect="non-scaling-stroke"
+                style={{ cursor: "pointer" }}
+                onPointerEnter={() => setHoverId(f.key)}
+                onPointerLeave={() => setHoverId((h) => (h === f.key ? null : h))}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  pick(f.key);
+                }}
+              />
+            );
+          })}
+          {layers.paths && (
+            <g strokeLinecap="round" strokeLinejoin="round" fill="none" pointerEvents="none">
+              {/* Every edge first, then every surface, so crossings and junctions read as one
+                network. Never thinner on screen than a road or a path can be seen at. */}
+              {pathD.bands.map((b) => (
+                <path
+                  key={`e-${b.key}`}
+                  d={b.d}
+                  stroke={b.kind === "ROAD" ? PLAN.roadEdge : PLAN.walkEdge}
+                  strokeWidth={Math.max(b.w, (b.kind === "ROAD" ? 3.2 : 1.8) / zs) + 2.4 / zs}
+                />
+              ))}
+              {pathD.bands.map((b) => (
+                <path
+                  key={`s-${b.key}`}
+                  d={b.d}
+                  stroke={b.kind === "ROAD" ? PLAN.road : PLAN.walk}
+                  strokeWidth={Math.max(b.w, (b.kind === "ROAD" ? 3.2 : 1.8) / zs)}
+                />
+              ))}
+            </g>
+          )}
+        </>
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [drone, land, campus.boundary, landCover, selectedId, hoverId, layers.paths, pathD, zs, onSelect]
+  );
+  const blocksLayer = useMemo(
+    () => (
+      <>
+        {/* Each block's shadow, all under every block: taller blocks cast longer ones, so
+        the plan reads in depth (a metre and a half on screen at the least). */}
+        {!drone && (
+          <g fill={PLAN.shadow} fillOpacity={0.22} pointerEvents="none">
+            {buildings.map((f) => {
+              const h = f.footprints.reduce((m, fp) => Math.max(m, fp.heightM), 0) || 6;
+              const off = Math.max(1.5 / zs, Math.min(4, h * 0.16));
+              return (
+                <g key={f.key} transform={`translate(${off * 0.6} ${off})`}>
+                  {f.polygons.map((o, i) => (
+                    <polygon key={i} points={pts(o)} />
+                  ))}
+                </g>
+              );
+            })}
+          </g>
+        )}
+
+        {/* Blocks */}
+        {(layers.outlines || !drone) &&
+          buildings.map((f) => {
+            const sel = selectedId === f.key;
+            const dest = destinationKey === f.key;
+            const hot = hoverId === f.key;
+            const dim = highlightKind !== null && highlightKind !== f.kind;
+            const plan = roomsOn ? plans.get(f.key) : undefined;
+            const handlers = {
+              style: { cursor: "pointer" } as React.CSSProperties,
+              onClick: (e: React.MouseEvent) => {
+                e.stopPropagation();
+                pick(f.key);
+              },
+              onPointerEnter: () => setHoverId(f.key),
+              onPointerLeave: () => setHoverId((h) => (h === f.key ? null : h)),
+            };
+            if (drone) {
+              return (
+                <g key={f.key} {...handlers} opacity={dim ? 0.3 : 1}>
+                  {f.polygons.map((o, i) => (
+                    <polygon
+                      key={i}
+                      points={pts(o)}
+                      fill={
+                        sel
+                          ? "rgba(46,163,220,0.32)"
+                          : dest
+                            ? "rgba(59,178,106,0.3)"
+                            : hot
+                              ? "rgba(255,255,255,0.2)"
+                              : "rgba(0,0,0,0.001)"
+                      }
+                      stroke={sel ? "#2ea3dc" : dest ? PLAN.route : "#ffffff"}
+                      strokeOpacity={sel || dest ? 1 : f.name ? 0.85 : 0.45}
+                      strokeWidth={sel || dest ? 2.5 : f.name ? 1.4 : 1}
+                      vectorEffect="non-scaling-stroke"
+                      strokeLinejoin="round"
+                    />
+                  ))}
+                </g>
+              );
+            }
+            return (
+              <g key={f.key} {...handlers} opacity={dim ? 0.35 : 1}>
+                {f.polygons.map((o, i) => (
+                  <polygon
+                    key={i}
+                    points={pts(o)}
+                    fill={
+                      plan
+                        ? "#ffffff"
+                        : dest
+                          ? "#bfe7cd"
+                          : sel
+                            ? PLAN.blockActive
+                            : hot
+                              ? PLAN.blockHover
+                              : f.name
+                                ? PLAN.block
+                                : PLAN.unnamed
+                    }
+                    stroke={dest ? PLAN.route : sel ? PLAN.blockActiveEdge : f.name ? PLAN.blockEdge : PLAN.unnamedEdge}
+                    strokeWidth={sel || dest ? 2 : 1}
+                    vectorEffect="non-scaling-stroke"
+                    strokeLinejoin="round"
+                  />
+                ))}
+                {plan && (
+                  <g>
+                    {plan.rooms.map((r) => (
+                      <polygon
+                        key={r.id}
+                        points={pts(r.outline)}
+                        fill={r.category === "CORRIDOR" ? "#ffffff" : PLAN.room}
+                        stroke={PLAN.wall}
+                        strokeWidth={1}
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    ))}
+                    {plan.cores.map((c) => (
+                      <rect
+                        key={c.id}
+                        x={c.centre.x - c.width / 2}
+                        y={c.centre.z - c.depth / 2}
+                        width={c.width}
+                        height={c.depth}
+                        fill={c.kind === "STAIR" ? "url(#cn2d-stairs)" : PLAN.block}
+                        stroke={PLAN.wall}
+                        strokeWidth={1}
+                        vectorEffect="non-scaling-stroke"
+                        transform={`rotate(${(c.angleRad * 180) / Math.PI} ${c.centre.x} ${c.centre.z})`}
+                      />
+                    ))}
+                  </g>
+                )}
+              </g>
+            );
+          })}
+      </>
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      drone,
+      buildings,
+      layers.outlines,
+      selectedId,
+      destinationKey,
+      hoverId,
+      highlightKind,
+      roomsOn,
+      plans,
+      zs,
+      onSelect,
+    ]
+  );
 
   return (
     <div
       ref={wrapRef}
       className="relative h-full w-full touch-none select-none overflow-hidden"
-      style={{ background: drone ? PLAN.droneCanvas : PLAN.canvas, cursor: grabbing ? "grabbing" : "grab" }}
+      style={{
+        background: drone ? PLAN.droneCanvas : PLAN.canvas,
+        cursor: grabbing ? "grabbing" : measuring ? "crosshair" : "grab",
+      }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      // Measuring: a tap anywhere on the map (not a drag) adds a point, and selects nothing.
+      onClickCapture={(e) => {
+        if (!measuring || (e.target as HTMLElement).closest("[data-map-ui]")) return;
+        e.stopPropagation();
+        if (dragged.current > 5) return;
+        const r = wrapRef.current!.getBoundingClientRect();
+        const sx = e.clientX - r.left;
+        const sy = e.clientY - r.top;
+        setMeasure((m) => [...m, { x: view.cx + (sx - size.w / 2) / view.s, z: view.cz + (sy - size.h / 2) / view.s }]);
+      }}
       onDoubleClick={(e) => {
-        if ((e.target as HTMLElement).closest("[data-map-ui]")) return;
+        if (measuring || (e.target as HTMLElement).closest("[data-map-ui]")) return;
         const r = wrapRef.current!.getBoundingClientRect();
         zoomAt(1.8, e.clientX - r.left, e.clientY - r.top);
       }}
@@ -673,9 +1046,6 @@ export function Campus2DMap({
 
       <svg width={size.w} height={size.h} className="absolute inset-0">
         <defs>
-          <filter id="cn2d-sheet" x="-5%" y="-5%" width="110%" height="110%">
-            <feDropShadow dx="0" dy="2" stdDeviation="6" floodColor="#6b8fa3" floodOpacity="0.12" />
-          </filter>
           <pattern id="cn2d-stairs" width="1" height="0.9" patternUnits="userSpaceOnUse">
             <rect width="1" height="0.9" fill="#ffffff" />
             <line x1="0" y1="0.45" x2="1" y2="0.45" stroke={PLAN.wall} strokeWidth="0.12" />
@@ -721,174 +1091,46 @@ export function Campus2DMap({
               )}
               {photoPaths && (
                 <g strokeLinecap="round" strokeLinejoin="round" fill="none" pointerEvents="none">
-                  <path d={pathD.roads} stroke="#ffd54a" strokeWidth={3} strokeOpacity={0.9} vectorEffect="non-scaling-stroke" />
-                  <path d={pathD.walks} stroke="#7fe7ff" strokeWidth={2} strokeOpacity={0.9} vectorEffect="non-scaling-stroke" />
+                  <path
+                    d={pathD.roads}
+                    stroke="#ffd54a"
+                    strokeWidth={3}
+                    strokeOpacity={0.9}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <path
+                    d={pathD.walks}
+                    stroke="#7fe7ff"
+                    strokeWidth={2}
+                    strokeOpacity={0.9}
+                    vectorEffect="non-scaling-stroke"
+                  />
                 </g>
               )}
             </g>
           ) : (
-            <>
-              {campus.boundary.length > 2 && (
-                <polygon
-                  points={pts(campus.boundary)}
-                  fill={PLAN.site}
-                  stroke={PLAN.siteEdge}
-                  strokeWidth={1}
-                  vectorEffect="non-scaling-stroke"
-                  filter="url(#cn2d-sheet)"
-                  onClick={() => pick(null)}
-                />
-              )}
-              {layers.paths && (
-                <g strokeLinecap="round" strokeLinejoin="round" fill="none" pointerEvents="none">
-                  {/* Every edge first, then every surface, so crossings and junctions read as one network. */}
-                  {pathD.bands.map((b) => (
-                    <path key={`e-${b.key}`} d={b.d} stroke={b.kind === "ROAD" ? PLAN.roadEdge : PLAN.walkEdge} strokeWidth={b.w + 1.6} />
-                  ))}
-                  {pathD.bands.map((b) => (
-                    <path key={`s-${b.key}`} d={b.d} stroke={b.kind === "ROAD" ? PLAN.road : PLAN.walk} strokeWidth={b.w} />
-                  ))}
-                </g>
-              )}
-              {landCover.map((f) => (
-                <polygon
-                  key={f.key}
-                  points={pts(f.polygons[0])}
-                  fill={f.kind === "water" ? PLAN.water : PLAN.grass}
-                  stroke={selectedId === f.key ? PLAN.blockActive : f.kind === "water" ? PLAN.wall : PLAN.grassEdge}
-                  strokeWidth={selectedId === f.key ? 2 : 1}
-                  vectorEffect="non-scaling-stroke"
-                  style={{ cursor: "pointer" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    pick(f.key);
-                  }}
-                />
-              ))}
-            </>
+            planGround
           )}
 
-          {/* Blocks */}
-          {(layers.outlines || !drone) &&
-            buildings.map((f) => {
-              const sel = selectedId === f.key;
-              const dest = destinationKey === f.key;
-              const hot = hoverId === f.key;
-              const dim = highlightKind !== null && highlightKind !== f.kind;
-              const plan = roomsOn ? plans.get(f.key) : undefined;
-              const handlers = {
-                style: { cursor: "pointer" } as React.CSSProperties,
-                onClick: (e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  pick(f.key);
-                },
-                onPointerEnter: () => setHoverId(f.key),
-                onPointerLeave: () => setHoverId((h) => (h === f.key ? null : h)),
-              };
-              if (drone) {
-                return (
-                  <g key={f.key} {...handlers} opacity={dim ? 0.3 : 1}>
-                    {f.polygons.map((o, i) => (
-                      <polygon
-                        key={i}
-                        points={pts(o)}
-                        fill={sel ? "rgba(46,163,220,0.32)" : dest ? "rgba(59,178,106,0.3)" : hot ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.001)"}
-                        stroke={sel ? "#2ea3dc" : dest ? PLAN.route : "#ffffff"}
-                        strokeOpacity={sel || dest ? 1 : f.name ? 0.85 : 0.45}
-                        strokeWidth={sel || dest ? 2.5 : f.name ? 1.4 : 1}
-                        vectorEffect="non-scaling-stroke"
-                        strokeLinejoin="round"
-                      />
-                    ))}
-                  </g>
-                );
-              }
-              return (
-                <g key={f.key} {...handlers} opacity={dim ? 0.35 : 1}>
-                  {f.polygons.map((o, i) => {
-                    // A white band of even width inside the wall line, however
-                    // irregular the outline: the outline clipped to itself and
-                    // stroked twice as wide as the band.
-                    const clip = `cn2d-clip-${f.key}-${i}`;
-                    return (
-                      <g key={i}>
-                        <clipPath id={clip}>
-                          <polygon points={pts(o)} />
-                        </clipPath>
-                        <polygon
-                          points={pts(o)}
-                          fill={
-                            plan
-                              ? "#ffffff"
-                              : sel || dest
-                                ? PLAN.blockActive
-                                : hot
-                                  ? PLAN.blockHover
-                                  : f.name
-                                    ? PLAN.block
-                                    : "#cfe7f1"
-                          }
-                        />
-                        {!plan && (
-                          <polygon
-                            points={pts(o)}
-                            fill="none"
-                            stroke="#ffffff"
-                            strokeWidth={Math.min(margin, 3) * 2}
-                            strokeLinejoin="round"
-                            clipPath={`url(#${clip})`}
-                          />
-                        )}
-                        <polygon
-                          points={pts(o)}
-                          fill="none"
-                          stroke={sel || dest ? PLAN.blockActive : PLAN.wall}
-                          strokeWidth={sel || dest ? 2 : 1.4}
-                          vectorEffect="non-scaling-stroke"
-                          strokeLinejoin="round"
-                        />
-                      </g>
-                    );
-                  })}
-                  {plan && (
-                    <g>
-                      {plan.rooms.map((r) => (
-                        <polygon
-                          key={r.id}
-                          points={pts(r.outline)}
-                          fill={r.category === "CORRIDOR" ? "#ffffff" : PLAN.room}
-                          stroke={PLAN.wall}
-                          strokeWidth={1}
-                          vectorEffect="non-scaling-stroke"
-                        />
-                      ))}
-                      {plan.cores.map((c) => (
-                        <rect
-                          key={c.id}
-                          x={c.centre.x - c.width / 2}
-                          y={c.centre.z - c.depth / 2}
-                          width={c.width}
-                          height={c.depth}
-                          fill={c.kind === "STAIR" ? "url(#cn2d-stairs)" : PLAN.block}
-                          stroke={PLAN.wall}
-                          strokeWidth={1}
-                          vectorEffect="non-scaling-stroke"
-                          transform={`rotate(${(c.angleRad * 180) / Math.PI} ${c.centre.x} ${c.centre.z})`}
-                        />
-                      ))}
-                    </g>
-                  )}
-                </g>
-              );
-            })}
+          {blocksLayer}
 
           {routePath.length >= 2 && (
             <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+              {/* On the white roads of the map, a green rim keeps the route's band visible. */}
+              {!drone && (
+                <polyline
+                  points={pts(routePath)}
+                  stroke={PLAN.route}
+                  strokeOpacity={0.35}
+                  strokeWidth={14}
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
               <polyline
                 points={pts(routePath)}
                 stroke="#ffffff"
-                strokeOpacity={drone ? 0.9 : 0.6}
-                strokeWidth={drone ? 9 : 12}
+                strokeOpacity={drone ? 0.9 : 1}
+                strokeWidth={drone ? 9 : 10}
                 vectorEffect="non-scaling-stroke"
               />
               <polyline
@@ -898,6 +1140,31 @@ export function Campus2DMap({
                 strokeDasharray="0.1 9"
                 vectorEffect="non-scaling-stroke"
               />
+            </g>
+          )}
+
+          {measure.length > 0 && (
+            <g fill="none" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none">
+              <polyline points={pts(measure)} stroke="#ffffff" strokeWidth={6} vectorEffect="non-scaling-stroke" />
+              <polyline
+                points={pts(measure)}
+                stroke="#1f2a37"
+                strokeWidth={2.5}
+                strokeDasharray="8 5"
+                vectorEffect="non-scaling-stroke"
+              />
+              {measure.map((p, i) => (
+                <circle
+                  key={i}
+                  cx={p.x}
+                  cy={p.z}
+                  r={4.5 / view.s}
+                  fill="#ffffff"
+                  stroke="#1f2a37"
+                  strokeWidth={2}
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
             </g>
           )}
         </g>
@@ -971,10 +1238,14 @@ export function Campus2DMap({
                     drone
                       ? {
                           color: "#ffffff",
-                          textShadow:
-                            "0 0 2px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.8), 0 1px 4px rgba(0,0,0,.7)",
+                          textShadow: "0 0 2px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.8), 0 1px 4px rgba(0,0,0,.7)",
                         }
-                      : { color: PLAN.label, textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 5px #fff" }
+                      : {
+                          // Grounds and ponds are named like a map names land: italic, in their own colour.
+                          color: f.land ? (f.kind === "water" ? "#1f6aa5" : "#46702c") : PLAN.label,
+                          fontStyle: f.land ? "italic" : undefined,
+                          textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 5px #fff",
+                        }
                   }
                 >
                   {f.name}
@@ -986,29 +1257,68 @@ export function Campus2DMap({
 
         {start && routePath.length >= 2 && (
           <div className="absolute -translate-x-1/2 -translate-y-1/2" style={toScreen(start)}>
-            <span className="block h-4 w-4 rounded-full border-[3px] border-white shadow" style={{ background: PLAN.route }} />
+            <span
+              className="block h-4 w-4 rounded-full border-[3px] border-white shadow"
+              style={{ background: PLAN.route }}
+            />
           </div>
         )}
+        {routePath.length >= 2 &&
+          routeMarks.map((m) => (
+            <div key={m.d} className="absolute -translate-x-1/2 -translate-y-1/2" style={toScreen(m.at)}>
+              <span className="block whitespace-nowrap rounded-full border border-[#3bb26a] bg-white px-1.5 text-[10px] font-semibold leading-[15px] text-[#1f7a45] shadow-sm">
+                {formatMetres(m.d)}
+              </span>
+            </div>
+          ))}
         {end && routePath.length >= 2 && (
           <div className="absolute -translate-x-1/2 -translate-y-full" style={toScreen(end)}>
+            <div className="absolute left-full top-1 ml-1 whitespace-nowrap rounded-md bg-[#1f7a45] px-2 py-0.5 text-[12px] font-semibold text-white shadow">
+              {routeLabel ?? `${formatMetres(routeTotal)} · ${walkMinutes(routeTotal)} min`}
+            </div>
             <svg width="26" height="34" viewBox="0 0 26 34" className="drop-shadow">
-              <path d="M13 0C5.8 0 0 5.7 0 12.8 0 22.4 13 34 13 34s13-11.6 13-21.2C26 5.7 20.2 0 13 0z" fill={PLAN.route} />
+              <path
+                d="M13 0C5.8 0 0 5.7 0 12.8 0 22.4 13 34 13 34s13-11.6 13-21.2C26 5.7 20.2 0 13 0z"
+                fill={PLAN.route}
+              />
               <circle cx="13" cy="12.5" r="4.5" fill="#fff" />
             </svg>
           </div>
         )}
+        {measureLegs.map((d, i) => {
+          const a = measure[i];
+          const b = measure[i + 1];
+          if (d * view.s < 46) return null;
+          return (
+            <div
+              key={i}
+              className="absolute -translate-x-1/2 -translate-y-1/2"
+              style={toScreen({ x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 })}
+            >
+              <span className="block whitespace-nowrap rounded bg-white/95 px-1.5 text-[11px] font-semibold leading-[17px] text-[#1f2a37] shadow-sm">
+                {formatMetres(d)}
+              </span>
+            </div>
+          );
+        })}
         {walker && routePath.length >= 2 && (
           <div className="absolute -translate-x-1/2 -translate-y-1/2" style={toScreen(walker)}>
             <span
               className="absolute inset-0 rounded-full"
               style={{ background: PLAN.route, animation: "cn2d-pulse 1.6s ease-out infinite" }}
             />
-            <span className="relative block h-3.5 w-3.5 rounded-full border-2 border-white shadow" style={{ background: PLAN.route }} />
+            <span
+              className="relative block h-3.5 w-3.5 rounded-full border-2 border-white shadow"
+              style={{ background: PLAN.route }}
+            />
           </div>
         )}
         {myPosition && (
           <div className="absolute -translate-x-1/2 -translate-y-1/2" style={toScreen(myPosition)}>
-            <span className="absolute inset-0 rounded-full bg-[#2ea3dc]" style={{ animation: "cn2d-pulse 1.8s ease-out infinite" }} />
+            <span
+              className="absolute inset-0 rounded-full bg-[#2ea3dc]"
+              style={{ animation: "cn2d-pulse 1.8s ease-out infinite" }}
+            />
             <span className="relative block h-4 w-4 rounded-full border-[3px] border-white bg-[#2ea3dc] shadow" />
           </div>
         )}
@@ -1025,18 +1335,25 @@ export function Campus2DMap({
         <CtrlButton title="Fit campus" onClick={() => fitTo(campusPoints)}>
           <Maximize2 className="h-4 w-4" />
         </CtrlButton>
+        <CtrlButton
+          title={measuring ? "Stop measuring" : "Measure a distance"}
+          onClick={() => (measuring ? stopMeasuring() : setMeasuring(true))}
+          active={measuring}
+        >
+          <Ruler className="h-4 w-4" />
+        </CtrlButton>
         <div className="relative">
           <CtrlButton title="Map style and layers" onClick={() => setLayersOpen((o) => !o)} active={layersOpen}>
             <Layers className="h-4 w-4" />
           </CtrlButton>
           {layersOpen && (
-            <div className="absolute left-11 top-0 w-52 rounded-lg border border-[#e6edf1] bg-white p-2 text-[13px] shadow-lg">
+            <div className="absolute left-11 top-0 max-h-[70vh] w-56 overflow-y-auto rounded-lg border border-[#e6edf1] bg-white p-2 text-[13px] shadow-lg">
               <div className="px-1 pb-1.5 text-[11px] text-[#7b8794]">Map style</div>
               <div className="mb-2 grid grid-cols-2 gap-1 rounded-md bg-[#f3f6f8] p-1">
                 {(
                   [
-                    ["drone", "Drone"],
-                    ["plan", "Plan"],
+                    ["plan", "Map"],
+                    ["drone", "Photo"],
                   ] as const
                 ).map(([k, label]) => (
                   <button
@@ -1067,7 +1384,9 @@ export function Campus2DMap({
                   <button
                     key={k}
                     type="button"
-                    onClick={() => (k === "paths" && drone ? setPhotoPaths((v) => !v) : setLayers((l) => ({ ...l, [k]: !l[k] })))}
+                    onClick={() =>
+                      k === "paths" && drone ? setPhotoPaths((v) => !v) : setLayers((l) => ({ ...l, [k]: !l[k] }))
+                    }
                     className="flex w-full items-center justify-between rounded-md px-1 py-1.5 text-left text-[#2b3640] hover:bg-[#f3f6f8]"
                   >
                     {label}
@@ -1081,6 +1400,33 @@ export function Campus2DMap({
                   </button>
                 );
               })}
+              {!drone && (
+                <>
+                  <div className="px-1 pb-1 pt-2 text-[11px] text-[#7b8794]">Key (from the drone survey)</div>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 px-1 pb-1 text-[12px] text-[#3c4752]">
+                    {(
+                      [
+                        [PLAN.block, PLAN.blockEdge, "Named building"],
+                        [PLAN.unnamed, PLAN.unnamedEdge, "Other building"],
+                        [PLAN.road, PLAN.roadEdge, "Road / walkway"],
+                        [PLAN.trees, PLAN.trees, "Trees"],
+                        [PLAN.grass, PLAN.grass, "Lawn, crops"],
+                        [PLAN.bare, PLAN.bare, "Open ground"],
+                        [PLAN.paved, PLAN.paved, "Paved yard"],
+                        [PLAN.water, PLAN.waterEdge, "Water"],
+                      ] as const
+                    ).map(([fill, edge, label]) => (
+                      <div key={label} className="flex items-center gap-1.5">
+                        <span
+                          className="h-3 w-4 shrink-0 rounded-[2px] border"
+                          style={{ background: fill, borderColor: edge }}
+                        />
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -1091,17 +1437,101 @@ export function Campus2DMap({
         )}
       </div>
 
-      {/* Scale and source */}
+      {/* Map or photo, one tap away: beside the controls, or on a phone (where the
+          search bar runs along the top) at the bottom right, level with the scale. */}
       <div
-        className="pointer-events-none absolute left-5 z-10 flex items-end gap-3"
-        style={{ bottom: Math.max(16, padding.bottom - 24) }}
+        data-map-ui
+        className="absolute z-10 flex rounded-md border border-[#e6edf1] bg-white p-0.5 shadow-[0_1px_3px_rgba(30,60,80,0.12)]"
+        style={size.w < 640 ? { right: 16, bottom: Math.max(16, padding.bottom - 14) } : { left: 68, top: 20 }}
       >
-        <div className="rounded bg-white/85 px-1.5 pb-1 pt-0.5">
-          <div className="text-[10px] font-medium text-[#4a5968]">{scale.label}</div>
-          <div className="h-1.5 border-x border-b border-[#4a5968]" style={{ width: scale.px }} />
+        {(
+          [
+            ["plan", "Map"],
+            ["drone", "Photo"],
+          ] as const
+        ).map(([k, label]) => (
+          <button
+            key={k}
+            type="button"
+            disabled={k === "drone" && orthoMissing}
+            onClick={() => setStyle(k)}
+            className={`h-8 rounded px-3 text-[13px] font-medium transition disabled:opacity-40 ${
+              effectiveStyle === k ? "bg-[#e3f4fb] text-[#1e8fc8]" : "text-[#4a5968] hover:bg-[#f3f7f9]"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* The ruler's readout. */}
+      {measuring && (
+        <div data-map-ui className="absolute inset-x-0 top-[68px] z-10 flex justify-center px-4">
+          <div className="flex items-center gap-3 rounded-full bg-[#1f2a37] py-1.5 pl-4 pr-1.5 text-[13px] text-white shadow-lg">
+            <span>
+              {measure.length < 2 ? (
+                "Tap the map to measure"
+              ) : (
+                <>
+                  <b>{formatMetres(measureTotal)}</b>
+                  <span className="text-white/70"> · about {walkMinutes(measureTotal)} min walk</span>
+                </>
+              )}
+            </span>
+            {measure.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setMeasure([])}
+                className="rounded-full px-2 py-0.5 text-white/80 hover:bg-white/10"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={stopMeasuring}
+              className="rounded-full bg-white px-3 py-0.5 font-medium text-[#1f2a37]"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Scale, north and source */}
+      <div
+        className="pointer-events-none absolute left-5 z-10 flex items-end gap-2"
+        style={{ bottom: Math.max(16, padding.bottom - 14) }}
+      >
+        <div
+          className="flex h-9 w-9 flex-col items-center justify-center rounded-md bg-white/90 shadow-sm"
+          title="North is up"
+        >
+          <svg width="10" height="12" viewBox="0 0 10 12">
+            <path d="M5 0 10 12 5 9 0 12z" fill="#26313c" />
+          </svg>
+          <span className="text-[9px] font-bold leading-none text-[#26313c]">N</span>
+        </div>
+        <div className="rounded-md bg-white/90 px-2 pb-1.5 pt-1 shadow-sm">
+          <div
+            className="relative h-3 text-[10px] font-semibold leading-none text-[#26313c]"
+            style={{ width: scale.px }}
+          >
+            <span className="absolute left-0">0</span>
+            <span className="absolute -translate-x-1/2" style={{ left: scale.px / 2 }}>
+              {scale.half}
+            </span>
+            <span className="absolute right-0 translate-x-1/3">{scale.label}</span>
+          </div>
+          <div className="mt-0.5 flex h-[5px] border border-[#26313c]" style={{ width: scale.px }}>
+            <span className="h-full w-1/2 bg-[#26313c]" />
+            <span className="h-full w-1/2 bg-white" />
+          </div>
         </div>
         {drone && (
-          <div className="rounded bg-white/85 px-1.5 py-0.5 text-[10px] text-[#4a5968]">Imagery: campus drone survey</div>
+          <div className="rounded bg-white/85 px-1.5 py-0.5 text-[10px] text-[#4a5968]">
+            Imagery: campus drone survey
+          </div>
         )}
       </div>
     </div>

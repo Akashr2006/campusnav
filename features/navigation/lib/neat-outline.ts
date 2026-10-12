@@ -68,6 +68,29 @@ export function dominantAngle(o: Vec2[]): number {
   return ((mean % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2);
 }
 
+/** Length and width (metres) of the outline's box along its own axis: the size a visitor paces out. */
+export function outlineSize(o: Vec2[]): { length: number; width: number } {
+  // The axis from the outline thinned as neatOutline thins it: pixel steps tilt it otherwise.
+  const a = dominantAngle(simplifyRing(o, 0.6));
+  const ux = Math.cos(a);
+  const uz = Math.sin(a);
+  let a0 = Infinity;
+  let a1 = -Infinity;
+  let b0 = Infinity;
+  let b1 = -Infinity;
+  for (const p of o) {
+    const s = p.x * ux + p.z * uz;
+    const t = -p.x * uz + p.z * ux;
+    a0 = Math.min(a0, s);
+    a1 = Math.max(a1, s);
+    b0 = Math.min(b0, t);
+    b1 = Math.max(b1, t);
+  }
+  const d1 = a1 - a0;
+  const d2 = b1 - b0;
+  return { length: Math.max(d1, d2), width: Math.min(d1, d2) };
+}
+
 /** Douglas-Peucker on a closed ring. */
 export function simplifyRing(o: Vec2[], tol: number): Vec2[] {
   if (o.length <= 4) return o;

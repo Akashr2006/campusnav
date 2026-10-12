@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { dominantAngle, neatOutline, simplifyRing } from "../features/navigation/lib/neat-outline";
+import { dominantAngle, neatOutline, outlineSize, simplifyRing } from "../features/navigation/lib/neat-outline";
 import type { Vec2 } from "../features/navigation-3d/lib/campus-3d";
 
 const area = (o: Vec2[]) => Math.abs(o.reduce((s, p, i) => s + p.x * o[(i + 1) % o.length].z - o[(i + 1) % o.length].x * p.z, 0)) / 2;
@@ -65,6 +65,24 @@ describe("neat building outlines", () => {
     expect(neat.length).toBe(4);
     expect(rectilinear(neat, 30)).toBe(true);
     expect(Math.abs(area(neat) - 60 * 18) / (60 * 18)).toBeLessThan(0.03);
+  });
+
+  it("measures a turned, jagged block's length and width along its own axis", () => {
+    const block = rotate(
+      traced(
+        [
+          { x: 0, z: 0 },
+          { x: 62, z: 0 },
+          { x: 62, z: 18 },
+          { x: 0, z: 18 },
+        ],
+        3
+      ),
+      33
+    );
+    const { length, width } = outlineSize(block);
+    expect(Math.abs(length - 62)).toBeLessThan(1);
+    expect(Math.abs(width - 18)).toBeLessThan(1);
   });
 
   it("keeps an L-shaped block's six corners", () => {

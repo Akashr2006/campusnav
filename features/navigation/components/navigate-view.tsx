@@ -35,6 +35,7 @@ import { applyPilotStructure } from "@/shared/data/pilot-structure";
 import { findTourScene } from "@/shared/data/campus-tour";
 import { buildCampus3D, gpsToMetres, type Campus3D, type Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { FILTER_KINDS, KIND_LABEL, placeKind, type PlaceKind } from "../lib/place-kind";
+import { outlineSize } from "../lib/neat-outline";
 import { PLAN, buildFeatures, type Footprint, type MapFeature, type RoadSegment } from "./campus-2d-map";
 import { preloadOpeningView, useDroneMeshStatus, warmDroneCache } from "@/features/navigation/lib/drone-warmup";
 import { cn } from "@/shared/lib/utils";
@@ -591,7 +592,13 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
   const segments = useMemo<RoadSegment[]>(() => {
     if (router) {
       return router.lines.flatMap((l) =>
-        l.pts.slice(1).map((p, i) => ({ from: l.pts[i], to: p, kind: l.kind === "road" ? ("ROAD" as const) : ("WALK" as const), w: l.w }))
+        l.pts.slice(1).map((p, i) => ({
+          from: l.pts[i],
+          to: p,
+          kind: l.kind === "road" ? ("ROAD" as const) : ("WALK" as const),
+          w: l.w,
+          hidden: l.kind === "link",
+        }))
       );
     }
     if (!campus || !graph) return [];
@@ -622,18 +629,24 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
     if (params.get("viewer") === "studio") setStudioViewer(true);
   }, [destinations]);
 
+  // Where a start or destination is on the surveyed network: a place (its doors), you, or a graph node.
+  const routeEnd = useCallback(
+    (d: Destination): RouteEnd | null => {
+      if (d.id === MY_LOCATION_ID) return myPos ? { point: myPos, name: "your location" } : null;
+      const f = features.find((x) => x.key === d.id) ?? (d.buildingId ? features.find((x) => x.key === d.buildingId) : undefined);
+      if (f) return { place: f.key };
+      const n = campus?.nodeById.get(String(d.nodeId ?? d.id));
+      return n ? { point: n.position, name: d.name } : null;
+    },
+    [campus, features, myPos]
+  );
+
   const { route, routePath, routeError } = useMemo(() => {
     const none = { route: null as RouteView | null, routePath: [] as Vec2[], routeError: null as string | null };
     if (!campus || !graph || !from || !to) return none;
     // Along the surveyed roads and walkways, door to door.
     if (router) {
-      const end = (d: Destination): RouteEnd | null => {
-        if (d.id === MY_LOCATION_ID && myPos) return { point: myPos, name: "your location" };
-        const f = features.find((x) => x.key === d.id) ?? (d.buildingId ? features.find((x) => x.key === d.buildingId) : undefined);
-        if (f) return { place: f.key };
-        const n = campus.nodeById.get(String(d.nodeId ?? d.id));
-        return n ? { point: n.position, name: d.name } : null;
-      };
+      const end = routeEnd;
       const s = end(from);
       const e = end(to);
       if (s && e && "place" in s && "place" in e && s.place === e.place) {
@@ -684,7 +697,7 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
       .map((n: any) => campus.nodeById.get(String(n.id))?.position)
       .filter((p): p is Vec2 => Boolean(p));
     return { route: r as RouteView, routePath: path, routeError: null };
-  }, [campus, graph, from, to, travelMode, router, fallbackRouter, features, myPos]);
+  }, [campus, graph, from, to, travelMode, router, fallbackRouter, routeEnd]);
   // The surveyed network could not make this route (an end far off it): try the walkway graph.
   useEffect(() => {
     if (router && campus && graph && from && to && !route && !routeError && !fallbackRouter) loadFallbackRouter();
@@ -764,6 +777,26 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
   );
 
   const selected = useMemo(() => features.find((f) => f.key === selectedId) ?? null, [features, selectedId]);
+
+  // The place card's distances: the block's size as the survey measured it, and
+  // the walk to it from the chosen start point (or from you), along the paths.
+  const selectedSize = useMemo(() => {
+    const fp = selected?.footprints.reduce<Footprint | null>((a, f) => (!a || f.areaM2 > a.areaM2 ? f : a), null);
+    return fp ? outlineSize(fp.outline.map(([x, z]) => ({ x, z }))) : null;
+  }, [selected]);
+  const selectedWalk = useMemo(() => {
+    if (!router || !selected || !from) return null;
+    const s = routeEnd(from);
+    if (!s || ("place" in s && s.place === selected.key)) return null;
+    const r = router.route(s, { place: selected.key }, travelMode);
+    return r
+      ? {
+          distance: r.distance,
+          durationSec: r.durationSec,
+          from: from.id === MY_LOCATION_ID ? "your location" : from.name,
+        }
+      : null;
+  }, [router, selected, from, routeEnd, travelMode]);
   useEffect(() => setPhotoOk(true), [selectedId]);
   const tour = selected?.name ? findTourScene(selected.name) : null;
 
@@ -1007,9 +1040,20 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
               return campusName;
             })()}
           </div>
+          {selectedSize && (
+            <div className="text-[14px] leading-snug text-[#3c4752]">
+              {Math.round(selectedSize.length)} m × {Math.round(selectedSize.width)} m
+            </div>
+          )}
           {selected.footprints.length > 0 && (
             <div className="mt-1 text-[12px] text-[#8a96a3]">
               Roof {Math.round(selected.areaM2).toLocaleString()} m² · measured by drone survey
+            </div>
+          )}
+          {selectedWalk && (
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-[#eaf7ef] px-2 py-1 text-[13px] font-medium text-[#1f7a45]">
+              {formatDistance(selectedWalk.distance)} · {formatDuration(selectedWalk.durationSec)} from{" "}
+              {selectedWalk.from}
             </div>
           )}
         </div>
@@ -1161,6 +1205,7 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
               destinationKey={to ? to.buildingId ?? to.id : null}
               showLabels={showLabels}
               padding={mapPadding}
+              routeLabel={route ? `${formatDistance(route.distance)} · ${formatDuration(route.durationSec)}` : null}
             />
           ) : (
             <div className="absolute inset-0 bg-[#0b1120]">
