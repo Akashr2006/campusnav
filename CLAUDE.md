@@ -374,6 +374,9 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
   the photo (`follow` guides; walkways 3.7 -> 7.2 km, 86% of GeoBITs' ways drawn). Then, for "improve the quality of
   the 2D satellite map": the photo recaptured at 6 cm/px over the campus (was 0.25 m and blurred), 512 px tiles in
   `ortho-hd/` (fits the CDN's free plan with `.assetsignore`), ponds filled, outlines off by default.
+- 10-16: deployed both. CDN worker version `b1b60320` (1,398 new files; `ortho-hd/` checked byte for byte; the 656 v1
+  tileset JSONs now 404, nothing used them), then Vercel production from commit `99bbfad` (the CLI login had expired;
+  the owner ran `vercel login` himself). Checked live: new names, routes from the Main Gate, the sharp photo.
 - 10-07: lightweight for 2 GB phones: device-sized 3D view (photos, canvas, cache), decoded photos freed, three.js
   and the admin store out of `/navigate`'s first load, faster place linking (identical routes). Measured with the
   new `tools/drone/lowend-mobile.mjs`. Then, for high-end devices: direct sharpening, detail kept while moving
