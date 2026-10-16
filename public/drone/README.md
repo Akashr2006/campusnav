@@ -9,8 +9,9 @@ Source: DJI Terra output in `E:\BIT 3D` (see the survey reports there).
 | `terrain.json` / `terrain.bin` | Bare-earth ground, 5 m grid, heights relative to the anchor | `python tools/drone/build-terrain.py <terra_b3dms> public/drone` |
 | `thermal-as-ib.webp` / `.json` | Thermal orthomosaic, AS & IB blocks, with WGS84 bounds | downsampled from `BIT thermal/AS & IB Thermal/map/result.tif` |
 | `../draco/` | Draco decoder (tiles are Draco-compressed) | copied from `three/examples/jsm/libs/draco/gltf` |
-| `mesh/ortho/` | Orthophoto for the 2D map: the mesh rendered straight down, 256 px WebP tiles, levels 0-4 at 0.25-4 m/px, `meta.json` lists them (765 files, ~6 MB). Lives in the mesh folder so it is served, and deployed, with the mesh | `tools/drone/build-ortho.py` (below) |
-| `footprints.json` | Every roofed block on campus (190), outline in scene metres, height and storeys from the survey, named from the 3D view's buildings where they overlap (`buildingId`/`name`, `null` if no building claims it) | `tools/drone/build-ortho.py` (below) |
+| `mesh/ortho/` | Orthophoto for the 2D map: the mesh rendered straight down, 256 px WebP tiles, levels 0-4 at 0.25-4 m/px, `meta.json` lists them (765 files, ~6 MB). Lives in the mesh folder so it is served, and deployed, with the mesh. Since 2026-10-14 the app shows `ortho-hd/` instead and falls back to this; build-paths and build-landcover still read it | `tools/drone/build-ortho.py` (below) |
+| `mesh/ortho-hd/` | The sharp photo (2026-10-14): 512 px WebP tiles, levels 0-6 at 0.0625-4 m/px, levels 0-1 over the campus only (1,397 files, 48 MB) | `tools/drone/build-photo-tiles.mjs` (below, "Sharp photo") |
+| `footprints.json` | Every roofed block on campus (201), outline in scene metres, height and storeys from the survey, named from the 3D view's buildings where they overlap (`buildingId`/`name`, `null` if no building claims it). Since 2026-10-14 also 5 roofs the detection missed and 6 joined rib pairs split in two (see "Place names from GeoBITs") | `tools/drone/build-ortho.py` (below) |
 | `paths.json` | Roads and walkways as a routing network: nodes, and edges with a polyline, `kind` (`road` from 4.5 m wide, `path`, or `link` across a gap the photo cannot show), width and length, in scene metres | `tools/drone/build-paths.mjs` (below) |
 | `landcover.json` | Land cover for the 2D map's Map style: one SVG path per class (`bare` ground, `paved` yards, `grass` lawns and crops, `trees`, `water`), scene metres, the campus and 150 m round it (280 KB, 93 KB gzipped) | `tools/drone/build-landcover.mjs` (below) |
 
@@ -39,13 +40,20 @@ paths at run time, so renaming buildings never needs a rebuild. Built from the o
    in preference to lawns.
 5. Hand corrections from `tools/drone/paths-edits.json`: `add` polylines (with a width) for ways the photo
    cannot show, such as roads under continuous canopy, covered walkways or porches that broke a road; `remove`
-   polygons for false finds. Each has a `why`.
+   polygons for false finds. Each has a `why`. `follow` (2026-10-14): 86 guides for ways GeoBITs (the BIT
+   students' campus map, geobits.onrender.com) shows and our network missed, mostly walkways under canopy (between
+   the ribs of the IB and AS blocks, the boys' and girls' hostel grounds, the road from the West Gate to the avenue,
+   the tracks round the cricket ground). A guide is not drawn as given: the way drawn is the cheapest over the photo
+   within 8 m of it (paving < shade < canopy < soil, roofs are walls), so it keeps to what the survey shows; 2 guides
+   had a roof across them and were skipped. GeoBITs lines that run over roofs (to a building's middle, or through
+   the ribs) were not made guides. Of GeoBITs' ways, 86% now lie within 9 m of a drawn line (50% before).
 6. Tidy (2026-10-08, for the map: the owner found the drawn network scribbly): of two ways between the same
    junctions within 25% + 12 m of each other the weaker goes (a gap link before a seen line, narrow before wide,
    wiggly before straight), loops under 80 m and dead ends under 15 m go, never a hand trace; lines are smoothed
    over ~6 m and straightened to within 1 m (roads) or 0.8 m (paths). 12 loops, 44 second ways and 26 stubs went,
-   and the north-east utility yard (a web of false paths over scattered concrete) is a `remove` polygon. Now:
-   roads 9.3 km, paths 3.7 km, links 4.8 km, 420 edges; every test still passes.
+   and the north-east utility yard (a web of false paths over scattered concrete) is a `remove` polygon. Then:
+   roads 9.3 km, paths 3.7 km, links 4.8 km, 420 edges; every test still passes. With the GeoBITs guides
+   (2026-10-14): roads 10.0 km, paths 7.2 km, links 4.4 km, 558 edges.
 7. Squared to the campus grid (2026-10-12): the grid is the length-weighted axis of the footprints' walls (-0.87
    deg here). Each line's runs within 18 deg of it are put on it, the first and last through their junctions, jogs
    under 4 m taken out; kept only if nothing moves more than 3 m (roads) / 2.5 m (paths) and the line is at most 3%
@@ -234,6 +242,64 @@ is not green (trees); covered walkways are cut away, and each named building
 claims the roofs inside its traced outline (with 4 m tolerance), which also splits
 roofs that touch. Roofs no building claims show on the map as unnamed buildings:
 the data has no name for them (see HANDOFF.md, "building names").
+
+**Python is not on the second laptop.** A rebuild there would drop the 2026-10-14 changes to
+`footprints.json` below; the graph keeps every new building's outline, so the map still draws them (from the
+outline instead of the roof), and the joined rib pairs are split again by the claim step along the graph outlines.
+
+## Place names from GeoBITs (2026-10-14)
+
+The owner asked to take the details of GeoBITs (https://geobits.onrender.com, an online campus map by BIT
+students Sriram V and Lokmithar S D, 2022, © them) into the site. Its 108 labels, 2 gates and 243 path segments were
+read in the browser, and its drawing (a hand-drawn plan, not to one scale) fitted onto the survey: three road
+junctions for a first fit, then its road centre lines matched to ours (an affine, then a thin-plate spline through
+69 binned matches; 4.5 m RMS on the roads, the IB and AS ribs land within 3 m). Only facts were taken (which roof
+is called what, where the gates and small places are, which ways exist); the shapes stay the survey's own, and
+GeoBITs' drawing and data are not in the repo.
+
+- **Names on roofs** (`.data/*.json`): 36 placeholder or misplaced names replaced (and North East Block 1 dropped: its roofs are the parking shelters), 39 buildings added (86 now) (e.g. "BIT Bus Stop" is the BIT
+  Guest House, "Poly Houses" the Main Parking Area, "Academic Block W/C/E" the Narmadha, Ganga and Yamuna girls'
+  hostels, "Central Hall" the Girls Mess, "BIT Learning Centre" the Library). The two academic combs are 24 buildings
+  now, one per rib (IB Rib 1-12, AS Rib 1-12); six roofs were two ribs joined by a wall and were split where the roof
+  is narrowest. Earlier Google/OSM names that name the same place are kept as `aliases` (searchable, not shown).
+  The Aeronautical Block keeps its name (the 3D studio's surveyed third floor is in it); GeoBITs calls the building
+  under it the Principal Office (a point inside it now), and the survey measures it at 2 storeys: the owner should
+  say which building the Aero block is.
+- **New roofs** traced from the /dev-ortho capture where the detection missed them (grown from the GeoBITs label
+  over pixels of similar height and colour, 2 m+ above the terrain): Main Auditorium, Internet Centre, Placement and
+  Training Cell, Fashion Resource Centre (blue sheet roofs) and Spinning Lab.
+- **Courts** (site features, rectangles from the photo): 4 south of the Day Scholar Mess, 3 between the Ganga and
+  Yamuna hostels.
+- **Gates and small places** (graph nodes: `GATE`, `FACILITY`, `OUTDOOR`, `ENTRANCE`; 40): West Gate, West Gate (Staffs),
+  ATMs, canteens, parlours, laundries, Wi-Fi areas, reprography (xerox) centres, outdoor gyms, rooms inside a
+  building (Cafeteria, Recreation Hall and PET Room in the Day Scholar Mess, ...). Drawn as dots on the 2D map (gates
+  green, from any zoom; the rest from closer in), searchable, and routed to. The Main Gate is a building (its gate
+  house roof). Their spots are GeoBITs' warped onto the survey (a few metres off at worst).
+- `tests/campus-places.test.ts` checks the ribs, the gates, the aliases and a route to every point.
+
+### Sharp photo (2026-10-14)
+
+The owner asked for a better 2D satellite map. The first pyramid was captured at 0.25 m/px with tiles chosen for a
+512 px window, so it drew the mesh's coarse levels: court lines, paving and roof edges were a blur at full zoom.
+The mesh holds far more (its photos are a few cm per pixel). Recaptured at 0.0625 m/px, 4x finer, over the campus
+and 40 m round it (65 windows of 128 m, 2048 px each, 100 s on the RTX laptop, 627 MB of PNGs in
+`D:\BIT 3D\_work\ortho\raw-hi`):
+
+    # dev server up (pnpm dev -p 5000), windows from the campus boundary + 40 m:
+    /dev-ortho?mpp=0.0625&out=raw-hi&list=3,2;4,2;...   (the capture tool's `list` and `out` parameters)
+    node tools/drone/build-photo-tiles.mjs --hi "D:/BIT 3D/_work/ortho/raw-hi" --raw "D:/BIT 3D/_work/ortho/raw" \
+      --out "D:/BIT 3D/_work/web-mesh-v2/ortho-hd"      (80 s)
+
+- **512 px tiles**, so the sharper levels fit the CDN's free plan (20,000 files per version; the mesh is ~18,000).
+  Levels 0-1 (0.0625, 0.125 m/px) only where they touch the campus or 40 m round it; level 2 (0.25) up over the whole
+  survey, from the sharp capture where there is one (downsampled, so smoother than the old direct render).
+- A mild lift (contrast +8%, saturation +12%): the capture is unlit mesh texture under an even sky, a little flat.
+  The old `ortho/` keeps its colours because build-paths and build-landcover thresholds were tuned on them.
+- 3 cm/px was tried on one window: crisper paving joints again, but 4x the files; 6 cm is the free-plan limit.
+- On the map: ponds are holes in the mesh (no surface over water), drawn under the photo in their water colour
+  (`landcover.json`'s water, `PLAN.droneWater`); block outlines are off unless hovered, selected or turned on.
+- CDN: `D:\BIT 3D\_work\web-mesh-v2\.assetsignore` leaves out the 656 v1 tileset JSONs nothing references since
+  web mesh v2, so the upload is 19,541 files with both pyramids. The old `ortho/` stays for apps not yet updated.
 
 ## Land cover (the 2D map's Map style, 2026-10-08)
 

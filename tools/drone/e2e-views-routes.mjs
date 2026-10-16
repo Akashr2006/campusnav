@@ -8,7 +8,7 @@
  *    and a 360 degree turn round it; left-drag in rotate mode; arrow keys.
  *
  *   node tools/drone/e2e-views-routes.mjs --out <dir> [--app http://localhost:5000] [--viewport desktop|phone]
- *     [--from "AS Block"] [--to "Central Hall"]
+ *     [--from "AS Block"] [--to "Girls Mess"]
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -23,7 +23,7 @@ const app = flag("app", "http://localhost:5000");
 const out = flag("out", ".");
 const phone = flag("viewport", "desktop") === "phone";
 const from = flag("from", "AS Block");
-const to = flag("to", "Central Hall");
+const to = flag("to", "Girls Mess");
 fs.mkdirSync(out, { recursive: true });
 
 const browser = await puppeteer.launch({

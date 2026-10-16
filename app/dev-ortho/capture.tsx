@@ -5,7 +5,8 @@
 // window, as colour + encoded height PNGs (posted to /api/dev-ortho), which
 // tools/drone/build-ortho.py turns into the 2D map's orthophoto and building
 // footprints. See public/drone/README.md. Query: x0, z0, cols, rows, win, mpp,
-// start (resume index), only=i,j (one window).
+// start (resume index), only=i,j (one window), list=i,j;i,j (these windows), out (the
+// folder under D:\BIT 3D\_work\ortho, default raw; the sharp photo of 2026-10-14 is raw-hi, mpp=0.0625).
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
@@ -69,6 +70,8 @@ export function DevOrthoCapture() {
     const mpp = Number(p.get("mpp") ?? 0.25);
     const startAt = Number(p.get("start") ?? 0);
     const only = p.get("only"); // "i,j" to capture a single window
+    const out = p.get("out") ?? "raw";
+    const pick = p.get("list"); // "i,j;i,j": just these windows
     const px = Math.round(win / mpp);
 
     (async () => {
@@ -107,12 +110,16 @@ export function DevOrthoCapture() {
         fetch("/api/dev-ortho", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, data }),
+          body: JSON.stringify({ name, data, dir: out }),
         });
 
       const jobs: [number, number][] = [];
       for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) jobs.push([i, j]);
-      const list = only ? [only.split(",").map(Number) as [number, number]] : jobs.slice(startAt);
+      const list = only
+        ? [only.split(",").map(Number) as [number, number]]
+        : pick
+          ? pick.split(";").map((w) => w.split(",").map(Number) as [number, number]).slice(startAt)
+          : jobs.slice(startAt);
       (window as any).__ortho = { total: jobs.length, done: startAt, current: null, finished: false };
 
       for (const [i, j] of list) {

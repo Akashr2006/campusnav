@@ -123,6 +123,8 @@ export function getValidNavigationDestinations(
           ? "Building Entrance"
           : n.type === "RECEPTION" || n.name!.toLowerCase().includes("reception")
           ? "Reception"
+          : n.type === "FACILITY"
+          ? "Place"
           : isRoom
           ? "Room / Lab"
           : n.type === "OUTDOOR" || n.type === "OUTDOOR_PATH" || n.type === "ROAD_JUNCTION"
@@ -171,7 +173,7 @@ export function getValidNavigationDestinations(
         x: b.x,
         y: b.y,
         buildingId: b.id,
-        aliases: [b.name.trim(), b.shortCode || ""].filter(Boolean),
+        aliases: [b.name.trim(), b.shortCode || "", ...(b.aliases ?? [])].filter(Boolean),
       });
     }
   });

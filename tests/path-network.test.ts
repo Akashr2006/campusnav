@@ -211,10 +211,10 @@ if (existsSync(PATHS)) describe("the detected campus network (public/drone/paths
 
   it("gives landmark directions on a real route", () => {
     const as = buildings.find((b) => b.name === "AS Block")!;
-    const hall = buildings.find((b) => b.name === "Central Hall")!;
+    const hall = buildings.find((b) => b.name === "Girls Mess")!;
     const r = router.route({ place: as.key }, { place: hall.key })!;
     expect(r.steps[0].text).toMatch(/^Head \S+ from AS Block/);
-    expect(r.steps[r.steps.length - 1].text).toMatch(/^Arrive at Central Hall/);
+    expect(r.steps[r.steps.length - 1].text).toMatch(/^Arrive at Girls Mess/);
     expect(r.steps.length).toBeGreaterThanOrEqual(3);
     expect(r.steps.length).toBeLessThan(14);
   });

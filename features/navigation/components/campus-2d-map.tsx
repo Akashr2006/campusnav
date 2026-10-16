@@ -7,6 +7,8 @@ import {
   Building2,
   Bus,
   Check,
+  Cross,
+  DoorOpen,
   Droplets,
   FlaskConical,
   GraduationCap,
@@ -41,6 +43,9 @@ import { campusAxis, neatOutline } from "../lib/neat-outline";
 export const PLAN = {
   canvas: "#eceeec",
   droneCanvas: "#e7ecef",
+  // The ponds under the photo: the mesh has no surface over water, so they are holes in
+  // it; this is the colour of the water along their edges in the photo.
+  droneWater: "#4a6360",
   site: "#f3f1ec",
   siteEdge: "#7d8a97",
   // Land cover from the drone survey (public/drone/landcover.json).
@@ -82,6 +87,7 @@ const BLOCK_TINT: Record<PlaceKind, [string, string, string]> = {
   lab: ["#d7e3fb", "#87a3df", "#c3d5f8"],
   hostel: ["#f7dbe7", "#d68aac", "#f1c6d9"],
   hall: ["#fbe3d1", "#e0a173", "#f7d1b5"],
+  health: ["#fbdcdc", "#e08a8a", "#f6c7c7"],
   library: ["#d3efe9", "#6fb8ab", "#bde6de"],
   residence: ["#ecdcf7", "#b08bd7", "#e0c8f3"],
   transport: ["#d9e6fb", "#7fa0dc", "#c5d8f8"],
@@ -99,6 +105,7 @@ const ICON: Record<PlaceKind, LucideIcon> = {
   lab: FlaskConical,
   hostel: BedDouble,
   hall: Theater,
+  health: Cross,
   library: BookOpen,
   sports: Trophy,
   water: Droplets,
@@ -111,6 +118,14 @@ const ICON: Record<PlaceKind, LucideIcon> = {
 export function placeIcon(kind: PlaceKind | null) {
   return kind ? ICON[kind] : Building2;
 }
+
+/**
+ * A gate, or a place with no roof of its own (an ATM, a canteen counter, an
+ * outdoor gym), from the published graph's nodes. Names and spots from GeoBITs.
+ */
+export type MapPoint = { key: string; name: string; kind: "gate" | "outdoor" | "facility"; at: Vec2 };
+/** The zoom (px per metre) from which each kind of point is shown, unless it is the destination. */
+const POINT_FROM: Record<MapPoint["kind"], number> = { gate: 0.3, outdoor: 0.9, facility: 1.4 };
 
 /** A roofed block found in the drone survey (public/drone/footprints.json). */
 export type Footprint = {
@@ -129,13 +144,17 @@ type OrthoMeta = {
   mpp: number;
   tile: number;
   levels: { level: number; mpp: number; cols: number; rows: number; tiles: string[] }[];
+  /** Where the pyramid was found (one of ORTHO_BASES). */
+  base: string;
 };
 
-/** The orthophoto lives next to the drone mesh, locally or on its CDN. */
-const ORTHO_BASE = (process.env.NEXT_PUBLIC_DRONE_TILESET_URL ?? "/drone/mesh/tileset.json").replace(
-  /tileset\.json$/,
-  "ortho/"
-);
+/**
+ * The orthophoto lives next to the drone mesh, locally or on its CDN: the sharp
+ * pyramid (ortho-hd/, 0.0625 m/px over the campus, tools/drone/build-photo-tiles.mjs)
+ * where it is deployed, else the first one (ortho/, 0.25 m/px, build-ortho.py).
+ */
+const MESH_BASE = (process.env.NEXT_PUBLIC_DRONE_TILESET_URL ?? "/drone/mesh/tileset.json").replace(/tileset\.json$/, "");
+const ORTHO_BASES = [`${MESH_BASE}ortho-hd/`, `${MESH_BASE}ortho/`];
 
 /**
  * `w`: the paved width measured in the survey (metres), when known. `hidden`:
@@ -353,11 +372,16 @@ export function Campus2DMap({
   locating,
   destinationKey,
   routeLabel,
+  points = [],
+  onPickPoint,
   showLabels = true,
   padding = { top: 40, right: 40, bottom: 40, left: 80 },
 }: {
   campus: Campus3D;
   features: MapFeature[];
+  /** Gates and small places, drawn as dots; picking one routes there. */
+  points?: MapPoint[];
+  onPickPoint?: (key: string) => void;
   segments: RoadSegment[];
   routePath: Vec2[];
   playing: boolean;
@@ -379,7 +403,9 @@ export function Campus2DMap({
   // Unmeasured until the first layout: fitting the campus to a guessed size left it small.
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [view, setView] = useState<View>({ cx: campus.centre.x, cz: campus.centre.z, s: 0.6 });
-  const [layers, setLayers] = useState({ places: true, paths: true, outlines: true, rooms: true });
+  // Outlines (photo style only) start off: the sharp photo shows the roofs itself, and the
+  // straightened outlines sit a metre or two off them. Hover or select a block to see its own.
+  const [layers, setLayers] = useState({ places: true, paths: true, outlines: false, rooms: true });
   // On the photo the roads already show; the detected network is drawn over it on request.
   const [photoPaths, setPhotoPaths] = useState(false);
   // The map drawn from the survey opens first: it reads at every zoom, where
@@ -407,19 +433,22 @@ export function Campus2DMap({
     // drawing (the traced outlines) instead of the drone photo. A 404 means
     // the photo tiles are not deployed here and is not retried.
     (async () => {
-      for (const wait of [0, 1500, 4000]) {
-        if (wait) await new Promise((r) => setTimeout(r, wait));
-        if (!live) return;
-        try {
-          const r = await fetch(`${ORTHO_BASE}meta.json`);
-          if (r.ok) {
-            const m = await r.json();
-            if (live) setOrtho(m);
-            return;
+      for (const base of ORTHO_BASES) {
+        for (const wait of [0, 1500, 4000]) {
+          if (wait) await new Promise((r) => setTimeout(r, wait));
+          if (!live) return;
+          try {
+            const r = await fetch(`${base}meta.json`);
+            if (r.ok) {
+              const m = await r.json();
+              if (live) setOrtho({ ...m, base });
+              return;
+            }
+            // Not deployed here: the next pyramid.
+            if (r.status === 404) break;
+          } catch {
+            // Network hiccup: try again.
           }
-          if (r.status === 404) break;
-        } catch {
-          // Network hiccup: try again.
         }
       }
       if (live) setOrthoMissing(true);
@@ -433,10 +462,10 @@ export function Campus2DMap({
   const effectiveStyle: MapStyle = style === "drone" && orthoMissing ? "plan" : style;
   const drone = effectiveStyle === "drone";
 
-  // Land cover is drawn in the map style only: fetched the first time it shows,
-  // retried like the photo (the map still reads without it, as plain ground).
+  // Land cover: the map style's ground, and the photo's ponds (its water, under the
+  // tiles). Retried like the photo (the map still reads without it, as plain ground).
   useEffect(() => {
-    if (drone || land) return;
+    if (land) return;
     let live = true;
     (async () => {
       for (const wait of [0, 1500, 4000]) {
@@ -458,7 +487,7 @@ export function Campus2DMap({
     return () => {
       live = false;
     };
-  }, [drone, land]);
+  }, [land]);
 
   const tileSets = useMemo(() => ortho?.levels.map((l) => new Set(l.tiles)) ?? [], [ortho]);
 
@@ -711,7 +740,7 @@ export function Campus2DMap({
           if (!tileSets[lv]?.has(`${c}_${r}`)) continue;
           out.push({
             key: `${lv}/${c}_${r}`,
-            href: `${ORTHO_BASE}${lv}/${c}_${r}.webp`,
+            href: `${ortho.base}${lv}/${c}_${r}.webp`,
             x: ortho.x0 + c * span,
             z: ortho.z0 + r * span,
             span,
@@ -727,24 +756,31 @@ export function Campus2DMap({
   const labelled = useMemo(() => {
     const placed: { l: number; t: number; r: number; b: number }[] = [];
     const result = new Map<string, { marker: boolean; label: boolean }>();
-    const order = features
-      .filter((f) => f.name)
-      .sort((a, b) => {
-        const pa = a.key === selectedId || a.key === destinationKey ? 1 : 0;
-        const pb = b.key === selectedId || b.key === destinationKey ? 1 : 0;
-        return pb - pa || b.areaM2 - a.areaM2;
-      });
+    const isForced = (key: string) => key === selectedId || key === destinationKey;
+    // Places and points in one queue: the selected place and the destination,
+    // then gates, then blocks by size, then outdoor spots, then small places.
+    const order = [
+      ...features
+        .filter((f) => f.name)
+        // The main gate is a small roof, but the first place a visitor looks for.
+        .map((f) => ({ key: f.key, name: f.name!, centre: f.centre, tier: /\bgate\b/i.test(f.name!) ? 2 : 1, size: f.areaM2, land: f.land, point: null as MapPoint | null })),
+      ...points.map((p) => ({ key: p.key, name: p.name, centre: p.at, tier: p.kind === "gate" ? 2 : p.kind === "outdoor" ? 0.5 : 0, size: 0, land: false, point: p })),
+    ].sort((a, b) => (isForced(b.key) ? 3 : b.tier) - (isForced(a.key) ? 3 : a.tier) || b.size - a.size);
     for (const f of order) {
       const p = {
         left: (f.centre.x - view.cx) * view.s + size.w / 2,
         top: (f.centre.z - view.cz) * view.s + size.h / 2,
       };
       if (p.left < -80 || p.top < -80 || p.left > size.w + 80 || p.top > size.h + 80) continue;
-      const forced = f.key === selectedId || f.key === destinationKey;
-      const markerOn = layers.places && !f.land && (forced || view.s >= 0.3);
+      const forced = isForced(f.key);
+      const markerOn = f.point
+        ? layers.places && (forced || view.s >= POINT_FROM[f.point.kind])
+        : layers.places && !f.land && (forced || view.s >= 0.3);
+      // A point is its dot: no name floating where the dot is not shown.
+      if (f.point && !markerOn) continue;
       const nameOn = showLabels || forced;
-      const d = markerOn ? 28 : 0;
-      const w = nameOn ? Math.min(150 * (labelPx / 11.5), (f.name?.length ?? 0) * 0.55 * labelPx + 12) : d;
+      const d = markerOn ? (f.point ? (f.point.kind === "gate" ? 22 : 12) : 28) : 0;
+      const w = nameOn ? Math.min(150 * (labelPx / 11.5), f.name.length * 0.55 * labelPx + 12) : d;
       const box = {
         l: p.left - Math.max(w, d) / 2,
         r: p.left + Math.max(w, d) / 2,
@@ -757,7 +793,7 @@ export function Campus2DMap({
       result.set(f.key, { marker: markerOn, label: nameOn });
     }
     return result;
-  }, [features, view, size.w, size.h, selectedId, destinationKey, layers.places, showLabels, labelPx]);
+  }, [features, points, view, size.w, size.h, selectedId, destinationKey, layers.places, showLabels, labelPx]);
 
   // One SVG path per drawing class: the surveyed network is thousands of short
   // segments. The classes are even widths, not each line's measured one (that
@@ -951,93 +987,92 @@ export function Campus2DMap({
         )}
 
         {/* Blocks */}
-        {(layers.outlines || !drone) &&
-          buildings.map((f) => {
-            const sel = selectedId === f.key;
-            const dest = destinationKey === f.key;
-            const hot = hoverId === f.key;
-            const dim = highlightKind !== null && highlightKind !== f.kind;
-            const plan = roomsOn ? plans.get(f.key) : undefined;
-            const handlers = {
-              style: { cursor: "pointer" } as React.CSSProperties,
-              onClick: (e: React.MouseEvent) => {
-                e.stopPropagation();
-                pick(f.key);
-              },
-              onPointerEnter: () => setHoverId(f.key),
-              onPointerLeave: () => setHoverId((h) => (h === f.key ? null : h)),
-            };
-            if (drone) {
-              return (
-                <g key={f.key} {...handlers} opacity={dim ? 0.3 : 1}>
-                  {f.polygons.map((o, i) => (
-                    <polygon
-                      key={i}
-                      points={pts(o)}
-                      fill={
-                        sel
-                          ? "rgba(46,163,220,0.32)"
-                          : dest
-                            ? "rgba(59,178,106,0.3)"
-                            : hot
-                              ? "rgba(255,255,255,0.2)"
-                              : "rgba(0,0,0,0.001)"
-                      }
-                      stroke={sel ? "#2ea3dc" : dest ? PLAN.route : "#ffffff"}
-                      strokeOpacity={sel || dest ? 1 : f.name ? 0.85 : 0.45}
-                      strokeWidth={sel || dest ? 2.5 : f.name ? 1.4 : 1}
-                      vectorEffect="non-scaling-stroke"
-                      strokeLinejoin="round"
-                    />
-                  ))}
-                </g>
-              );
-            }
-            const [tint, edge, over] = f.name && f.kind ? BLOCK_TINT[f.kind] : [PLAN.unnamed, PLAN.unnamedEdge, "#ccd2db"];
+        {buildings.map((f) => {
+          const sel = selectedId === f.key;
+          const dest = destinationKey === f.key;
+          const hot = hoverId === f.key;
+          const dim = highlightKind !== null && highlightKind !== f.kind;
+          const plan = roomsOn ? plans.get(f.key) : undefined;
+          const handlers = {
+            style: { cursor: "pointer" } as React.CSSProperties,
+            onClick: (e: React.MouseEvent) => {
+              e.stopPropagation();
+              pick(f.key);
+            },
+            onPointerEnter: () => setHoverId(f.key),
+            onPointerLeave: () => setHoverId((h) => (h === f.key ? null : h)),
+          };
+          if (drone) {
             return (
-              <g key={f.key} {...handlers} opacity={dim ? 0.35 : 1}>
+              <g key={f.key} {...handlers} opacity={dim ? 0.3 : 1}>
                 {f.polygons.map((o, i) => (
                   <polygon
                     key={i}
                     points={pts(o)}
-                    fill={plan ? "#ffffff" : dest ? "#bfe7cd" : sel ? PLAN.blockActive : hot ? over : tint}
-                    stroke={dest ? PLAN.route : sel ? PLAN.blockActiveEdge : edge}
-                    strokeWidth={sel || dest ? 2 : 1}
+                    fill={
+                      sel
+                        ? "rgba(46,163,220,0.32)"
+                        : dest
+                          ? "rgba(59,178,106,0.3)"
+                          : hot
+                            ? "rgba(255,255,255,0.2)"
+                            : "rgba(0,0,0,0.001)"
+                    }
+                    stroke={sel ? "#2ea3dc" : dest ? PLAN.route : layers.outlines || hot ? "#ffffff" : "none"}
+                    strokeOpacity={sel || dest || hot ? 1 : f.name ? 0.85 : 0.45}
+                    strokeWidth={sel || dest ? 2.5 : hot ? 2 : f.name ? 1.4 : 1}
                     vectorEffect="non-scaling-stroke"
                     strokeLinejoin="round"
                   />
                 ))}
-                {plan && (
-                  <g>
-                    {plan.rooms.map((r) => (
-                      <polygon
-                        key={r.id}
-                        points={pts(r.outline)}
-                        fill={r.category === "CORRIDOR" ? "#ffffff" : PLAN.room}
-                        stroke={PLAN.wall}
-                        strokeWidth={1}
-                        vectorEffect="non-scaling-stroke"
-                      />
-                    ))}
-                    {plan.cores.map((c) => (
-                      <rect
-                        key={c.id}
-                        x={c.centre.x - c.width / 2}
-                        y={c.centre.z - c.depth / 2}
-                        width={c.width}
-                        height={c.depth}
-                        fill={c.kind === "STAIR" ? "url(#cn2d-stairs)" : PLAN.block}
-                        stroke={PLAN.wall}
-                        strokeWidth={1}
-                        vectorEffect="non-scaling-stroke"
-                        transform={`rotate(${(c.angleRad * 180) / Math.PI} ${c.centre.x} ${c.centre.z})`}
-                      />
-                    ))}
-                  </g>
-                )}
               </g>
             );
-          })}
+          }
+          const [tint, edge, over] = f.name && f.kind ? BLOCK_TINT[f.kind] : [PLAN.unnamed, PLAN.unnamedEdge, "#ccd2db"];
+          return (
+            <g key={f.key} {...handlers} opacity={dim ? 0.35 : 1}>
+              {f.polygons.map((o, i) => (
+                <polygon
+                  key={i}
+                  points={pts(o)}
+                  fill={plan ? "#ffffff" : dest ? "#bfe7cd" : sel ? PLAN.blockActive : hot ? over : tint}
+                  stroke={dest ? PLAN.route : sel ? PLAN.blockActiveEdge : edge}
+                  strokeWidth={sel || dest ? 2 : 1}
+                  vectorEffect="non-scaling-stroke"
+                  strokeLinejoin="round"
+                />
+              ))}
+              {plan && (
+                <g>
+                  {plan.rooms.map((r) => (
+                    <polygon
+                      key={r.id}
+                      points={pts(r.outline)}
+                      fill={r.category === "CORRIDOR" ? "#ffffff" : PLAN.room}
+                      stroke={PLAN.wall}
+                      strokeWidth={1}
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  ))}
+                  {plan.cores.map((c) => (
+                    <rect
+                      key={c.id}
+                      x={c.centre.x - c.width / 2}
+                      y={c.centre.z - c.depth / 2}
+                      width={c.width}
+                      height={c.depth}
+                      fill={c.kind === "STAIR" ? "url(#cn2d-stairs)" : PLAN.block}
+                      stroke={PLAN.wall}
+                      strokeWidth={1}
+                      vectorEffect="non-scaling-stroke"
+                      transform={`rotate(${(c.angleRad * 180) / Math.PI} ${c.centre.x} ${c.centre.z})`}
+                    />
+                  ))}
+                </g>
+              )}
+            </g>
+          );
+        })}
       </>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1097,6 +1132,16 @@ export function Campus2DMap({
         <g transform={worldTransform}>
           {drone ? (
             <g onClick={() => pick(null)}>
+              {land && (
+                <path
+                  d={land.water}
+                  fill={PLAN.droneWater}
+                  stroke={PLAN.droneWater}
+                  strokeWidth={3}
+                  strokeLinejoin="round"
+                  pointerEvents="none"
+                />
+              )}
               {orthoTiles.map((t) => (
                 <image
                   key={t.key}
@@ -1228,7 +1273,7 @@ export function Campus2DMap({
           const p = toScreen(f.centre);
           const sel = f.key === selectedId;
           const dim = highlightKind !== null && highlightKind !== f.kind;
-          const Icon = placeIcon(f.kind);
+          const Icon = /\bgate\b/i.test(f.name ?? "") ? DoorOpen : placeIcon(f.kind);
           const d = sel ? 36 : view.s < 0.6 ? 22 : 28;
           const lifted = roomsOn && plans.has(f.key);
           const top = lifted ? toScreen({ x: f.centre.x, z: bounds(f.polygons.flat()).minZ }).top - 30 : p.top;
@@ -1284,6 +1329,60 @@ export function Campus2DMap({
                   }
                 >
                   {f.name}
+                </span>
+              )}
+            </div>
+          );
+        })}
+
+        {points.map((pt) => {
+          const show = labelled.get(pt.key);
+          if (!show) return null;
+          const p = toScreen(pt.at);
+          const gate = pt.kind === "gate";
+          const d = gate ? 22 : 12;
+          const dest = pt.key === destinationKey;
+          return (
+            <div
+              key={pt.key}
+              className="absolute flex -translate-x-1/2 flex-col items-center"
+              style={{ left: p.left, top: p.top - d / 2, opacity: highlightKind !== null && !dest ? 0.35 : 1, zIndex: dest ? 4 : 1 }}
+            >
+              <button
+                type="button"
+                data-map-ui
+                onClick={() => onPickPoint?.(pt.key)}
+                title={`${pt.name}: route here`}
+                className="pointer-events-auto flex items-center justify-center rounded-full border-2 border-white transition-transform hover:scale-110"
+                style={{
+                  width: d,
+                  height: d,
+                  background: gate ? PLAN.route : PLAN.marker,
+                  boxShadow: dest ? "0 0 0 4px rgba(91,63,166,0.22), 0 2px 6px rgba(20,15,50,0.4)" : "0 1px 4px rgba(20,15,50,0.4)",
+                }}
+              >
+                {gate && <DoorOpen className="text-white" style={{ width: 12, height: 12 }} strokeWidth={2.4} />}
+              </button>
+              {show.label && (
+                <span
+                  className="mt-0.5 text-center font-semibold leading-tight"
+                  style={
+                    drone
+                      ? {
+                          fontSize: labelPx - 1.5,
+                          maxWidth: 130,
+                          color: "#ffffff",
+                          textShadow: "0 0 2px rgba(0,0,0,.9), 0 0 3px rgba(0,0,0,.8), 0 1px 4px rgba(0,0,0,.7)",
+                        }
+                      : {
+                          fontSize: labelPx - 1.5,
+                          maxWidth: 130,
+                          color: gate ? "#1f7a45" : PLAN.label,
+                          textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 5px #fff",
+                        }
+                  }
+                >
+                  {pt.name}
                 </span>
               )}
             </div>
@@ -1444,12 +1543,15 @@ export function Campus2DMap({
                         [BLOCK_TINT.academic[0], BLOCK_TINT.academic[1], "Academic"],
                         [BLOCK_TINT.lab[0], BLOCK_TINT.lab[1], "Departments, labs"],
                         [BLOCK_TINT.hostel[0], BLOCK_TINT.hostel[1], "Hostels"],
-                        [BLOCK_TINT.hall[0], BLOCK_TINT.hall[1], "Halls"],
+                        [BLOCK_TINT.hall[0], BLOCK_TINT.hall[1], "Halls, messes"],
                         [BLOCK_TINT.library[0], BLOCK_TINT.library[1], "Library"],
+                        [BLOCK_TINT.health[0], BLOCK_TINT.health[1], "Medical"],
                         [BLOCK_TINT.residence[0], BLOCK_TINT.residence[1], "Staff housing"],
                         [BLOCK_TINT.utility[0], BLOCK_TINT.utility[1], "Sheds, utility"],
                         [PLAN.unnamed, PLAN.unnamedEdge, "Not yet named"],
                         [PLAN.road, PLAN.roadEdge, "Road / walkway"],
+                        [PLAN.route, "#ffffff", "Gate"],
+                        [PLAN.marker, "#ffffff", "Place (ATM, canteen…)"],
                         [PLAN.trees, PLAN.trees, "Trees"],
                         [PLAN.grass, PLAN.grass, "Lawn, crops"],
                         [PLAN.bare, PLAN.bare, "Open ground"],

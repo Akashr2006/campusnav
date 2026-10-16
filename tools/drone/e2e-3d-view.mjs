@@ -102,9 +102,9 @@ await shot("05-clicked");
 
 // Sidebar: choose a building, the camera should fly there.
 const picked = await page.evaluate(() => {
-  const sel = [...document.querySelectorAll("select")].find((s) => [...s.options].some((o) => /Central Hall/.test(o.text)));
+  const sel = [...document.querySelectorAll("select")].find((s) => [...s.options].some((o) => /Girls Mess/.test(o.text)));
   if (!sel) return null;
-  const opt = [...sel.options].find((o) => /Central Hall/.test(o.text));
+  const opt = [...sel.options].find((o) => /Girls Mess/.test(o.text));
   const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set;
   setter.call(sel, opt.value);
   sel.dispatchEvent(new Event("change", { bubbles: true }));

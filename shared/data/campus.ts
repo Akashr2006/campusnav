@@ -154,6 +154,8 @@ export type Building = {
   campusId: string;
   name: string;
   shortCode?: string;
+  /** Other names people search for: an earlier name, a tour label, an abbreviation. */
+  aliases?: string[];
   color?: string;
   x?: number;
   y?: number;

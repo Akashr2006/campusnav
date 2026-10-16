@@ -310,6 +310,53 @@ function components(mask) {
   return { label, sizes };
 }
 
+/** Binary min-heap of (key, value), for the cheapest-path searches. */
+class Heap {
+  constructor() {
+    this.k = [];
+    this.v = [];
+  }
+  push(key, val) {
+    const { k, v } = this;
+    k.push(key);
+    v.push(val);
+    let i = k.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (k[p] <= k[i]) break;
+      [k[p], k[i]] = [k[i], k[p]];
+      [v[p], v[i]] = [v[i], v[p]];
+      i = p;
+    }
+  }
+  pop() {
+    const { k, v } = this;
+    const top = v[0];
+    const lk = k.pop();
+    const lv = v.pop();
+    if (k.length) {
+      k[0] = lk;
+      v[0] = lv;
+      let i = 0;
+      for (;;) {
+        const l = 2 * i + 1;
+        const r = l + 1;
+        let m = i;
+        if (l < k.length && k[l] < k[m]) m = l;
+        if (r < k.length && k[r] < k[m]) m = r;
+        if (m === i) break;
+        [k[m], k[i]] = [k[i], k[m]];
+        [v[m], v[i]] = [v[i], v[m]];
+        i = m;
+      }
+    }
+    return top;
+  }
+  get size() {
+    return this.k.length;
+  }
+}
+
 /* ---------------------------------------------------------------- 1. classify */
 
 const CLS = { NONE: 0, ROOF: 1, VEG: 2, DARK: 3, GREY: 4, PINK: 5, BLUE: 6, SOIL: 7, DARK_GREY: 8 };
@@ -408,11 +455,12 @@ const blocked = new Uint8Array(N);
 for (const r of edits.remove ?? []) fillPolygon(blocked, r.poly.map(([x, z]) => [toI(x), toJ(z)]));
 for (let p = 0; p < N; p++) if (blocked[p]) paved[p] = 0;
 const traced = new Uint8Array(N);
-for (const a of edits.add ?? []) {
-  const rad = Math.max(1, (a.w ?? 4) / 2 / MPP);
-  for (let k = 1; k < a.pts.length; k++) {
-    const [x0, z0] = a.pts[k - 1];
-    const [x1, z1] = a.pts[k];
+/** Draws a line (scene metres) w metres wide into the traced mask. */
+function drawTrace(pts, w) {
+  const rad = Math.max(1, w / 2 / MPP);
+  for (let k = 1; k < pts.length; k++) {
+    const [x0, z0] = pts[k - 1];
+    const [x1, z1] = pts[k];
     const n = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / (MPP / 2));
     for (let s = 0; s <= n; s++) {
       const ci = toI(x0 + ((x1 - x0) * s) / n);
@@ -426,6 +474,102 @@ for (const a of edits.add ?? []) {
         }
     }
   }
+}
+for (const a of edits.add ?? []) drawTrace(a.pts, a.w ?? 4);
+
+// Ways GeoBITs (the BIT students' campus map, geobits.onrender.com) shows and the
+// photo cannot, mostly walkways under canopy: each `follow` line is only a guide.
+// The way drawn is the cheapest over the photo within `corridor` metres of it
+// (paving, then shade, canopy, soil; roofs are walls), so it keeps to what the
+// survey shows. A guide the corridor cannot carry (a roof across it) is skipped.
+{
+  const stepCost = (p) =>
+    roof[p] || blocked[p] || !area[p] || cls[p] === CLS.NONE ? Infinity : paved[p] ? 1 : cls[p] === CLS.DARK ? 1.3 : cls[p] === CLS.VEG ? 1.7 : 2.1;
+  let done = 0;
+  const skipped = [];
+  for (const fl of edits.follow ?? []) {
+    const guide = fl.pts.map(([x, z]) => [toI(x), toJ(z)]);
+    const C = (fl.corridor ?? 8) / MPP;
+    const xs = guide.map((p) => p[0]);
+    const ys = guide.map((p) => p[1]);
+    const bx0 = Math.max(0, Math.floor(Math.min(...xs) - C - 1));
+    const by0 = Math.max(0, Math.floor(Math.min(...ys) - C - 1));
+    const bx1 = Math.min(W - 1, Math.ceil(Math.max(...xs) + C + 1));
+    const by1 = Math.min(H - 1, Math.ceil(Math.max(...ys) + C + 1));
+    const inCorridor = (x, y) => {
+      if (x < bx0 || y < by0 || x > bx1 || y > by1) return false;
+      for (let k = 1; k < guide.length; k++) {
+        const [ax, ay] = guide[k - 1];
+        const [qx, qy] = guide[k];
+        const dx = qx - ax;
+        const dy = qy - ay;
+        const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1)));
+        if (Math.hypot(x - ax - t * dx, y - ay - t * dy) <= C) return true;
+      }
+      return false;
+    };
+    // Each end: the passable pixel nearest the guide's end.
+    const endPixel = ([ex, ey]) => {
+      let best = -1;
+      let bd = Infinity;
+      for (let y = Math.floor(ey - C); y <= Math.ceil(ey + C); y++)
+        for (let x = Math.floor(ex - C); x <= Math.ceil(ex + C); x++) {
+          if (x < 0 || y < 0 || x >= W || y >= H || !inCorridor(x, y) || stepCost(y * W + x) === Infinity) continue;
+          const d = Math.hypot(x - ex, y - ey);
+          if (d < bd) {
+            bd = d;
+            best = y * W + x;
+          }
+        }
+      return best;
+    };
+    const s0 = endPixel(guide[0]);
+    const s1 = endPixel(guide[guide.length - 1]);
+    let found = null;
+    if (s0 >= 0 && s1 >= 0) {
+      const cost = new Map([[s0, 0]]);
+      const from = new Map();
+      const heap = new Heap();
+      heap.push(0, s0);
+      while (heap.size) {
+        const p = heap.pop();
+        if (p === s1) {
+          found = [p];
+          for (let q = p; from.has(q); ) found.push((q = from.get(q)));
+          break;
+        }
+        const c = cost.get(p);
+        const x = p % W;
+        const y = (p - x) / W;
+        for (let dy = -1; dy <= 1; dy++)
+          for (let dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            const nx = x + dx;
+            const ny = y + dy;
+            if (!inCorridor(nx, ny)) continue;
+            const q = ny * W + nx;
+            const sc = stepCost(q);
+            if (sc === Infinity) continue;
+            const nc = c + sc * (dx && dy ? Math.SQRT2 : 1);
+            if (nc < (cost.get(q) ?? Infinity)) {
+              cost.set(q, nc);
+              from.set(q, p);
+              heap.push(nc, q);
+            }
+          }
+      }
+    }
+    if (!found) {
+      skipped.push(fl.why ?? JSON.stringify(fl.pts[0]));
+      continue;
+    }
+    drawTrace(
+      found.reverse().map((p) => [toX(p % W), toZ(Math.floor(p / W))]),
+      fl.w ?? 3
+    );
+    done++;
+  }
+  if (edits.follow?.length) log(`followed ${done}/${edits.follow.length} GeoBITs guides${skipped.length ? `; no way through for: ${skipped.join("; ")}` : ""}`);
 }
 // A trace wins over a roof: it is drawn where a covered walkway runs under one.
 for (let p = 0; p < N; p++) if (traced[p]) paved[p] = 1;
@@ -789,51 +933,6 @@ function rasterEdges() {
   return owner;
 }
 
-class Heap {
-  constructor() {
-    this.k = [];
-    this.v = [];
-  }
-  push(key, val) {
-    const { k, v } = this;
-    k.push(key);
-    v.push(val);
-    let i = k.length - 1;
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (k[p] <= k[i]) break;
-      [k[p], k[i]] = [k[i], k[p]];
-      [v[p], v[i]] = [v[i], v[p]];
-      i = p;
-    }
-  }
-  pop() {
-    const { k, v } = this;
-    const top = v[0];
-    const lk = k.pop();
-    const lv = v.pop();
-    if (k.length) {
-      k[0] = lk;
-      v[0] = lv;
-      let i = 0;
-      for (;;) {
-        const l = 2 * i + 1;
-        const r = l + 1;
-        let m = i;
-        if (l < k.length && k[l] < k[m]) m = l;
-        if (r < k.length && k[r] < k[m]) m = r;
-        if (m === i) break;
-        [k[m], k[i]] = [k[i], k[m]];
-        [v[m], v[i]] = [v[i], v[m]];
-        i = m;
-      }
-    }
-    return top;
-  }
-  get size() {
-    return this.k.length;
-  }
-}
 
 /**
  * Cheapest way over the photo from the source pixels to a pixel `accept`s,

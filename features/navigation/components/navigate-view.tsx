@@ -32,11 +32,11 @@ import { createPathRouter, type PathNetworkFile, type PathRouter, type RouteEnd 
 import { getValidNavigationDestinations } from "@/shared/lib/destination-utils";
 import type { TravelMode } from "@/lib/routing/edge-accessibility";
 import { applyPilotStructure } from "@/shared/data/pilot-structure";
-import { findTourScene } from "@/shared/data/campus-tour";
+import { tourSceneFor } from "@/features/navigation/lib/building-photos";
 import { buildCampus3D, gpsToMetres, type Campus3D, type Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { FILTER_KINDS, KIND_LABEL, placeKind, type PlaceKind } from "../lib/place-kind";
 import { outlineSize } from "../lib/neat-outline";
-import { PLAN, buildFeatures, type Footprint, type MapFeature, type RoadSegment } from "./campus-2d-map";
+import { PLAN, buildFeatures, type Footprint, type MapFeature, type MapPoint, type RoadSegment } from "./campus-2d-map";
 import { preloadOpeningView, useDroneMeshStatus, warmDroneCache } from "@/features/navigation/lib/drone-warmup";
 import { cn } from "@/shared/lib/utils";
 
@@ -526,6 +526,17 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
     [campus, footprints]
   );
 
+  // Gates and the small places GeoBITs marks (ATMs, canteens, outdoor gyms): dots on the 2D map.
+  const points = useMemo<MapPoint[]>(
+    () =>
+      (campus?.nodes ?? []).flatMap((n): MapPoint[] => {
+        const kind =
+          n.type === "GATE" ? "gate" : n.type === "OUTDOOR" ? "outdoor" : n.type === "FACILITY" || n.type === "ENTRANCE" ? "facility" : null;
+        return kind && n.name ? [{ key: n.id, name: n.name, kind, at: n.position }] : [];
+      }),
+    [campus]
+  );
+
   // The roads and walkways detected in the drone survey (tools/drone/build-paths.mjs).
   // Routes follow them; without the file, the published walkway graph is used.
   const [network, setNetwork] = useState<PathNetworkFile | null>(null);
@@ -798,7 +809,7 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
       : null;
   }, [router, selected, from, routeEnd, travelMode]);
   useEffect(() => setPhotoOk(true), [selectedId]);
-  const tour = selected?.name ? findTourScene(selected.name) : null;
+  const tourScene = selected ? tourSceneFor(selected.building?.id, selected.name) : null;
 
   const steps = useMemo(() => route?.instructions ?? [], [route]);
   const activeStep = useMemo(() => {
@@ -1066,10 +1077,10 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
-      {tour && photoOk && (
+      {tourScene !== null && photoOk && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={`/tour/${tour.index}/f.jpg`}
+          src={`/tour/${tourScene}/f.jpg`}
           alt={selected.name ?? "Building"}
           onError={() => setPhotoOk(false)}
           className="mt-4 h-40 w-full rounded-md object-cover"
@@ -1206,6 +1217,11 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
               showLabels={showLabels}
               padding={mapPadding}
               routeLabel={route ? `${formatDistance(route.distance)} · ${formatDuration(route.durationSec)}` : null}
+              points={points}
+              onPickPoint={(key) => {
+                const d = destinations.find((x) => x.id === key || x.nodeId === key);
+                if (d) setTo(d);
+              }}
             />
           ) : (
             <div className="absolute inset-0 bg-[#0b1120]">

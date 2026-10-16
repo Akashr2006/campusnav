@@ -1,5 +1,5 @@
 {
-  "note": "Hand corrections to tools/drone/build-paths.mjs, in scene metres (x east, z south). `add`: roads and walkways the orthophoto cannot show (under continuous tree canopy, or under a covered walkway roof), drawn from where they are visible on either side; w is the width in metres. `remove`: polygons where a detection is false. Checked against the photo on 2026-10-01 and 2026-10-08.",
+  "note": "Hand corrections to tools/drone/build-paths.mjs, in scene metres (x east, z south). `add`: roads and walkways the orthophoto cannot show (under continuous tree canopy, or under a covered walkway roof), drawn from where they are visible on either side; w is the width in metres. `remove`: polygons where a detection is false. Checked against the photo on 2026-10-01 and 2026-10-08. `follow`: ways GeoBITs (geobits.onrender.com, the BIT students' campus map by Sriram V and Lokmithar S D, 2022) shows that the photo cannot (mostly walkways under canopy), as guides warped onto the survey on 2026-10-14; build-paths.mjs draws each as the cheapest way over the photo within 8 m of the guide.",
   "add": [
     {
       "why": "Main gate to the central avenue, under the avenue's trees",
@@ -66,6 +66,438 @@
     {
       "why": "North-east utility yard: scattered concrete and spoil heaps on bare ground read as a web of paths; no road crosses it",
       "poly": [[378, -525], [490, -525], [490, -425], [378, -425]]
+    }
+  ],
+  "follow": [
+    {
+      "why": "GeoBITs J003004",
+      "w": 3,
+      "pts": [[260, -644], [229, -646]]
+    },
+    {
+      "why": "GeoBITs J006008",
+      "w": 3,
+      "pts": [[248, -568], [247, -537]]
+    },
+    {
+      "why": "GeoBITs J008009",
+      "w": 6,
+      "pts": [[323, -546], [237, -547]]
+    },
+    {
+      "why": "GeoBITs J011012",
+      "w": 6,
+      "pts": [[-30, -523], [35, -526]]
+    },
+    {
+      "why": "GeoBITs J015016",
+      "w": 3,
+      "pts": [[232, -480], [268, -478]]
+    },
+    {
+      "why": "GeoBITs J016018",
+      "w": 3,
+      "pts": [[258, -488], [259, -454]]
+    },
+    {
+      "why": "GeoBITs J017018",
+      "w": 3,
+      "pts": [[232, -464], [269, -463]]
+    },
+    {
+      "why": "GeoBITs J021022",
+      "w": 3,
+      "pts": [[239, -382], [288, -384]]
+    },
+    {
+      "why": "GeoBITs J020022",
+      "w": 3,
+      "pts": [[283, -419], [283, -377]]
+    },
+    {
+      "why": "GeoBITs J023024",
+      "w": 3,
+      "pts": [[245, -364], [279, -358]]
+    },
+    {
+      "why": "GeoBITs J038039",
+      "w": 3,
+      "pts": [[326, -228], [242, -224]]
+    },
+    {
+      "why": "GeoBITs J043044",
+      "w": 3,
+      "pts": [[264, -176], [264, -146]]
+    },
+    {
+      "why": "GeoBITs J044045",
+      "w": 3,
+      "pts": [[264, -166], [264, -127]]
+    },
+    {
+      "why": "GeoBITs J049050",
+      "w": 3,
+      "pts": [[288, -76], [254, -75]]
+    },
+    {
+      "why": "GeoBITs J050051",
+      "w": 3,
+      "pts": [[268, -75], [302, -77]]
+    },
+    {
+      "why": "GeoBITs J051052",
+      "w": 3,
+      "pts": [[293, -105], [292, -66]]
+    },
+    {
+      "why": "GeoBITs J051053",
+      "w": 3,
+      "pts": [[282, -76], [318, -78]]
+    },
+    {
+      "why": "GeoBITs J053061",
+      "w": 3,
+      "pts": [[298, -77], [329, -78]]
+    },
+    {
+      "why": "GeoBITs J053054",
+      "w": 3,
+      "pts": [[327, -96], [301, -70]]
+    },
+    {
+      "why": "GeoBITs J054056",
+      "w": 3,
+      "pts": [[338, -106], [313, -82]]
+    },
+    {
+      "why": "GeoBITs J054055",
+      "w": 3,
+      "pts": [[293, -102], [329, -84]]
+    },
+    {
+      "why": "GeoBITs J055058",
+      "w": 3,
+      "pts": [[302, -149], [302, -88]]
+    },
+    {
+      "why": "GeoBITs J056057",
+      "w": 3,
+      "pts": [[330, -150], [331, -90]]
+    },
+    {
+      "why": "GeoBITs J058057",
+      "w": 3,
+      "pts": [[292, -139], [340, -140]]
+    },
+    {
+      "why": "GeoBITs J058059",
+      "w": 3,
+      "pts": [[280, -140], [312, -139]]
+    },
+    {
+      "why": "GeoBITs J057060",
+      "w": 3,
+      "pts": [[358, -140], [320, -140]]
+    },
+    {
+      "why": "GeoBITs J061062",
+      "w": 3,
+      "pts": [[309, -77], [368, -81]]
+    },
+    {
+      "why": "GeoBITs J063062",
+      "w": 3,
+      "pts": [[357, -150], [358, -70]]
+    },
+    {
+      "why": "GeoBITs J063064",
+      "w": 3,
+      "pts": [[371, -167], [353, -132]]
+    },
+    {
+      "why": "GeoBITs J064065",
+      "w": 3,
+      "pts": [[357, -158], [430, -160]]
+    },
+    {
+      "why": "GeoBITs J060063",
+      "w": 3,
+      "pts": [[367, -141], [338, -140]]
+    },
+    {
+      "why": "GeoBITs J068069",
+      "w": 3,
+      "pts": [[295, -25], [328, -25]]
+    },
+    {
+      "why": "GeoBITs J062066",
+      "w": 3,
+      "pts": [[358, -90], [359, -19]]
+    },
+    {
+      "why": "GeoBITs J066071",
+      "w": 3,
+      "pts": [[349, -32], [388, -19]]
+    },
+    {
+      "why": "GeoBITs J068067",
+      "w": 3,
+      "pts": [[308, -25], [361, -23]]
+    },
+    {
+      "why": "GeoBITs J076077",
+      "w": 3,
+      "pts": [[558, 57], [560, 8]]
+    },
+    {
+      "why": "GeoBITs J079080",
+      "w": 3,
+      "pts": [[355, 78], [446, 72]]
+    },
+    {
+      "why": "GeoBITs J080081",
+      "w": 3,
+      "pts": [[307, 77], [375, 77]]
+    },
+    {
+      "why": "GeoBITs J049083",
+      "w": 6,
+      "pts": [[245, -75], [175, -75]]
+    },
+    {
+      "why": "GeoBITs J083087",
+      "w": 3,
+      "pts": [[185, -85], [184, -30]]
+    },
+    {
+      "why": "GeoBITs J083084",
+      "w": 6,
+      "pts": [[195, -75], [159, -74]]
+    },
+    {
+      "why": "GeoBITs J084088",
+      "w": 3,
+      "pts": [[167, -117], [169, -64]]
+    },
+    {
+      "why": "GeoBITs J088048",
+      "w": 3,
+      "pts": [[246, -119], [212, -118]]
+    },
+    {
+      "why": "GeoBITs J111014",
+      "w": 3,
+      "pts": [[157, -474], [158, -408]]
+    },
+    {
+      "why": "GeoBITs J014011",
+      "w": 3,
+      "pts": [[157, -529], [157, -454]]
+    },
+    {
+      "why": "GeoBITs J113114",
+      "w": 3,
+      "pts": [[103, -405], [102, -263]]
+    },
+    {
+      "why": "GeoBITs J114115",
+      "w": 3,
+      "pts": [[140, -274], [93, -273]]
+    },
+    {
+      "why": "GeoBITs J114116",
+      "w": 3,
+      "pts": [[102, -283], [106, -200]]
+    },
+    {
+      "why": "GeoBITs J116094",
+      "w": 3,
+      "pts": [[166, -212], [95, -210]]
+    },
+    {
+      "why": "GeoBITs J116117",
+      "w": 3,
+      "pts": [[105, -220], [107, -174]]
+    },
+    {
+      "why": "GeoBITs J085118",
+      "w": 6,
+      "pts": [[166, -73], [103, -72]]
+    },
+    {
+      "why": "GeoBITs J118119",
+      "w": 6,
+      "pts": [[44, -69], [123, -73]]
+    },
+    {
+      "why": "GeoBITs J119120",
+      "w": 3,
+      "pts": [[53, -106], [54, -60]]
+    },
+    {
+      "why": "GeoBITs J122148",
+      "w": 3,
+      "pts": [[-33, -139], [28, -141]]
+    },
+    {
+      "why": "GeoBITs J124147",
+      "w": 3,
+      "pts": [[-25, -166], [51, -169]]
+    },
+    {
+      "why": "GeoBITs J126116",
+      "w": 3,
+      "pts": [[115, -210], [50, -208]]
+    },
+    {
+      "why": "GeoBITs J128146",
+      "w": 3,
+      "pts": [[49, -231], [-24, -229]]
+    },
+    {
+      "why": "GeoBITs J130114",
+      "w": 3,
+      "pts": [[112, -273], [48, -271]]
+    },
+    {
+      "why": "GeoBITs J145132",
+      "w": 3,
+      "pts": [[47, -292], [-26, -290]]
+    },
+    {
+      "why": "GeoBITs J012144",
+      "w": 6,
+      "pts": [[-35, -521], [-32, -429]]
+    },
+    {
+      "why": "GeoBITs J147148",
+      "w": 3,
+      "pts": [[-24, -161], [-23, -129]]
+    },
+    {
+      "why": "GeoBITs J148149",
+      "w": 3,
+      "pts": [[-24, -149], [-21, -98]]
+    },
+    {
+      "why": "GeoBITs J149150",
+      "w": 3,
+      "pts": [[11, -93], [-20, -91]]
+    },
+    {
+      "why": "GeoBITs J151119",
+      "w": 6,
+      "pts": [[64, -70], [-14, -67]]
+    },
+    {
+      "why": "GeoBITs J151152",
+      "w": 6,
+      "pts": [[-17, -66], [-59, -65]]
+    },
+    {
+      "why": "GeoBITs J152153",
+      "w": 6,
+      "pts": [[-121, -65], [-42, -62]]
+    },
+    {
+      "why": "GeoBITs J153154",
+      "w": 3,
+      "pts": [[-163, -196], [-164, -66]]
+    },
+    {
+      "why": "GeoBITs J154155",
+      "w": 3,
+      "pts": [[-166, -301], [-163, -176]]
+    },
+    {
+      "why": "GeoBITs J155156",
+      "w": 3,
+      "pts": [[-93, -292], [-176, -290]]
+    },
+    {
+      "why": "GeoBITs J156145",
+      "w": 3,
+      "pts": [[-30, -290], [-113, -292]]
+    },
+    {
+      "why": "GeoBITs J158159",
+      "w": 3,
+      "pts": [[225, -411], [227, -356]]
+    },
+    {
+      "why": "GeoBITs J160166",
+      "w": 3,
+      "pts": [[-14, -19], [-83, -19]]
+    },
+    {
+      "why": "GeoBITs J166167",
+      "w": 3,
+      "pts": [[-164, -17], [-63, -19]]
+    },
+    {
+      "why": "GeoBITs J164165",
+      "w": 3,
+      "pts": [[19, 5], [-19, 5]]
+    },
+    {
+      "why": "GeoBITs J162170",
+      "w": 3,
+      "pts": [[-32, 4], [-35, 70]]
+    },
+    {
+      "why": "GeoBITs J164172",
+      "w": 3,
+      "pts": [[-9, -5], [-10, 27]]
+    },
+    {
+      "why": "GeoBITs J170171",
+      "w": 3,
+      "pts": [[-44, 60], [-12, 60]]
+    },
+    {
+      "why": "GeoBITs J170173",
+      "w": 3,
+      "pts": [[-34, 50], [-35, 82]]
+    },
+    {
+      "why": "GeoBITs J177182",
+      "w": 3,
+      "pts": [[-153, 69], [-60, 71]]
+    },
+    {
+      "why": "GeoBITs J182183",
+      "w": 3,
+      "pts": [[-69, 61], [-71, 106]]
+    },
+    {
+      "why": "GeoBITs J185187",
+      "w": 3,
+      "pts": [[-43, 73], [-47, 106]]
+    },
+    {
+      "why": "GeoBITs J187176",
+      "w": 3,
+      "pts": [[-23, 82], [-54, 84]]
+    },
+    {
+      "why": "GeoBITs J180179",
+      "w": 3,
+      "pts": [[53, 90], [51, 125]]
+    },
+    {
+      "why": "GeoBITs J179181",
+      "w": 3,
+      "pts": [[52, 105], [50, 147]]
+    },
+    {
+      "why": "GeoBITs J178179",
+      "w": 3,
+      "pts": [[9, 116], [62, 115]]
+    },
+    {
+      "why": "GeoBITs J196190",
+      "w": 3,
+      "pts": [[22, 55], [20, 92]]
     }
   ]
 }

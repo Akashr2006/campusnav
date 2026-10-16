@@ -38,7 +38,8 @@ can see, not options. He calls the drone data his "gold mine".
    green dotted route, square controls at the top left, photo card with a full-width Route button).
 4. **Heavy data never goes in the repo or on the system drive.** It lives on a data drive
    (`D:\BIT 3D` on the first laptop) and is linked in with junctions.
-5. **Don't invent building names.** Many names are placeholders (see section 7). Say so; don't guess.
+5. **Don't invent building names.** Names come from a source (GeoBITs since 2026-10-14, the tour, Google/OSM); the
+   few placeholders left are listed in section 7. Say so; don't guess.
 
 ## 3. Setting up on a new machine
 
@@ -126,9 +127,13 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
     blocks squared to the campus grid (`campusAxis` in lib/neat-outline.ts, ~89 deg; tabs and notches under 2.5 m
     filled). Names grow from 11.5 to 13.5 px as the map zooms in. Buildings with a room survey (Aero Block) open into
     rooms and stairs when zoomed in. The Navigine white inner band was dropped for the shadow.
-  - **Photo style:** photo tiles `mesh/ortho/<level>/<c>_<r>.webp` (levels 0-4 = 0.25 to 4 m/px), the area outside
-    the campus faded, every block outlined; `?style=photo` links to it. A "Map | Photo" switch sits beside the
-    controls (bottom right on phones, where the search bar takes the top).
+  - **Photo style:** since 2026-10-14 the sharp pyramid `mesh/ortho-hd/<level>/<c>_<r>.webp` (512 px tiles, levels 0-6
+    = 0.0625 to 4 m/px; the two sharpest over the campus and 40 m round it only; `tools/drone/build-photo-tiles.mjs`
+    from a 6 cm capture, see public/drone/README.md "Sharp photo"), falling back to the first pyramid `mesh/ortho/`
+    (0.25-4 m/px) where ortho-hd is not deployed. The area outside the campus faded; ponds (holes in the mesh) filled
+    with their water colour from landcover.json; block outlines off by default (the photo shows the roofs; hover or
+    select one to see it, or turn "Block outlines" on in the layers menu); `?style=photo` links to it. A "Map | Photo"
+    switch sits beside the controls (bottom right on phones, where the search bar takes the top).
   - **Distances:** a scale bar with 0 / half / full marks and a north arrow; a ruler (tap points, each leg and the
     total with walking minutes at the router's 1.3 m/s); a route shows its total at the destination pin and marks
     every 100 m (doubled until 70 px apart); the place card gives the block's measured length x width
@@ -173,7 +178,15 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   imports statically may import three, 3d-tiles-renderer or drone-layers (`lib/drone-warmup.ts` used to, 290 KB
   gzipped), nor `services/graph` (it brings the admin campus store, which fetches the draft on import); the 3D
   view and the walkway-graph fallback are loaded on demand. `/navigate` first-load JS is 147 KB gzipped (was 473).
-- `features/navigation/lib/place-kind.ts`: kind, icon and colour from the building name.
+- `features/navigation/lib/place-kind.ts`: kind, icon and colour from the building name (messes and the gym are halls,
+  the Bhavani blocks hostels, the Medical Centre its own kind so routes go round it, not through it).
+- **Gates and small places (2026-10-14):** graph nodes of type `GATE`, `FACILITY`, `OUTDOOR` (and `ENTRANCE`) are
+  `points` on the 2D map: green gate dots from any zoom, purple dots for ATMs, canteens, Wi-Fi areas, outdoor gyms
+  and rooms inside a building from closer in; tapping one makes it the destination. They are destinations
+  (`shared/lib/destination-utils.ts`, "Place" / "Gate / Entrance"); one inside a building routes to that building.
+  The Main Gate is a building (its gate house roof) with top label priority. Buildings carry `aliases` (earlier names,
+  tour labels) that search matches. The place card's photo comes from the explicit list in
+  `features/navigation/lib/building-photos.ts` (`tourSceneFor`), else a tour scene with exactly the place's name.
 - The old `navigate-shell.tsx` (with `campus-plan-map.tsx`, built by a parallel session on 26 Sep) is kept
   but **no longer mounted**.
 
@@ -203,7 +216,8 @@ against footprints the offset is effectively 0, so `mesh-alignment.json` has dx=
   network they were heading for (cost raster: paving < shade < canopy < soil, roofs impassable). About 11 km of road,
   5.5 km of path, 5 km of gap links. **Hand corrections** in `tools/drone/paths-edits.json` (`add` polylines in scene
   metres for ways the photo cannot show, `remove` polygons), each with a reason; 12 so far (the gate avenue, the
-  covered spines of the academic blocks, roads under canopy). Rerun after editing:
+  covered spines of the academic blocks, roads under canopy); since 2026-10-14 also `follow` guides, GeoBITs' ways our
+  network missed, each drawn as the cheapest way over the photo within 8 m of the guide. Rerun after editing:
   `node tools/drone/build-paths.mjs "<web-mesh>/ortho" public/drone/paths.json --debug <dir>` (writes
   `paths-review.png`, the photo with the network drawn on it; `--probe x,z` traces a missing line through each step).
   Then `pnpm test` (the network test checks every building pair: reachable, off roofs, at most 2.8x the straight line).
@@ -213,7 +227,9 @@ against footprints the offset is effectively 0, so `mesh-alignment.json` has dx=
   grey edge) and straightens roof outlines to square walls (`features/navigation/lib/neat-outline.ts`, tested on all
   190 footprints: area within 13%, centre within 3 m). The owner asked for the **original building names**: OSM has
   almost none for this campus, so a numbered sheet (`.claude/shots/name-the-buildings.png`, 22 placeholder names in
-  orange) went to him to fill in; apply his answers to `.data/*.json` (admin editor) and rerun build-ortho `--skip-tiles`.
+  orange) went to him to fill in. On 2026-10-14 he pointed at **GeoBITs** instead (https://geobits.onrender.com, the
+  BIT students' campus map, © Sriram V & Lokmithar S D 2022): its names were put on the survey's roofs, see section 7
+  and "Place names from GeoBITs" in public/drone/README.md.
   A final **tidy** step (same day) keeps the drawn network neat: of two ways between the same junctions within 25% +
   12 m the weaker goes, loops under 80 m and stubs under 15 m go, lines are straightened to within 1 m; the NE
   utility yard is a `remove` polygon in `paths-edits.json`. Roads 9.3 km, paths 3.7 km, links 4.8 km. Then (10-12) each
@@ -258,14 +274,22 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 
 ## 7. Campus data facts
 
-- 48 areas, 115 floors, 70 nodes, 69 edges, a 29-point boundary. Outlines were traced from Esri Wayback
-  imagery (release 49059 is cloud-free).
-- **Many building names are placeholders** (for example "North Block B3", "Academic Block W"). Real names exist in
-  `shared/data/campus-tour.ts` (119 tour labels, **no coordinates**). A human must match names to shapes,
-  in the admin editor. Then rerun `build-ortho.py --skip-tiles`.
-- Large real buildings with **no outline in the graph**, which show as unnamed on the 2D map: the big comb
-  complex and the blue/red-roofed complex on the east side, and the red-tiled building south of the centre.
-  They need tracing and naming in the admin editor.
+- 86 buildings (incl. grounds, courts, ponds), 214 floors, 110 nodes, 69 edges, a 29-point boundary. The first 48
+  outlines were traced from Esri Wayback imagery (release 49059 is cloud-free); the rest are the survey's roofs.
+- **Names from GeoBITs (2026-10-14).** The owner had the site take GeoBITs' details: its labels were matched to the
+  survey's roofs by fitting its drawing onto our roads (a thin-plate spline; the ribs land within 3 m). The earlier
+  Google/OSM names were mostly misplaced pins ("BIT Bus Stop" was the Guest House, "Poly Houses" the Main Parking
+  Area, "Academic Block W/C/E" the Narmadha/Ganga/Yamuna girls' hostels, "Central Hall" the Girls Mess, the
+  department names sat on the comb's ribs). Now: IB Rib 1-12 and AS Rib 1-12 each a building, the east comb complex
+  is the Emerald and Diamond hostels and the Boys Mess, the red-tiled building the Day Scholar Mess (Cafeteria,
+  Recreation Hall, PET Room inside). The scratch tools that did it are not in the repo (GeoBITs' data stays out).
+- **Still placeholders** (GeoBITs has no label there, most are south of its map): Staff Apartments, New Block (under
+  construction), North Pond, North West Shed, Block S2, Hostel Block B, South West Block, South West Annexe, South
+  Block. Unnamed roofs remain too (grey on the map), e.g. the big complex in the far south-west.
+- **Open question for the owner:** GeoBITs calls the building we have as the **Aeronautical Block** (`n-blk-ne2`, with the
+  surveyed third-floor rooms) the Principal Office, and the survey measures it at 2 storeys, while he said the Aero
+  block has at least 4. The name was left as it was; ask him which building is the Aero block.
+- Real names also exist in `shared/data/campus-tour.ts` (119 tour labels, **no coordinates**).
 - Draft writes carry a `baseRevision`, and stale tabs get a 409. Close admin tabs before hand-editing `.data/*.json`.
 
 ## 8. Open items / next steps
@@ -274,7 +298,8 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
    rebuilding the tiles: from `<data>\_work\pages-deploy`, run `CI=true npx --prefix <repo> wrangler deploy`
    (**never run wrangler inside this repo**, because it converts the app to OpenNext). `_headers` has three
    non-overlapping rules: `*.b3dm`, `*.json` and `*.webp`.
-2. Name the placeholder and unnamed buildings (needs the owner or estate-office input).
+2. Name the last placeholder and unnamed buildings (section 7; needs the owner or estate-office input), and settle
+   which building the Aero block is.
 3. Connect the two disconnected parts of the walkway graph (admin editor).
 4. ~~Deploy `/navigate` to Vercel~~ **Done 2026-09-30**: `campusnav-rose.vercel.app` serves it, with the photo 2D map
    from the CDN. To redeploy, run `npx vercel --prod --yes` from the repo (Hobby rejects uploads over ~100 MB;
@@ -317,7 +342,7 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 - **Full-detail mesh locally:** L22 tiles stream smoothly, so you can raise `errorTarget` quality while testing.
 - **Faster 2D rebuilds:** `/dev-ortho` capture (about 30 min on the old laptop) and `build-ortho.py` both run faster.
   A finer 0.15 m/px capture is feasible.
-- **Blender** (a Blender MCP server is configured): model or clean hero buildings (Aero Block, Central Hall)
+- **Blender** (a Blender MCP server is configured): model or clean hero buildings (Aero Block, the Girls Mess hall, once Central Hall)
   from the mesh and plans for the LOD 350 look.
 - It does **not** solve the naming problem. That needs human knowledge of the campus.
 
@@ -343,6 +368,12 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 - 10-12: deployed that (commit 61bc910, on top of the first laptop's first-load fixes 24266be), then for "crystal
   clear and neat": roads in even width classes with rounded bends, lines squared to the campus grid, blocks squared to
   it and tinted by kind, cleaner land cover, larger names when zoomed in.
+- 10-14: "claim all the details" of GeoBITs, "add main gate", "capture all the paths": GeoBITs' names on the survey's
+  roofs (86 places, every rib its own), 5 missed roofs traced from the capture, courts, the Main Gate, the West Gates and
+  40 small places as dots, aliases for search, tour photos on more place cards, and its missing walkways traced over
+  the photo (`follow` guides; walkways 3.7 -> 7.2 km, 86% of GeoBITs' ways drawn). Then, for "improve the quality of
+  the 2D satellite map": the photo recaptured at 6 cm/px over the campus (was 0.25 m and blurred), 512 px tiles in
+  `ortho-hd/` (fits the CDN's free plan with `.assetsignore`), ponds filled, outlines off by default.
 - 10-07: lightweight for 2 GB phones: device-sized 3D view (photos, canvas, cache), decoded photos freed, three.js
   and the admin store out of `/navigate`'s first load, faster place linking (identical routes). Measured with the
   new `tools/drone/lowend-mobile.mjs`. Then, for high-end devices: direct sharpening, detail kept while moving

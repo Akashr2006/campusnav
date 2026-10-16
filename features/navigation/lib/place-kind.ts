@@ -8,6 +8,7 @@ export type PlaceKind =
   | "lab"
   | "hostel"
   | "hall"
+  | "health"
   | "library"
   | "sports"
   | "water"
@@ -20,14 +21,16 @@ export function placeKind(name: string): PlaceKind {
   const n = name.toLowerCase();
   if (/pond|lake|tank/.test(n)) return "water";
   if (/ground|court|track|sports|stadium/.test(n)) return "sports";
-  if (/shed|poly ?house|store/.test(n)) return "utility";
+  if (/shed|poly ?house|store|power house|plant|laundry|parlour/.test(n)) return "utility";
   if (/construction/.test(n)) return "construction";
   if (/bus|parking|gate/.test(n)) return "transport";
-  if (/hostel/.test(n)) return "hostel";
-  if (/apartment|quarters|staff/.test(n)) return "residence";
-  if (/hall|auditorium/.test(n)) return "hall";
+  // The Bhavani blocks are girls' hostels (GeoBITs).
+  if (/hostel|bhavani/.test(n)) return "hostel";
+  if (/apartment|quarters|staff|guest house/.test(n)) return "residence";
+  if (/hall|auditorium|mess|cafeteria|canteen|\bgym\b/.test(n)) return "hall";
+  if (/medical|clinic|hospital/.test(n)) return "health";
   if (/learning centre|library/.test(n)) return "library";
-  if (/lab|biotech|cse|cs block|it |eee|mech|me block|aero/.test(n)) return "lab";
+  if (/lab|biotech|cse|cs block|\bit\b|eee|mech|me block|aero/.test(n)) return "lab";
   return "academic";
 }
 
@@ -36,6 +39,7 @@ export const KIND_LABEL: Record<PlaceKind, string> = {
   lab: "Departments & labs",
   hostel: "Hostels",
   hall: "Halls",
+  health: "Medical",
   library: "Library",
   sports: "Sports",
   water: "Water",
@@ -51,6 +55,7 @@ export const KIND_COLOR: Record<PlaceKind, string> = {
   lab: "#4f46e5",
   hostel: "#db2777",
   hall: "#ea580c",
+  health: "#dc2626",
   library: "#0d9488",
   sports: "#16a34a",
   water: "#0284c7",
