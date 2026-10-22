@@ -30,7 +30,14 @@ const SCENE_FOR_BUILDING: Record<string, number> = {
   "gb-volley-ball-court": 91, // Volley Ball Court <- "Volleyball Court"
 };
 
-const TOUR_BASE = process.env.NEXT_PUBLIC_TOUR_BASE_URL ?? "/tour";
+/**
+ * Where the tour photos are: next to the drone mesh on its CDN (tour/<n>/f.jpg,
+ * the front face the place card shows; uploaded 2026-10-16), or public/tour
+ * locally. NEXT_PUBLIC_TOUR_BASE_URL pointed at a Supabase project that no
+ * longer exists, so it is no longer read here.
+ */
+const MESH_URL = process.env.NEXT_PUBLIC_DRONE_TILESET_URL;
+export const TOUR_BASE = MESH_URL ? MESH_URL.replace(/tileset\.json$/, "tour") : "/tour";
 
 export type BuildingPhoto = { thumb: string; full: string };
 

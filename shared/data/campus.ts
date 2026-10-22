@@ -45,6 +45,8 @@ export type Node = {
   photoUrl?: string;
   photoUploadedAt?: string;
   physicalVerified?: boolean;
+  /** A room's kind as the college's venue list names it ("Classroom", "Seminar Hall"). */
+  venueType?: string;
 };
 
 export type Edge = {

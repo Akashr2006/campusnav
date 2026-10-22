@@ -32,12 +32,13 @@ import { createPathRouter, type PathNetworkFile, type PathRouter, type RouteEnd 
 import { getValidNavigationDestinations } from "@/shared/lib/destination-utils";
 import type { TravelMode } from "@/lib/routing/edge-accessibility";
 import { applyPilotStructure } from "@/shared/data/pilot-structure";
-import { tourSceneFor } from "@/features/navigation/lib/building-photos";
+import { TOUR_BASE, tourSceneFor } from "@/features/navigation/lib/building-photos";
 import { buildCampus3D, gpsToMetres, type Campus3D, type Vec2 } from "@/features/navigation-3d/lib/campus-3d";
 import { FILTER_KINDS, KIND_LABEL, placeKind, type PlaceKind } from "../lib/place-kind";
 import { outlineSize } from "../lib/neat-outline";
 import { PLAN, buildFeatures, type Footprint, type MapFeature, type MapPoint, type RoadSegment } from "./campus-2d-map";
 import { preloadOpeningView, useDroneMeshStatus, warmDroneCache } from "@/features/navigation/lib/drone-warmup";
+import { preloadOpeningView3D, registerSurveyCache, stopPreload3D } from "@/features/navigation/lib/survey-cache";
 import { cn } from "@/shared/lib/utils";
 
 /**
@@ -273,6 +274,9 @@ function PlaceField({
   }, []);
 
   const q = value && query === value.name ? "" : query.trim().toLowerCase();
+  // Room codes are written both ways ("EW 101", "AE301"): compare without spaces too.
+  const qTight = q.replace(/\s+/g, "");
+  const tight = (s: string) => s.toLowerCase().replace(/\s+/g, "");
   const list = useMemo(
     () =>
       options
@@ -281,7 +285,8 @@ function PlaceField({
             !q ||
             d.name.toLowerCase().includes(q) ||
             (d.category ?? "").toLowerCase().includes(q) ||
-            (d.aliases ?? []).some((a) => a.toLowerCase().includes(q))
+            (d.aliases ?? []).some((a) => a.toLowerCase().includes(q)) ||
+            (qTight.length >= 3 && tight(d.name).includes(qTight))
         )
         .sort((a, b) => {
           if (q) {
@@ -293,7 +298,7 @@ function PlaceField({
           return a.name.localeCompare(b.name);
         })
         .slice(0, 40),
-    [options, q]
+    [options, q, qTight]
   );
   const offset = extra ? 1 : 0;
   const pick = (d: Destination) => {
@@ -452,6 +457,19 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
   useEffect(() => {
     if (droneAvailable) void warmDroneCache();
   }, [droneAvailable]);
+  // Keep the survey's files on the device once seen (public/sw.js), and while
+  // someone stays on the 2D map, fetch the 3D opening view ahead so it is sharp
+  // when they switch; on the 3D tab that view loads what it needs itself.
+  useEffect(() => registerSurveyCache(), []);
+  useEffect(() => {
+    if (!droneAvailable) return;
+    if (viewMode === "3d") {
+      stopPreload3D();
+      return;
+    }
+    const t = setTimeout(() => void preloadOpeningView3D(), 8000);
+    return () => clearTimeout(t);
+  }, [droneAvailable, viewMode]);
   // On the 3D tab, fetch the 3D view's code while the mesh check runs, not after it.
   useEffect(() => {
     if (viewMode !== "3d") return;
@@ -652,6 +670,18 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
     [campus, features, myPos]
   );
 
+  // A room from the venue list: the route ends at its building, and the last step says which floor.
+  const roomStep = useMemo(() => {
+    if (!to?.nodeId || !graph) return null;
+    const nodes = (graph.nodes ?? []) as { id: string; name?: string; venueType?: string; floorId?: string }[];
+    const floors = (graph.floors ?? []) as { id: string; ordinal: number }[];
+    const n = nodes.find((x) => x.id === to.nodeId && x.venueType);
+    const f = n && floors.find((x) => x.id === n.floorId);
+    if (!f) return null;
+    const where = f.ordinal < 0 ? "in the basement" : f.ordinal === 0 ? "on the ground floor" : `on floor ${f.ordinal}`;
+    return `${n.name} is ${where}`;
+  }, [to, graph]);
+
   const { route, routePath, routeError } = useMemo(() => {
     const none = { route: null as RouteView | null, routePath: [] as Vec2[], routeError: null as string | null };
     if (!campus || !graph || !from || !to) return none;
@@ -669,7 +699,10 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
           route: {
             distance: r.distance,
             durationSec: r.durationSec,
-            instructions: r.steps.map((st) => ({ text: st.text, distance: st.distance, icon: st.icon })),
+            instructions: [
+              ...r.steps.map((st) => ({ text: st.text, distance: st.distance, icon: st.icon as string })),
+              ...(roomStep ? [{ text: roomStep, distance: 0, icon: "arrive" }] : []),
+            ],
             // EV asked for, but no road on the way: it is a walk.
             isFallbackWalk: travelMode === "EV" && r.rideDistance === 0,
             surveyed: true,
@@ -708,7 +741,7 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
       .map((n: any) => campus.nodeById.get(String(n.id))?.position)
       .filter((p): p is Vec2 => Boolean(p));
     return { route: r as RouteView, routePath: path, routeError: null };
-  }, [campus, graph, from, to, travelMode, router, fallbackRouter, routeEnd]);
+  }, [campus, graph, from, to, travelMode, router, fallbackRouter, routeEnd, roomStep]);
   // The surveyed network could not make this route (an end far off it): try the walkway graph.
   useEffect(() => {
     if (router && campus && graph && from && to && !route && !routeError && !fallbackRouter) loadFallbackRouter();
@@ -1080,7 +1113,7 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
       {tourScene !== null && photoOk && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={`/tour/${tourScene}/f.jpg`}
+          src={`${TOUR_BASE}/${tourScene}/f.jpg`}
           alt={selected.name ?? "Building"}
           onError={() => setPhotoOk(false)}
           className="mt-4 h-40 w-full rounded-md object-cover"

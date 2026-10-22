@@ -173,8 +173,13 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   16/10/6 downloads at once on a fast desktop/phone link or otherwise. Then, for "every building crystal clear in
   5 s": the opening view starts as a **poster**, a picture of itself rendered fully sharp (`public/drone/poster/`,
   `PosterSwap`), shown until the camera moves: 0.7 s on the laptop, 3.0 s on the 2 GB phone.
+  **On the device (2026-10-16):** `public/sw.js` keeps every mesh tile, photo tile and tour photo once downloaded
+  (a second visit sharp in 0.1 s), and 8 s into a visit on the 2D map it preloads the 3D opening view
+  (`public/drone/prefetch.json`, from `tools/drone/record-prefetch.mjs`; first open sharp in 3.7 s instead of 17 s on
+  a 4 Mbit/s link). Same files, same sharpness. See public/drone/README.md "On the device".
   **Re-render it (`tools/drone/render-poster.mjs`, see public/drone/README.md) whenever the mesh, the campus outline
-  or the terrain change**; until then it just stops showing (its camera pose no longer matches). **Keep three.js out of the page's first load**: nothing `navigate-view.tsx`
+  or the terrain change**, and rerun `tools/drone/record-prefetch.mjs` at the same moments; until then the poster
+  just stops showing (its camera pose no longer matches). **Keep three.js out of the page's first load**: nothing `navigate-view.tsx`
   imports statically may import three, 3d-tiles-renderer or drone-layers (`lib/drone-warmup.ts` used to, 290 KB
   gzipped), nor `services/graph` (it brings the admin campus store, which fetches the draft on import); the 3D
   view and the walkway-graph fallback are loaded on demand. `/navigate` first-load JS is 147 KB gzipped (was 473).
@@ -288,7 +293,19 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
   Block. Unnamed roofs remain too (grey on the map), e.g. the big complex in the far south-west.
 - **Open question for the owner:** GeoBITs calls the building we have as the **Aeronautical Block** (`n-blk-ne2`, with the
   surveyed third-floor rooms) the Principal Office, and the survey measures it at 2 storeys, while he said the Aero
-  block has at least 4. The name was left as it was; ask him which building is the Aero block.
+  block has at least 4. The name was left as it was; ask him which building is the Aero block. **2026-10-22: the
+  college's venue list puts AE301 (and AE302, AE 202, the Aero seminar hall) in the Research Park**, 3rd floor, so the
+  Aero rooms are most likely there; moving the 3D studio's AE third-floor pilot (`AERO_BLOCK_ID` in
+  shared/data/pilot-structure.ts) to `f-blk-s` waits for his yes.
+- **Rooms (2026-10-22):** 285 rooms from the college's venue list (the owner's workbook, **very sensitive: never edit
+  it or its Google Sheet, and never put it, its link or its other columns in this public repo**). Only door-sign
+  details are in the graph: name, venue type, block, floor (graph nodes `room-*`, `ROOM` / `LABORATORY`, with
+  `venueType`, on their building's floor; 9 floors added where rooms showed more). Never CCTV, Wi-Fi, equipment, PCs,
+  capacity, departments or staff IDs: `tests/campus-rooms.test.ts` fails if any such field or word appears. Blocks:
+  Mechanical Science -> Mechanical Block, Sunflower -> SF Block, Western Wing -> IB Block, Eastern Wing -> AS Block,
+  Research park -> Research Park, Learning Centre -> Library (rooms in the wings route to the block's head building:
+  the list does not say which rib). Search matches codes with or without the space ("ae 301" finds AE301); a route
+  to a room ends at its building and adds "EW 101 is on floor 1". The extraction scripts stayed out of the repo.
 - Real names also exist in `shared/data/campus-tour.ts` (119 tour labels, **no coordinates**).
 - Draft writes carry a `baseRevision`, and stale tabs get a 409. Close admin tabs before hand-editing `.data/*.json`.
 
@@ -377,6 +394,12 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
 - 10-16: deployed both. CDN worker version `b1b60320` (1,398 new files; `ortho-hd/` checked byte for byte; the 656 v1
   tileset JSONs now 404, nothing used them), then Vercel production from commit `99bbfad` (the CLI login had expired;
   the owner ran `vercel login` himself). Checked live: new names, routes from the Main Gate, the sharp photo.
+- 10-16: "takes many many time to sharp ... 10k members": measured, the CDN is fast (Chennai edge, cached) and the
+  owner's link ~4 Mbit/s is the wait. A service worker keeps the survey on the device and preloads the 3D opening
+  view from the 2D map (sharp 17.2 s -> 3.7 s on a first visit, 0.1 s on a second), photo tiles cached 30 days, and
+  the place card's photos moved to the CDN (the Supabase project they were on is gone).
+- 10-22: the college's venue list: 285 rooms searchable and routable (door-sign details only; see section 7). It also
+  places AE301 in the Research Park.
 - 10-07: lightweight for 2 GB phones: device-sized 3D view (photos, canvas, cache), decoded photos freed, three.js
   and the admin store out of `/navigate`'s first load, faster place linking (identical routes). Measured with the
   new `tools/drone/lowend-mobile.mjs`. Then, for high-end devices: direct sharpening, detail kept while moving

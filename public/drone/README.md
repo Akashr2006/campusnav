@@ -336,6 +336,38 @@ filled, traced, simplified (1.4-1.6 m), rounded off and written as relative SVG 
 `NEXT_PUBLIC_DRONE_TILESET_URL` points the viewer at a hosted copy of `mesh/`
 (e.g. a CDN bucket) for deployments; Vercel will not serve 690 MB of tiles.
 
+## On the device: the survey kept after the first look (2026-10-16)
+
+The owner found the deployed 3D view slow to sharpen on his high-end laptop, and the site is going to ~10,000
+people on campus. Measured from his network: the CDN answers from Cloudflare's Chennai edge, from its cache, in
+0.2-0.7 s; the link is ~4 Mbit/s, and the 3D tab's opening view fully sharp is 30 MB on a desktop (301 tiles) and
+19 MB on a phone (182). So the wait is the download, and a faster device cannot shorten it. Nothing was made
+softer; the files stay byte for byte the same, only where they come from changes:
+
+- **`public/sw.js`**, a service worker (registered by `features/navigation/lib/survey-cache.ts` once the page is idle,
+  production only): mesh tiles, photo tiles, tour photos and the Draco decoder are kept on the device once
+  downloaded and served from there (cache first; a rebuild bumps its `VERSION`, which clears the old caches); the
+  campus data, the root tileset and the poster are served from the device and refreshed behind (a deploy shows on
+  the next visit). Pages and the app's code are left to the browser. Caps: 8,000 tiles (~1 GB), 4,000 photo tiles.
+  Cross-origin photo tiles are re-asked in CORS mode, so they are not stored as opaque responses (~7 MB of quota
+  each). `tests/sw-route.test.ts` checks which requests it takes.
+- **Background preload**: 8 s into a visit on the 2D map, the worker fetches the 3D opening view's tiles
+  (`public/drone/prefetch.json`, coarse levels first), two at a time, and stops when the 3D tab opens. Skipped
+  with Save-Data or on 2G/3G. The list comes from `tools/drone/record-prefetch.mjs` (headless Chrome, desktop and
+  phone size): **rerun it with render-poster.mjs** when the mesh, the opening camera or the sharpening change.
+- **Cache headers** (`<web-mesh>/_headers`): photo tiles and tour photos 30 days (were 1 day); mesh tiles stay 1 year.
+- Measured on a production build reading the CDN, from the owner's ~4 Mbit/s link, desktop, time until the 3D
+  view is fully sharp: first visit straight to 3D 17.2 s; first visit after 39 s on the 2D map (preload done) 3.7 s;
+  second visit 0.1 s.
+- At ~10,000 users the CDN's cost is not the limit (Cloudflare does not charge for these files); the campus's
+  own internet line is, if many open the 3D view at once. The next step for that is a copy of the mesh on a
+  college server inside the campus network (needs the college IT), with the app trying it first.
+
+**Tour photos**: the Supabase project that held them no longer exists (its domain is NXDOMAIN, 2026-10-16), so the
+place card's photo 404ed live. The front faces (`tour/<n>/f.jpg`, 119 files, 18 MB) are now in the CDN folder
+next to the mesh, and `TOUR_BASE` (lib/building-photos.ts) is derived from the mesh URL; the Vercel variable
+`NEXT_PUBLIC_TOUR_BASE_URL` is no longer read by /navigate. The old /map page's 360 viewers still point at it.
+
 ## Hosting (production)
 
 | What | Where |

@@ -116,8 +116,9 @@ export function getValidNavigationDestinations(
       const isEntrance = n.type === "GATE" || n.type === "BUILDING_ENTRANCE" || n.type === "ROOM_ENTRANCE" || n.isEntranceNode || n.name!.toLowerCase().includes("entrance") || n.name!.toLowerCase().includes("gate");
       const isRoom = n.type === "ROOM" || n.type === "LABORATORY" || n.type === "OFFICE" || n.name!.toLowerCase().includes("room") || n.name!.toLowerCase().includes("lab") || n.name!.toLowerCase().includes("class");
 
-      const typeLabel =
-        n.type === "GATE" || n.name!.toLowerCase().includes("gate")
+      const typeLabel = n.venueType
+        ? n.venueType
+        : n.type === "GATE" || n.name!.toLowerCase().includes("gate")
           ? "Gate / Entrance"
           : isEntrance
           ? "Building Entrance"
