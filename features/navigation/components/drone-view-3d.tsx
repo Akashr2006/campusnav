@@ -1032,11 +1032,27 @@ function Route({
   });
 
   if (!curve || !points) return null;
+  // Bright where the way can be seen; faded where a roof or a tree is in front of it.
+  // Drawn over everything at full strength it looked, from an angle, as if it ran
+  // through the buildings it passes (the owner, 2026-10-22). The faded pass keeps the
+  // whole route traceable under the canopy that lines most campus roads.
   return (
     <group>
-      <Line points={points} color="#ffffff" lineWidth={9} depthTest={false} transparent opacity={0.9} renderOrder={5} />
-      <Line points={points} color="#2f7cf6" lineWidth={5} depthTest={false} transparent renderOrder={6} />
-      <mesh ref={walker} renderOrder={7}>
+      <Line points={points} color="#ffffff" lineWidth={8} depthTest={false} transparent opacity={0.3} renderOrder={5} />
+      <Line points={points} color="#2f7cf6" lineWidth={4} depthTest={false} transparent opacity={0.45} renderOrder={6} />
+      <Line
+        points={points}
+        color="#ffffff"
+        lineWidth={9}
+        transparent
+        opacity={0.95}
+        renderOrder={7}
+        polygonOffset
+        polygonOffsetFactor={-4}
+        polygonOffsetUnits={-4}
+      />
+      <Line points={points} color="#2f7cf6" lineWidth={5} renderOrder={8} polygonOffset polygonOffsetFactor={-4} polygonOffsetUnits={-4} />
+      <mesh ref={walker} renderOrder={9}>
         <sphereGeometry args={[2.6, 20, 20]} />
         <meshBasicMaterial color="#facc15" depthTest={false} />
       </mesh>

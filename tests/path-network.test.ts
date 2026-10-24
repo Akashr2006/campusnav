@@ -10,7 +10,6 @@ import {
   type RoutePlace,
 } from "../features/navigation/lib/path-network";
 import { buildCampus3D, type Vec2 } from "../features/navigation-3d/lib/campus-3d";
-import { placeKind } from "../features/navigation/lib/place-kind";
 
 /** A box outline centred on (x, z). */
 const box = (x: number, z: number, w = 10, d = 10): Vec2[] => [
@@ -123,8 +122,7 @@ if (existsSync(PATHS)) describe("the detected campus network (public/drone/paths
   // Places as the app builds them: a building's surveyed roofs, else its traced outline.
   const places: RoutePlace[] = campus.buildings.map((b) => {
     const roofs = footprints.filter((f) => f.buildingId === b.id).map((f) => f.outline.map(([x, z]) => ({ x, z })));
-    const kind = placeKind(b.name);
-    return { key: b.id, name: b.name, polygons: roofs.length ? roofs : [b.outline], centre: b.centre, land: b.isSiteFeature, walkThrough: kind === "academic" || kind === "lab" };
+    return { key: b.id, name: b.name, polygons: roofs.length ? roofs : [b.outline], centre: b.centre, land: b.isSiteFeature, walkThrough: false };
   });
   const router = createPathRouter(file, places);
   const buildings = places.filter((p) => !p.land);

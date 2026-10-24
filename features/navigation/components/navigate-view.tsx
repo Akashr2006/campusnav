@@ -593,8 +593,9 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
               polygons: f.polygons,
               centre: f.centre,
               land: f.land,
-              // Academic blocks and departments can be cut through; hostels and halls cannot.
-              walkThrough: f.kind === "academic" || f.kind === "lab",
+              // No route cuts through a building (2026-10-22, the owner: "it is going inside the
+              // building"): every route keeps to the roads and walkways, door to door.
+              walkThrough: false,
             }))
           )
         : null,
@@ -626,7 +627,9 @@ export function NavigateView({ initialGraph = null }: { initialGraph?: Graph | n
           to: p,
           kind: l.kind === "road" ? ("ROAD" as const) : ("WALK" as const),
           w: l.w,
-          hidden: l.kind === "link",
+          // The survey's gap links (ways under canopy it inferred) are drawn as walkways too:
+          // a route runs on them, and must never run where the map shows no way.
+          hidden: false,
         }))
       );
     }

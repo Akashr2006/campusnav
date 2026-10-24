@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { buildCampus3D } from "../features/navigation-3d/lib/campus-3d";
 import { createPathRouter, type PathNetworkFile, type RoutePlace } from "../features/navigation/lib/path-network";
-import { placeKind } from "../features/navigation/lib/place-kind";
 import { getValidNavigationDestinations } from "../shared/lib/destination-utils";
 
 // The place names put on the drone survey from GeoBITs (the BIT students' campus
@@ -51,8 +50,7 @@ describe("campus places", () => {
     const file = JSON.parse(readFileSync(resolve(__dirname, "../public/drone/paths.json"), "utf-8")) as PathNetworkFile;
     const places: RoutePlace[] = campus.buildings.map((b) => {
       const roofs = footprints.filter((f) => f.buildingId === b.id).map((f) => f.outline.map(([x, z]) => ({ x, z })));
-      const kind = placeKind(b.name);
-      return { key: b.id, name: b.name, polygons: roofs.length ? roofs : [b.outline], centre: b.centre, land: b.isSiteFeature, walkThrough: kind === "academic" || kind === "lab" };
+      return { key: b.id, name: b.name, polygons: roofs.length ? roofs : [b.outline], centre: b.centre, land: b.isSiteFeature, walkThrough: false };
     });
     const router = createPathRouter(file, places);
     const gate = byName("Main Gate")!;

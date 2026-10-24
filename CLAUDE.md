@@ -109,8 +109,11 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   (made by `tools/drone/build-paths.mjs`, see section 5) through `features/navigation/lib/path-network.ts`, which links
   every place to the network at run time (up to 3 doors on its nearest paths, on different sides), runs Dijkstra
   (EV mode drives the `road` edges, walks the rest), and writes turn-by-turn steps named after the building at each
-  turn ("Turn left at AS Block", "past X on your right", "Arrive at Y, on your left"). Academic blocks and labs
-  (`placeKind`) may be walked through door to door ("Go through ..."), hostels and halls never. Every building
+  turn ("Turn left at AS Block", "past X on your right", "Arrive at Y, on your left"). **No route goes
+  through a building** (2026-10-24, the owner: "it is going inside the building"; academic blocks used to be walked
+  through door to door): `walkThrough: false` everywhere, a door's line to its path may not cross another roof, and
+  the survey's gap links (ways under canopy it inferred) cost 2.5x and are drawn on the map like any walkway, so a route
+  never runs where the map shows no way (`hiddenDistance` on each route says how much of it is on them). Every building
   reaches every other (`tests/path-network.test.ts`). Linking the places (their doors) is the costly part (1.8 s of
   a cheap phone's main thread before 2026-10-07, when its nearest-path lookup lost its string keys): it runs on the
   first route, or when the 2D map is idle, not while the page opens; `lines` is ready at once. Without `paths.json` it falls back to the old
@@ -153,7 +156,8 @@ Without the local mesh, point `NEXT_PUBLIC_DRONE_TILESET_URL` at
   (or the middle of the view) from the top, N/E/S/W, street level (the first of 16 directions with a clear line of
   sight, by raycast) and turns a 360 deg circle round it; views swing round the building rather than fly through it.
   Click a building for its outline and place card, a sidebar pick flies there framing it roof to ground, names
-  decluttered like the 2D map. The route is a screen-width line, drawn over everything. The tab waits ("Opening
+  decluttered like the 2D map. The route is a screen-width line: bright where it can be seen, faded where a roof or a tree is in front of it (drawn
+  over everything at full strength it looked, from an angle, as if it ran through buildings). The tab waits ("Opening
   the drone view…") while `useDroneMeshStatus` (`lib/drone-warmup.ts`) checks the mesh, retrying twice; it used to
   show the studio's old modelled campus during that check, and stay on it after one failed request (2026-10-05).
   The 2D map retries its photo tiles the same way before falling back to the plan drawing. **Progressive sharpness:** loads at error target 4 (the old view's detail), then,
@@ -399,7 +403,10 @@ Goal: the architectural-board look (exploded axonometric, structural frame, sect
   view from the 2D map (sharp 17.2 s -> 3.7 s on a first visit, 0.1 s on a second), photo tiles cached 30 days, and
   the place card's photos moved to the CDN (the Supabase project they were on is gone).
 - 10-22: the college's venue list: 285 rooms searchable and routable (door-sign details only; see section 7). It also
-  places AE301 in the Research Park.
+  places AE301 in the Research Park. Deployed (commit 0cc1757, CDN version 3a246bb0).
+- 10-24: "proper road map ... it is going inside the building": routes no longer cut through buildings (18% of all
+  building-to-building routes did), door lines no longer cross other roofs (16 did), inferred links drawn and avoided
+  unless they save a real detour (route metres on them 10.4% -> 6.3%), the 3D route line faded behind roofs.
 - 10-07: lightweight for 2 GB phones: device-sized 3D view (photos, canvas, cache), decoded photos freed, three.js
   and the admin store out of `/navigate`'s first load, faster place linking (identical routes). Measured with the
   new `tools/drone/lowend-mobile.mjs`. Then, for high-end devices: direct sharpening, detail kept while moving
